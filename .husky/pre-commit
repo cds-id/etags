@@ -1,1 +1,2 @@
+npm run typecheck
 npx prettier --write --cache --ignore-unknown .
