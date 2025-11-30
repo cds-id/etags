@@ -33,7 +33,9 @@ function getContract(signerOrProvider: ethers.Signer | ethers.Provider) {
 /**
  * Fetch tag status from blockchain and sync to database
  */
-export async function syncTagStatus(tagCode: string): Promise<ChainStatus | null> {
+export async function syncTagStatus(
+  tagCode: string
+): Promise<ChainStatus | null> {
   const provider = getProvider();
   const contract = getContract(provider);
 

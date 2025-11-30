@@ -58,6 +58,7 @@ Etags is a Next.js 16 application for product tagging and blockchain stamping. I
 ### Database Schema
 
 Core models in `prisma/schema.prisma`:
+
 - **User** - Admin/brand users with role-based access
 - **Brand** - Product brand management
 - **Product** - Products with JSON metadata, linked to brands
@@ -66,6 +67,7 @@ Core models in `prisma/schema.prisma`:
 ### Tag Blockchain Lifecycle
 
 Tags have a `chain_status` tracking their blockchain state:
+
 - 0: CREATED - Tag created on chain
 - 1: DISTRIBUTED - Tag distributed to product
 - 2: CLAIMED - Tag claimed by end user
@@ -80,6 +82,7 @@ Runs `typecheck` and `prettier --write` before commits.
 ## Environment Variables
 
 Copy `.env.example` to `.env` and configure:
+
 - `DATABASE_URL` - MySQL connection string
 - `AUTH_SECRET` - NextAuth secret (generate with `openssl rand -base64 32`)
 - `R2_*` - Cloudflare R2 credentials for file storage
