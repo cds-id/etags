@@ -26,3 +26,19 @@ export const PUBLISH_STATUS = {
 
 export type PublishStatus =
   (typeof PUBLISH_STATUS)[keyof typeof PUBLISH_STATUS];
+
+// Get chain status label
+export function getChainStatusLabel(status: number | null): string {
+  if (status === null) return 'Not on chain';
+
+  const labels: Record<number, string> = {
+    [CHAIN_STATUS.CREATED]: 'Created',
+    [CHAIN_STATUS.DISTRIBUTED]: 'Distributed',
+    [CHAIN_STATUS.CLAIMED]: 'Claimed',
+    [CHAIN_STATUS.TRANSFERRED]: 'Transferred',
+    [CHAIN_STATUS.FLAGGED]: 'Flagged',
+    [CHAIN_STATUS.REVOKED]: 'Revoked',
+  };
+
+  return labels[status] || 'Unknown';
+}
