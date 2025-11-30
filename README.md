@@ -110,12 +110,12 @@ npm start
 
 ### 5. Akses Aplikasi
 
-| Halaman | URL | Keterangan |
-|---------|-----|------------|
-| Landing Page | `/` | Halaman utama publik |
-| Login | `/login` | Halaman login admin |
-| Dashboard | `/manage` | Dashboard admin (perlu login) |
-| API Docs | `/docs` | Dokumentasi Swagger UI |
+| Halaman      | URL       | Keterangan                    |
+| ------------ | --------- | ----------------------------- |
+| Landing Page | `/`       | Halaman utama publik          |
+| Login        | `/login`  | Halaman login admin           |
+| Dashboard    | `/manage` | Dashboard admin (perlu login) |
+| API Docs     | `/docs`   | Dokumentasi Swagger UI        |
 
 ### 6. Login Default
 
@@ -142,16 +142,16 @@ REVOKED (5)      → Tag dicabut/dibatalkan
 
 ## Scripts
 
-| Command | Keterangan |
-|---------|------------|
-| `npm run dev` | Jalankan development server |
-| `npm run build` | Build untuk production |
-| `npm run lint` | Jalankan ESLint |
-| `npm run typecheck` | Cek TypeScript types |
-| `npm run format` | Format kode dengan Prettier |
-| `npm run db:push` | Push schema ke database |
-| `npm run db:studio` | Buka Prisma Studio GUI |
-| `npm run db:create-admin` | Buat akun admin |
+| Command                   | Keterangan                  |
+| ------------------------- | --------------------------- |
+| `npm run dev`             | Jalankan development server |
+| `npm run build`           | Build untuk production      |
+| `npm run lint`            | Jalankan ESLint             |
+| `npm run typecheck`       | Cek TypeScript types        |
+| `npm run format`          | Format kode dengan Prettier |
+| `npm run db:push`         | Push schema ke database     |
+| `npm run db:studio`       | Buka Prisma Studio GUI      |
+| `npm run db:create-admin` | Buat akun admin             |
 
 ## Lisensi
 
