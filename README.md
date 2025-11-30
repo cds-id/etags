@@ -70,6 +70,7 @@ DATABASE_URL="mysql://username:password@localhost:3306/etags"
 
 # NextAuth (generate dengan: openssl rand -base64 32)
 AUTH_SECRET="your_secret_here"
+AUTH_TRUST_HOST=true  # Wajib untuk production/deployment
 
 # Cloudflare R2 (opsional, untuk upload file)
 R2_ACCOUNT_ID="your_account_id"
