@@ -1,7 +1,6 @@
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { getProducts } from '@/lib/actions/products';
-import { getAllBrands } from '@/lib/actions/brands';
 import { ProductsTable } from './products-table';
 import { ProductsHeader } from './products-header';
 
@@ -12,16 +11,13 @@ export default async function ProductsPage() {
     redirect('/manage');
   }
 
-  const [{ products }, brands] = await Promise.all([
-    getProducts(1, 50),
-    getAllBrands(),
-  ]);
+  const { products } = await getProducts(1, 50);
 
   return (
     <div className="space-y-6">
-      <ProductsHeader brands={brands} />
+      <ProductsHeader />
       <div className="rounded-md border">
-        <ProductsTable products={products} brands={brands} />
+        <ProductsTable products={products} />
       </div>
     </div>
   );

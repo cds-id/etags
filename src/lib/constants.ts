@@ -1,10 +1,23 @@
 // Blockchain configuration constants
 
 export const BLOCKCHAIN_CONFIG = {
-  RPC_URL: process.env.BLOCKCHAIN_RPC_URL || 'https://rpc.example.com',
+  RPC_URL: process.env.BLOCKCHAIN_RPC_URL || 'https://sepolia.base.org',
+  EXPLORER_URL:
+    process.env.BLOCKCHAIN_EXPLORER_URL || 'https://sepolia.basescan.org',
+  NETWORK: process.env.BLOCKCHAIN_NETWORK || 'Base Sepolia',
   CONTRACT_ADDRESS: process.env.CONTRACT_ADDRESS || '',
-  CHAIN_ID: parseInt(process.env.CHAIN_ID || '1', 10),
+  CHAIN_ID: parseInt(process.env.CHAIN_ID || '84532', 10),
 } as const;
+
+// Helper to get transaction explorer URL
+export function getTxExplorerUrl(txHash: string): string {
+  return `${BLOCKCHAIN_CONFIG.EXPLORER_URL}/tx/${txHash}`;
+}
+
+// Helper to get address explorer URL
+export function getAddressExplorerUrl(address: string): string {
+  return `${BLOCKCHAIN_CONFIG.EXPLORER_URL}/address/${address}`;
+}
 
 // Tag chain status values matching blockchain lifecycle
 export const CHAIN_STATUS = {
