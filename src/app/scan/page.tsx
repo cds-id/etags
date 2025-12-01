@@ -44,6 +44,40 @@ import {
 import type { ScanResponse } from '@/app/api/scan/route';
 import type { ClaimResponse } from '@/app/api/scan/claim/route';
 
+// Human-readable labels for constants
+const COUNTRY_LABELS: Record<string, string> = {
+  ID: 'Indonesia',
+  SG: 'Singapura',
+  MY: 'Malaysia',
+  TH: 'Thailand',
+  VN: 'Vietnam',
+  PH: 'Filipina',
+  GLOBAL: 'Global (Seluruh Dunia)',
+};
+
+const CHANNEL_LABELS: Record<string, string> = {
+  official_store: 'Toko Resmi',
+  authorized_retailer: 'Retailer Resmi',
+  online_marketplace: 'Marketplace Online',
+  distributor: 'Distributor',
+  direct_sales: 'Penjualan Langsung',
+};
+
+const MARKET_LABELS: Record<string, string> = {
+  domestic: 'Domestik',
+  export: 'Ekspor',
+  global: 'Global',
+  southeast_asia: 'Asia Tenggara',
+};
+
+// Helper to get human-readable label
+const getCountryLabel = (code?: string) =>
+  code ? COUNTRY_LABELS[code] || code : undefined;
+const getChannelLabel = (code?: string) =>
+  code ? CHANNEL_LABELS[code] || code : undefined;
+const getMarketLabel = (code?: string) =>
+  code ? MARKET_LABELS[code] || code : undefined;
+
 type LocationData = {
   latitude: number;
   longitude: number;
@@ -60,6 +94,7 @@ export default function ScanPage() {
   const [claimLoading, setClaimLoading] = useState(false);
   const [location, setLocation] = useState<LocationData | null>(null);
   const [locationRequested, setLocationRequested] = useState(false);
+  const [locationDenied, setLocationDenied] = useState(false);
   const [claimSuccess, setClaimSuccess] = useState<string | null>(null);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const lastScannedRef = useRef<string | null>(null);
@@ -133,6 +168,7 @@ export default function ScanPage() {
 
   const skipLocationAccess = useCallback(() => {
     setShowLocationDialog(false);
+    setLocationDenied(true);
   }, []);
 
   // Process scanned code
@@ -711,7 +747,9 @@ export default function ScanPage() {
                             <div>
                               <span className="text-gray-500">Negara:</span>{' '}
                               <span className="font-medium">
-                                {scanResult.tag.distribution.country}
+                                {getCountryLabel(
+                                  scanResult.tag.distribution.country
+                                )}
                               </span>
                             </div>
                           )}
@@ -719,7 +757,9 @@ export default function ScanPage() {
                             <div>
                               <span className="text-gray-500">Channel:</span>{' '}
                               <span className="font-medium">
-                                {scanResult.tag.distribution.channel}
+                                {getChannelLabel(
+                                  scanResult.tag.distribution.channel
+                                )}
                               </span>
                             </div>
                           )}
@@ -727,7 +767,9 @@ export default function ScanPage() {
                             <div>
                               <span className="text-gray-500">Pasar:</span>{' '}
                               <span className="font-medium">
-                                {scanResult.tag.distribution.intendedMarket}
+                                {getMarketLabel(
+                                  scanResult.tag.distribution.intendedMarket
+                                )}
                               </span>
                             </div>
                           )}
@@ -757,6 +799,46 @@ export default function ScanPage() {
                 </Card>
               )}
 
+            {/* Warning when location is denied - fraud detection unavailable */}
+            {locationDenied && !location && (
+              <Card className="mb-4 border-orange-300 bg-orange-50">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <ShieldAlert className="h-6 w-6 text-orange-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium text-orange-800">
+                        Deteksi Penipuan Tidak Tersedia
+                      </p>
+                      <p className="text-sm text-orange-700 mt-1">
+                        Tanpa izin lokasi, sistem tidak dapat mendeteksi apakah
+                        tag ini:
+                      </p>
+                      <ul className="text-sm text-orange-700 mt-2 space-y-1 list-disc list-inside">
+                        <li>
+                          Dipindai di luar wilayah distribusi resmi (grey
+                          market)
+                        </li>
+                        <li>Diduplikasi atau dipalsukan</li>
+                        <li>Memiliki pola pemindaian mencurigakan</li>
+                      </ul>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="mt-3 border-orange-400 text-orange-800 hover:bg-orange-200"
+                        onClick={() => {
+                          setLocationDenied(false);
+                          setShowLocationDialog(true);
+                        }}
+                      >
+                        <MapPin className="mr-2 h-4 w-4" />
+                        Izinkan Lokasi Sekarang
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Claim Success */}
             {claimSuccess && (
               <Card className="mb-4 border-green-200 bg-green-50">
@@ -767,7 +849,7 @@ export default function ScanPage() {
               </Card>
             )}
 
-            {/* Question Card */}
+            {/* Question Card - Requires Location */}
             {scanResult.question &&
               scanResult.question.type !== 'no_question' &&
               !claimSuccess && (
@@ -778,6 +860,35 @@ export default function ScanPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
+                    {/* Location required warning */}
+                    {!location && (
+                      <div className="mb-4 rounded-lg bg-yellow-100 border border-yellow-300 p-3">
+                        <div className="flex items-start gap-2">
+                          <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-sm font-medium text-yellow-800">
+                              Lokasi Diperlukan
+                            </p>
+                            <p className="text-xs text-yellow-700 mt-1">
+                              Untuk menjawab pertanyaan kepemilikan, Anda harus
+                              mengizinkan akses lokasi. Data lokasi diperlukan
+                              untuk memastikan data yang bersih dan mencegah
+                              penyalahgunaan.
+                            </p>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="mt-2 border-yellow-400 text-yellow-800 hover:bg-yellow-200"
+                              onClick={() => setShowLocationDialog(true)}
+                            >
+                              <MapPin className="mr-2 h-4 w-4" />
+                              Izinkan Lokasi
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     <p className="mb-4 text-blue-700">
                       {scanResult.question.message}
                     </p>
@@ -787,7 +898,7 @@ export default function ScanPage() {
                           key={index}
                           variant="outline"
                           className="w-full justify-start text-left"
-                          disabled={claimLoading}
+                          disabled={claimLoading || !location}
                           onClick={() => {
                             const isFirstHand =
                               option.toLowerCase().includes('pertama') ||
@@ -799,6 +910,14 @@ export default function ScanPage() {
                         </Button>
                       ))}
                     </div>
+
+                    {/* Show message when buttons are disabled */}
+                    {!location && (
+                      <p className="mt-3 text-xs text-gray-500 text-center">
+                        Tombol di atas akan aktif setelah Anda mengizinkan akses
+                        lokasi
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               )}
