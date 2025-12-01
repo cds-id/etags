@@ -17,16 +17,16 @@ export default async function ManageDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Dasbor</h2>
         <p className="text-muted-foreground">
-          Welcome back, {session?.user.name}
+          Selamat datang kembali, {session?.user.name}
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Brands</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Brand</CardTitle>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -48,10 +48,10 @@ export default async function ManageDashboard() {
             <CardDescription>
               {isAdmin ? (
                 <Link href="/manage/brands" className="hover:underline">
-                  Manage brands
+                  Kelola brand
                 </Link>
               ) : (
-                'Active brands'
+                'Brand aktif'
               )}
             </CardDescription>
           </CardContent>
@@ -59,9 +59,7 @@ export default async function ManageDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Products
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Total Produk</CardTitle>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -82,13 +80,13 @@ export default async function ManageDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.products}</div>
-            <CardDescription>Products in catalog</CardDescription>
+            <CardDescription>Produk dalam katalog</CardDescription>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Tags</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Tag</CardTitle>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -107,13 +105,13 @@ export default async function ManageDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.tags}</div>
-            <CardDescription>Tags created</CardDescription>
+            <CardDescription>Tag yang dibuat</CardDescription>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Stamped Tags</CardTitle>
+            <CardTitle className="text-sm font-medium">Tag Tercap</CardTitle>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -132,7 +130,7 @@ export default async function ManageDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.stampedTags}</div>
-            <CardDescription>On blockchain</CardDescription>
+            <CardDescription>Di blockchain</CardDescription>
           </CardContent>
         </Card>
       </div>
@@ -140,9 +138,9 @@ export default async function ManageDashboard() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+            <CardTitle>Aksi Cepat</CardTitle>
             <CardDescription>
-              {isAdmin ? 'Common administrative tasks' : 'Manage your brand'}
+              {isAdmin ? 'Tugas administratif umum' : 'Kelola brand Anda'}
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-2">
@@ -169,9 +167,9 @@ export default async function ManageDashboard() {
                     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                   </svg>
                   <div>
-                    <p className="font-medium">Manage Users</p>
+                    <p className="font-medium">Kelola Pengguna</p>
                     <p className="text-sm text-muted-foreground">
-                      Add, edit, or remove user accounts
+                      Tambah, edit, atau hapus akun pengguna
                     </p>
                   </div>
                 </Link>
@@ -194,9 +192,9 @@ export default async function ManageDashboard() {
                     <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
                   </svg>
                   <div>
-                    <p className="font-medium">Manage Brands</p>
+                    <p className="font-medium">Kelola Brand</p>
                     <p className="text-sm text-muted-foreground">
-                      Configure brand settings and logos
+                      Konfigurasi pengaturan dan logo brand
                     </p>
                   </div>
                 </Link>
@@ -223,9 +221,9 @@ export default async function ManageDashboard() {
                 <path d="M12 22V12" />
               </svg>
               <div>
-                <p className="font-medium">Manage Products</p>
+                <p className="font-medium">Kelola Produk</p>
                 <p className="text-sm text-muted-foreground">
-                  Add or edit products in your catalog
+                  Tambah atau edit produk di katalog Anda
                 </p>
               </div>
             </Link>
@@ -248,9 +246,9 @@ export default async function ManageDashboard() {
                 <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
               </svg>
               <div>
-                <p className="font-medium">Manage Tags</p>
+                <p className="font-medium">Kelola Tag</p>
                 <p className="text-sm text-muted-foreground">
-                  Create and stamp tags on blockchain
+                  Buat dan cap tag ke blockchain
                 </p>
               </div>
             </Link>
@@ -259,12 +257,12 @@ export default async function ManageDashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Account Info</CardTitle>
-            <CardDescription>Your account status</CardDescription>
+            <CardTitle>Info Akun</CardTitle>
+            <CardDescription>Status akun Anda</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Role</span>
+              <span className="text-muted-foreground">Peran</span>
               <span className="font-medium capitalize">
                 {session?.user.role}
               </span>
@@ -274,12 +272,12 @@ export default async function ManageDashboard() {
               <span className="font-medium">{session?.user.email}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Blockchain Tags</span>
+              <span className="text-muted-foreground">Tag Blockchain</span>
               <span className="font-medium">
                 {stats.tags > 0
                   ? `${((stats.stampedTags / stats.tags) * 100).toFixed(1)}%`
                   : '0%'}{' '}
-                stamped
+                tercap
               </span>
             </div>
           </CardContent>

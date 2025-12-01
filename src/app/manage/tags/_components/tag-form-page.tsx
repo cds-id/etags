@@ -286,14 +286,14 @@ export function TagFormPage({
         </Button>
         <div className="flex-1">
           <h2 className="text-3xl font-bold tracking-tight">
-            {isEdit ? 'Edit Tag' : 'Create Tag'}
+            {isEdit ? 'Edit Tag' : 'Buat Tag'}
           </h2>
           <p className="text-muted-foreground">
             {isEdit
               ? isStamped
-                ? 'This tag is stamped on blockchain. Only publish status can be changed.'
-                : `Editing tag ${tag?.code}`
-              : 'Create a new tag and link it to products'}
+                ? 'Tag ini sudah dicap ke blockchain. Hanya status publikasi yang dapat diubah.'
+                : `Mengedit tag ${tag?.code}`
+              : 'Buat tag baru dan hubungkan dengan produk'}
           </p>
         </div>
       </div>
@@ -306,11 +306,11 @@ export function TagFormPage({
             {isEdit && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Tag Information</CardTitle>
+                  <CardTitle>Informasi Tag</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Tag Code</Label>
+                    <Label>Kode Tag</Label>
                     <Input value={tag?.code} disabled className="font-mono" />
                   </div>
 
@@ -320,18 +320,18 @@ export function TagFormPage({
                         <Lock className="h-5 w-5 text-green-600" />
                         <div>
                           <p className="font-medium text-green-800 dark:text-green-200">
-                            Blockchain Stamped
+                            Tercap di Blockchain
                           </p>
                           <p className="text-sm text-green-600 dark:text-green-400">
-                            Core data is immutable. Only publish status can be
-                            changed.
+                            Data inti tidak dapat diubah. Hanya status publikasi
+                            yang dapat diubah.
                           </p>
                         </div>
                       </div>
 
                       {tag?.hash_tx && (
                         <div className="space-y-2">
-                          <Label>Transaction Hash</Label>
+                          <Label>Hash Transaksi</Label>
                           <div className="flex gap-2">
                             <Input
                               value={tag.hash_tx}
@@ -357,14 +357,14 @@ export function TagFormPage({
                       )}
 
                       <div className="space-y-2">
-                        <Label>Chain Status</Label>
+                        <Label>Status Chain</Label>
                         <div className="flex items-center gap-2">
                           <Badge variant="secondary">
                             {getChainStatusLabel(tag?.chain_status ?? null)}
                           </Badge>
                           {isRevoked && (
                             <span className="text-xs text-destructive">
-                              Tag has been revoked
+                              Tag telah dicabut
                             </span>
                           )}
                         </div>
@@ -373,7 +373,7 @@ export function TagFormPage({
                       {/* Chain Status Management - only for stamped, non-revoked tags */}
                       {!isRevoked && (
                         <div className="space-y-3">
-                          <Label>Update Chain Status</Label>
+                          <Label>Perbarui Status Chain</Label>
                           <div className="flex gap-2">
                             <Select
                               value={String(tag?.chain_status ?? 0)}
@@ -383,14 +383,16 @@ export function TagFormPage({
                               disabled={isUpdatingStatus}
                             >
                               <SelectTrigger className="flex-1">
-                                <SelectValue placeholder="Select status" />
+                                <SelectValue placeholder="Pilih status" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="0">Created</SelectItem>
-                                <SelectItem value="1">Distributed</SelectItem>
-                                <SelectItem value="2">Claimed</SelectItem>
-                                <SelectItem value="3">Transferred</SelectItem>
-                                <SelectItem value="4">Flagged</SelectItem>
+                                <SelectItem value="0">Dibuat</SelectItem>
+                                <SelectItem value="1">
+                                  Didistribusikan
+                                </SelectItem>
+                                <SelectItem value="2">Diklaim</SelectItem>
+                                <SelectItem value="3">Dipindahkan</SelectItem>
+                                <SelectItem value="4">Ditandai</SelectItem>
                               </SelectContent>
                             </Select>
                             {isUpdatingStatus && (
@@ -404,7 +406,7 @@ export function TagFormPage({
                           )}
                           {statusUpdateResult?.success && (
                             <p className="text-sm text-green-600">
-                              Status updated successfully
+                              Status berhasil diperbarui
                             </p>
                           )}
                         </div>
@@ -420,10 +422,10 @@ export function TagFormPage({
                             className="w-full"
                           >
                             <Ban className="mr-2 h-4 w-4" />
-                            Revoke Tag
+                            Cabut Tag
                           </Button>
                           <p className="mt-2 text-xs text-muted-foreground text-center">
-                            Revoking will permanently invalidate this tag on the
+                            Mencabut akan membatalkan tag ini secara permanen di
                             blockchain
                           </p>
                         </div>
@@ -435,11 +437,11 @@ export function TagFormPage({
                           <Ban className="h-5 w-5 text-red-600 mt-0.5" />
                           <div>
                             <p className="font-medium text-red-800 dark:text-red-200">
-                              Tag Revoked
+                              Tag Dicabut
                             </p>
                             <p className="text-sm text-red-600 dark:text-red-400">
-                              This tag has been permanently revoked and cannot
-                              be restored.
+                              Tag ini telah dicabut secara permanen dan tidak
+                              dapat dipulihkan.
                             </p>
                           </div>
                         </div>
@@ -456,22 +458,22 @@ export function TagFormPage({
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <QrCode className="h-5 w-5" />
-                    Tag Resources
+                    Sumber Daya Tag
                   </CardTitle>
                   <CardDescription>
-                    QR code and metadata generated during stamping
+                    Kode QR dan metadata yang dibuat saat pencapan
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-6 sm:grid-cols-2">
                     {/* QR Code Preview */}
                     <div className="space-y-3">
-                      <Label>QR Code</Label>
+                      <Label>Kode QR</Label>
                       <div className="flex flex-col items-center gap-3 rounded-lg border bg-white p-4">
                         {qrCodeUrl && (
                           <Image
                             src={qrCodeUrl}
-                            alt={`QR Code for ${tag?.code}`}
+                            alt={`Kode QR untuk ${tag?.code}`}
                             width={160}
                             height={160}
                             className="rounded"
@@ -489,7 +491,7 @@ export function TagFormPage({
                             rel="noopener noreferrer"
                           >
                             <QrCode className="mr-2 h-4 w-4" />
-                            Download QR
+                            Unduh QR
                           </a>
                         </Button>
                       </div>
@@ -502,7 +504,7 @@ export function TagFormPage({
                         <div className="flex items-center gap-2 text-sm">
                           <FileJson className="h-4 w-4 text-muted-foreground" />
                           <span className="text-muted-foreground">
-                            Static metadata file
+                            File metadata statis
                           </span>
                         </div>
                         <p className="text-xs text-muted-foreground break-all font-mono">
@@ -520,7 +522,7 @@ export function TagFormPage({
                             rel="noopener noreferrer"
                           >
                             <LinkIcon className="mr-2 h-4 w-4" />
-                            View Metadata
+                            Lihat Metadata
                           </a>
                         </Button>
                       </div>
@@ -530,17 +532,17 @@ export function TagFormPage({
                   {/* Designed Tag Download */}
                   <div className="mt-6 pt-6 border-t">
                     <Label className="mb-3 block">
-                      Designed Tag (with Template)
+                      Tag Berdesain (dengan Template)
                     </Label>
                     <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center rounded-lg border p-4 bg-muted/30">
                       <div className="flex items-center gap-3 flex-1">
                         <ImageIcon className="h-8 w-8 text-muted-foreground" />
                         <div>
                           <p className="font-medium text-sm">
-                            Download with Design
+                            Unduh dengan Desain
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            QR code placed on template background
+                            Kode QR ditempatkan di latar belakang template
                           </p>
                         </div>
                       </div>
@@ -557,7 +559,7 @@ export function TagFormPage({
                             rel="noopener noreferrer"
                           >
                             <ImageIcon className="mr-2 h-4 w-4" />
-                            Preview
+                            Pratinjau
                           </a>
                         </Button>
                         <Button type="button" size="sm" asChild>
@@ -566,7 +568,7 @@ export function TagFormPage({
                             download
                           >
                             <Download className="mr-2 h-4 w-4" />
-                            Download
+                            Unduh
                           </a>
                         </Button>
                       </div>
@@ -582,10 +584,10 @@ export function TagFormPage({
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <History className="h-5 w-5" />
-                    Scan History
+                    Riwayat Pemindaian
                   </CardTitle>
                   <CardDescription>
-                    Record of all scans for this tag
+                    Catatan semua pemindaian untuk tag ini
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -596,7 +598,7 @@ export function TagFormPage({
                         {tagScans.totalScans}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Total Scans
+                        Total Pemindaian
                       </p>
                     </div>
                     <div className="rounded-lg border p-3 text-center">
@@ -604,7 +606,7 @@ export function TagFormPage({
                         {tagScans.uniqueScanners}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Unique Devices
+                        Perangkat Unik
                       </p>
                     </div>
                     <div className="rounded-lg border p-3 text-center">
@@ -612,7 +614,7 @@ export function TagFormPage({
                         {tagScans.firstHandCount}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        First Hand
+                        Tangan Pertama
                       </p>
                     </div>
                     <div className="rounded-lg border p-3 text-center">
@@ -620,7 +622,7 @@ export function TagFormPage({
                         {tagScans.secondHandCount}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Second Hand
+                        Tangan Kedua
                       </p>
                     </div>
                   </div>
@@ -630,7 +632,7 @@ export function TagFormPage({
                     <div className="py-8 text-center">
                       <History className="mx-auto h-12 w-12 text-muted-foreground" />
                       <p className="mt-2 text-muted-foreground">
-                        No scans recorded yet
+                        Belum ada pemindaian tercatat
                       </p>
                     </div>
                   ) : (
@@ -668,10 +670,10 @@ export function TagFormPage({
                                     }
                                   >
                                     {scan.isFirstHand === true
-                                      ? 'First Hand'
+                                      ? 'Tangan Pertama'
                                       : scan.isFirstHand === false
-                                        ? 'Second Hand'
-                                        : 'Claimed'}
+                                        ? 'Tangan Kedua'
+                                        : 'Diklaim'}
                                   </Badge>
                                 )}
                               </div>
@@ -690,7 +692,8 @@ export function TagFormPage({
                                   className="truncate text-xs"
                                   title={scan.fingerprintId}
                                 >
-                                  Device: {scan.fingerprintId.substring(0, 16)}
+                                  Perangkat:{' '}
+                                  {scan.fingerprintId.substring(0, 16)}
                                   ...
                                 </span>
                               </div>
@@ -716,7 +719,7 @@ export function TagFormPage({
                               )}
                               {scan.sourceInfo && (
                                 <div className="mt-2 rounded bg-muted p-2 text-xs">
-                                  <span className="font-medium">Source:</span>{' '}
+                                  <span className="font-medium">Sumber:</span>{' '}
                                   {scan.sourceInfo}
                                 </div>
                               )}
@@ -735,13 +738,13 @@ export function TagFormPage({
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Package className="h-5 w-5" />
-                  Select Products
+                  Pilih Produk
                 </CardTitle>
                 <CardDescription>
-                  Choose one or more products to link with this tag.
+                  Pilih satu atau lebih produk untuk dihubungkan dengan tag ini.
                   {selectedProductIds.length > 0 && (
                     <Badge variant="secondary" className="ml-2">
-                      {selectedProductIds.length} selected
+                      {selectedProductIds.length} dipilih
                     </Badge>
                   )}
                 </CardDescription>
@@ -751,10 +754,10 @@ export function TagFormPage({
                   <div className="py-8 text-center">
                     <Package className="mx-auto h-12 w-12 text-muted-foreground" />
                     <p className="mt-2 text-muted-foreground">
-                      No active products available.
+                      Tidak ada produk aktif tersedia.
                     </p>
                     <Button asChild className="mt-4">
-                      <Link href="/manage/products/new">Create Product</Link>
+                      <Link href="/manage/products/new">Buat Produk</Link>
                     </Button>
                   </div>
                 ) : (
@@ -813,21 +816,21 @@ export function TagFormPage({
             {/* Tag Metadata */}
             <Card>
               <CardHeader>
-                <CardTitle>Additional Information</CardTitle>
+                <CardTitle>Informasi Tambahan</CardTitle>
                 <CardDescription>
-                  Optional metadata for this tag
+                  Metadata opsional untuk tag ini
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="notes">Notes</Label>
+                  <Label htmlFor="notes">Catatan</Label>
                   <Textarea
                     id="notes"
                     value={metadata.notes || ''}
                     onChange={(e) =>
                       handleMetadataChange('notes', e.target.value)
                     }
-                    placeholder="Optional notes about this tag..."
+                    placeholder="Catatan opsional tentang tag ini..."
                     rows={3}
                     disabled={isStamped}
                   />
@@ -835,19 +838,19 @@ export function TagFormPage({
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="batch_number">Batch Number</Label>
+                    <Label htmlFor="batch_number">Nomor Batch</Label>
                     <Input
                       id="batch_number"
                       value={metadata.batch_number || ''}
                       onChange={(e) =>
                         handleMetadataChange('batch_number', e.target.value)
                       }
-                      placeholder="e.g., BATCH-001"
+                      placeholder="cth. BATCH-001"
                       disabled={isStamped}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="manufacture_date">Manufacture Date</Label>
+                    <Label htmlFor="manufacture_date">Tanggal Produksi</Label>
                     <Input
                       id="manufacture_date"
                       type="date"
@@ -866,10 +869,10 @@ export function TagFormPage({
                 <div className="space-y-4">
                   <div>
                     <h4 className="text-sm font-medium">
-                      Distribution Information
+                      Informasi Distribusi
                     </h4>
                     <p className="text-xs text-muted-foreground">
-                      Specify where this tag will be distributed (recorded on
+                      Tentukan di mana tag ini akan didistribusikan (dicatat di
                       blockchain)
                     </p>
                   </div>
@@ -877,7 +880,7 @@ export function TagFormPage({
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="distribution_region">
-                        Distribution Region
+                        Wilayah Distribusi
                       </Label>
                       <Input
                         id="distribution_region"
@@ -888,12 +891,12 @@ export function TagFormPage({
                             e.target.value
                           )
                         }
-                        placeholder="e.g., Jakarta, Jawa Barat, Indonesia"
+                        placeholder="cth. Jakarta, Jawa Barat, Indonesia"
                         disabled={isStamped}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="distribution_country">Country Code</Label>
+                      <Label htmlFor="distribution_country">Kode Negara</Label>
                       <Select
                         value={metadata.distribution_country || ''}
                         onValueChange={(value) =>
@@ -902,15 +905,15 @@ export function TagFormPage({
                         disabled={isStamped}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select country" />
+                          <SelectValue placeholder="Pilih negara" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="ID">Indonesia (ID)</SelectItem>
-                          <SelectItem value="SG">Singapore (SG)</SelectItem>
+                          <SelectItem value="SG">Singapura (SG)</SelectItem>
                           <SelectItem value="MY">Malaysia (MY)</SelectItem>
                           <SelectItem value="TH">Thailand (TH)</SelectItem>
                           <SelectItem value="VN">Vietnam (VN)</SelectItem>
-                          <SelectItem value="PH">Philippines (PH)</SelectItem>
+                          <SelectItem value="PH">Filipina (PH)</SelectItem>
                           <SelectItem value="GLOBAL">Global</SelectItem>
                         </SelectContent>
                       </Select>
@@ -920,7 +923,7 @@ export function TagFormPage({
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="distribution_channel">
-                        Distribution Channel
+                        Kanal Distribusi
                       </Label>
                       <Select
                         value={metadata.distribution_channel || ''}
@@ -930,29 +933,29 @@ export function TagFormPage({
                         disabled={isStamped}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select channel" />
+                          <SelectValue placeholder="Pilih kanal" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="official_store">
-                            Official Store
+                            Toko Resmi
                           </SelectItem>
                           <SelectItem value="authorized_retailer">
-                            Authorized Retailer
+                            Pengecer Resmi
                           </SelectItem>
                           <SelectItem value="online_marketplace">
-                            Online Marketplace
+                            Marketplace Online
                           </SelectItem>
                           <SelectItem value="distributor">
                             Distributor
                           </SelectItem>
                           <SelectItem value="direct_sales">
-                            Direct Sales
+                            Penjualan Langsung
                           </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="intended_market">Intended Market</Label>
+                      <Label htmlFor="intended_market">Pasar Tujuan</Label>
                       <Select
                         value={metadata.intended_market || ''}
                         onValueChange={(value) =>
@@ -961,14 +964,14 @@ export function TagFormPage({
                         disabled={isStamped}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select market" />
+                          <SelectValue placeholder="Pilih pasar" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="domestic">Domestic</SelectItem>
-                          <SelectItem value="export">Export</SelectItem>
+                          <SelectItem value="domestic">Domestik</SelectItem>
+                          <SelectItem value="export">Ekspor</SelectItem>
                           <SelectItem value="global">Global</SelectItem>
                           <SelectItem value="southeast_asia">
-                            Southeast Asia
+                            Asia Tenggara
                           </SelectItem>
                         </SelectContent>
                       </Select>
@@ -987,10 +990,10 @@ export function TagFormPage({
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Stamp className="h-5 w-5" />
-                    Blockchain Stamping
+                    Pencapan Blockchain
                   </CardTitle>
                   <CardDescription>
-                    Stamp this tag to blockchain for permanent verification
+                    Cap tag ini ke blockchain untuk verifikasi permanen
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -998,7 +1001,7 @@ export function TagFormPage({
                     <div className="flex items-start gap-2 rounded-lg bg-yellow-50 dark:bg-yellow-950 p-3 text-sm">
                       <AlertTriangle className="h-4 w-4 text-yellow-600 mt-0.5" />
                       <p className="text-yellow-800 dark:text-yellow-200">
-                        Tag must be <strong>published</strong> before stamping
+                        Tag harus <strong>dipublikasikan</strong> sebelum dicap
                       </p>
                     </div>
                   )}
@@ -1012,18 +1015,18 @@ export function TagFormPage({
                     {isLoadingPreview ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Loading...
+                        Memuat...
                       </>
                     ) : (
                       <>
                         <Stamp className="mr-2 h-4 w-4" />
-                        Stamp to Blockchain
+                        Cap ke Blockchain
                       </>
                     )}
                   </Button>
                   <p className="text-xs text-muted-foreground text-center">
-                    This action is irreversible. The tag data will be
-                    permanently recorded on the blockchain.
+                    Tindakan ini tidak dapat dibatalkan. Data tag akan dicatat
+                    secara permanen di blockchain.
                   </p>
                 </CardContent>
               </Card>
@@ -1032,17 +1035,17 @@ export function TagFormPage({
             {/* Status */}
             <Card>
               <CardHeader>
-                <CardTitle>Publish Settings</CardTitle>
+                <CardTitle>Pengaturan Publikasi</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="publish_status">Publish Status</Label>
+                  <Label htmlFor="publish_status">Status Publikasi</Label>
                   {isStamped ? (
                     <>
                       <div className="flex items-center gap-2 rounded-md border px-3 py-2 bg-muted">
                         <Lock className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm">
-                          {tag?.publish_status === 1 ? 'Published' : 'Draft'}
+                          {tag?.publish_status === 1 ? 'Dipublikasi' : 'Draf'}
                         </span>
                         <input
                           type="hidden"
@@ -1051,7 +1054,7 @@ export function TagFormPage({
                         />
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        Publish status is locked after blockchain stamping
+                        Status publikasi terkunci setelah pencapan blockchain
                       </p>
                     </>
                   ) : (
@@ -1061,15 +1064,15 @@ export function TagFormPage({
                         defaultValue={String(tag?.publish_status ?? 0)}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select status" />
+                          <SelectValue placeholder="Pilih status" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="0">Draft</SelectItem>
-                          <SelectItem value="1">Published</SelectItem>
+                          <SelectItem value="0">Draf</SelectItem>
+                          <SelectItem value="1">Dipublikasi</SelectItem>
                         </SelectContent>
                       </Select>
                       <p className="text-sm text-muted-foreground">
-                        Only published tags are visible for public scanning
+                        Hanya tag yang dipublikasi yang dapat dipindai publik
                       </p>
                     </>
                   )}
@@ -1077,10 +1080,10 @@ export function TagFormPage({
 
                 {isEdit && (
                   <div className="space-y-2">
-                    <Label>Blockchain Status</Label>
+                    <Label>Status Blockchain</Label>
                     <div className="flex gap-2">
                       <Badge variant={isStamped ? 'default' : 'outline'}>
-                        {isStamped ? 'Stamped' : 'Not Stamped'}
+                        {isStamped ? 'Tercap' : 'Belum Tercap'}
                       </Badge>
                     </div>
                   </div>
@@ -1101,18 +1104,18 @@ export function TagFormPage({
                     className="w-full"
                   >
                     {isPending
-                      ? 'Saving...'
+                      ? 'Menyimpan...'
                       : isEdit
-                        ? 'Update Tag'
-                        : 'Create Tag'}
+                        ? 'Perbarui Tag'
+                        : 'Buat Tag'}
                   </Button>
                   <Button type="button" variant="outline" asChild>
-                    <Link href="/manage/tags">Cancel</Link>
+                    <Link href="/manage/tags">Batal</Link>
                   </Button>
                 </div>
                 {selectedProductIds.length === 0 && !isStamped && (
                   <p className="mt-2 text-center text-sm text-muted-foreground">
-                    Select at least one product to continue
+                    Pilih setidaknya satu produk untuk melanjutkan
                   </p>
                 )}
               </CardContent>
@@ -1122,7 +1125,7 @@ export function TagFormPage({
             {selectedProductIds.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-sm">Selected Products</CardTitle>
+                  <CardTitle className="text-sm">Produk Dipilih</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
@@ -1145,7 +1148,7 @@ export function TagFormPage({
                               onClick={() => handleProductToggle(id)}
                               className="h-6 px-2 text-muted-foreground hover:text-destructive"
                             >
-                              Remove
+                              Hapus
                             </Button>
                           )}
                         </li>
@@ -1165,11 +1168,11 @@ export function TagFormPage({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Stamp className="h-5 w-5" />
-              Confirm Blockchain Stamping
+              Konfirmasi Pencapan Blockchain
             </DialogTitle>
             <DialogDescription>
-              Review the tag details before stamping to blockchain. This action
-              cannot be undone.
+              Tinjau detail tag sebelum mencap ke blockchain. Tindakan ini tidak
+              dapat dibatalkan.
             </DialogDescription>
           </DialogHeader>
 
@@ -1179,17 +1182,17 @@ export function TagFormPage({
                 <Check className="h-6 w-6 text-green-600" />
                 <div>
                   <p className="font-medium text-green-800 dark:text-green-200">
-                    Successfully Stamped!
+                    Berhasil Dicap!
                   </p>
                   <p className="text-sm text-green-600 dark:text-green-400">
-                    Tag has been permanently recorded on blockchain
+                    Tag telah dicatat secara permanen di blockchain
                   </p>
                 </div>
               </div>
               {stampResult.data && (
                 <div className="space-y-2 text-sm">
                   <p>
-                    <strong>Transaction Hash:</strong>
+                    <strong>Hash Transaksi:</strong>
                   </p>
                   <code className="block rounded bg-muted p-2 text-xs break-all">
                     {stampResult.data.txHash}
@@ -1202,7 +1205,7 @@ export function TagFormPage({
               <AlertTriangle className="h-6 w-6 text-red-600" />
               <div>
                 <p className="font-medium text-red-800 dark:text-red-200">
-                  Stamping Failed
+                  Pencapan Gagal
                 </p>
                 <p className="text-sm text-red-600 dark:text-red-400">
                   {stampResult.error}
@@ -1215,7 +1218,7 @@ export function TagFormPage({
                 <AlertTriangle className="h-6 w-6 text-yellow-600 mt-0.5" />
                 <div>
                   <p className="font-medium text-yellow-800 dark:text-yellow-200">
-                    Cannot Stamp Tag
+                    Tidak Dapat Mencap Tag
                   </p>
                   <ul className="mt-2 list-inside list-disc text-sm text-yellow-700 dark:text-yellow-300">
                     {stampPreview.reasons?.map((reason, i) => (
@@ -1228,20 +1231,20 @@ export function TagFormPage({
           ) : stampPreview?.metadata ? (
             <div className="space-y-4">
               <div className="rounded-lg border p-4">
-                <h4 className="mb-3 font-medium">Tag Details</h4>
+                <h4 className="mb-3 font-medium">Detail Tag</h4>
                 <dl className="grid gap-2 text-sm">
                   <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Tag Code</dt>
+                    <dt className="text-muted-foreground">Kode Tag</dt>
                     <dd className="font-mono">
                       {stampPreview.metadata.tag.code}
                     </dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Products</dt>
-                    <dd>{stampPreview.metadata.products.length} product(s)</dd>
+                    <dt className="text-muted-foreground">Produk</dt>
+                    <dd>{stampPreview.metadata.products.length} produk</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Verify URL</dt>
+                    <dt className="text-muted-foreground">URL Verifikasi</dt>
                     <dd className="truncate max-w-[200px] font-mono text-xs">
                       {stampPreview.metadata.verification.verify_url}
                     </dd>
@@ -1250,7 +1253,7 @@ export function TagFormPage({
               </div>
 
               <div className="rounded-lg border p-4">
-                <h4 className="mb-3 font-medium">Products to Include</h4>
+                <h4 className="mb-3 font-medium">Produk yang Disertakan</h4>
                 <ul className="space-y-2">
                   {stampPreview.metadata.products.map((product) => (
                     <li
@@ -1267,12 +1270,12 @@ export function TagFormPage({
               </div>
 
               <div className="rounded-lg bg-muted p-4 text-sm">
-                <p className="font-medium">What will happen:</p>
+                <p className="font-medium">Yang akan terjadi:</p>
                 <ul className="mt-2 list-inside list-disc text-muted-foreground">
-                  <li>QR code will be generated and uploaded</li>
-                  <li>Static metadata JSON will be created</li>
-                  <li>Tag will be recorded on blockchain</li>
-                  <li>Tag content will become immutable</li>
+                  <li>Kode QR akan dibuat dan diunggah</li>
+                  <li>JSON metadata statis akan dibuat</li>
+                  <li>Tag akan dicatat di blockchain</li>
+                  <li>Konten tag menjadi tidak dapat diubah</li>
                 </ul>
               </div>
             </div>
@@ -1293,19 +1296,19 @@ export function TagFormPage({
                   }}
                   disabled={isStamping}
                 >
-                  Cancel
+                  Batal
                 </Button>
                 {stampPreview?.canStamp && (
                   <Button onClick={handleConfirmStamp} disabled={isStamping}>
                     {isStamping ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Stamping...
+                        Mencap...
                       </>
                     ) : (
                       <>
                         <Stamp className="mr-2 h-4 w-4" />
-                        Confirm & Stamp
+                        Konfirmasi & Cap
                       </>
                     )}
                   </Button>
@@ -1313,7 +1316,7 @@ export function TagFormPage({
               </>
             )}
             {stampResult?.success && (
-              <Button onClick={() => setShowStampDialog(false)}>Done</Button>
+              <Button onClick={() => setShowStampDialog(false)}>Selesai</Button>
             )}
           </DialogFooter>
         </DialogContent>
@@ -1325,11 +1328,11 @@ export function TagFormPage({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
               <Ban className="h-5 w-5" />
-              Revoke Tag
+              Cabut Tag
             </DialogTitle>
             <DialogDescription>
-              This will permanently invalidate the tag on the blockchain. This
-              action cannot be undone.
+              Ini akan membatalkan tag secara permanen di blockchain. Tindakan
+              ini tidak dapat dibatalkan.
             </DialogDescription>
           </DialogHeader>
 
@@ -1338,10 +1341,10 @@ export function TagFormPage({
               <Check className="h-6 w-6 text-green-600" />
               <div>
                 <p className="font-medium text-green-800 dark:text-green-200">
-                  Tag Revoked Successfully
+                  Tag Berhasil Dicabut
                 </p>
                 <p className="text-sm text-green-600 dark:text-green-400">
-                  The tag has been permanently invalidated on the blockchain
+                  Tag telah dibatalkan secara permanen di blockchain
                 </p>
               </div>
             </div>
@@ -1350,29 +1353,30 @@ export function TagFormPage({
               <div className="flex items-start gap-2 rounded-lg bg-red-50 dark:bg-red-950 p-4">
                 <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5" />
                 <div className="text-sm text-red-800 dark:text-red-200">
-                  <p className="font-medium">Warning</p>
+                  <p className="font-medium">Peringatan</p>
                   <ul className="mt-1 list-inside list-disc text-red-600 dark:text-red-400">
-                    <li>The tag will be marked as invalid on blockchain</li>
-                    <li>QR code scans will show revocation status</li>
-                    <li>This action is permanent and irreversible</li>
+                    <li>Tag akan ditandai tidak valid di blockchain</li>
+                    <li>
+                      Pemindaian kode QR akan menampilkan status pencabutan
+                    </li>
+                    <li>Tindakan ini permanen dan tidak dapat dibatalkan</li>
                   </ul>
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="revoke_reason">
-                  Reason for Revocation{' '}
-                  <span className="text-destructive">*</span>
+                  Alasan Pencabutan <span className="text-destructive">*</span>
                 </Label>
                 <Textarea
                   id="revoke_reason"
                   value={revokeReason}
                   onChange={(e) => setRevokeReason(e.target.value)}
-                  placeholder="e.g., Counterfeit detected, Product recalled, Tag compromised..."
+                  placeholder="cth. Pemalsuan terdeteksi, Produk ditarik, Tag dikompromikan..."
                   rows={3}
                 />
                 <p className="text-xs text-muted-foreground">
-                  This reason will be recorded on the blockchain
+                  Alasan ini akan dicatat di blockchain
                 </p>
               </div>
 
@@ -1399,7 +1403,7 @@ export function TagFormPage({
                   }}
                   disabled={isUpdatingStatus}
                 >
-                  Cancel
+                  Batal
                 </Button>
                 <Button
                   variant="destructive"
@@ -1409,12 +1413,12 @@ export function TagFormPage({
                   {isUpdatingStatus ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Revoking...
+                      Mencabut...
                     </>
                   ) : (
                     <>
                       <Ban className="mr-2 h-4 w-4" />
-                      Confirm Revoke
+                      Konfirmasi Pencabutan
                     </>
                   )}
                 </Button>
@@ -1428,7 +1432,7 @@ export function TagFormPage({
                   setStatusUpdateResult(null);
                 }}
               >
-                Done
+                Selesai
               </Button>
             )}
           </DialogFooter>

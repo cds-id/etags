@@ -33,41 +33,41 @@ export function PasswordForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Change Password</CardTitle>
+        <CardTitle>Ubah Kata Sandi</CardTitle>
         <CardDescription>
-          Update your password to keep your account secure
+          Perbarui kata sandi Anda untuk menjaga keamanan akun
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form ref={formRef} action={formAction} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="currentPassword">Current Password</Label>
+            <Label htmlFor="currentPassword">Kata Sandi Saat Ini</Label>
             <Input
               id="currentPassword"
               name="currentPassword"
               type="password"
-              placeholder="Enter current password"
+              placeholder="Masukkan kata sandi saat ini"
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="newPassword">New Password</Label>
+            <Label htmlFor="newPassword">Kata Sandi Baru</Label>
             <Input
               id="newPassword"
               name="newPassword"
               type="password"
-              placeholder="Enter new password"
+              placeholder="Masukkan kata sandi baru"
               required
               minLength={6}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm New Password</Label>
+            <Label htmlFor="confirmPassword">Konfirmasi Kata Sandi Baru</Label>
             <Input
               id="confirmPassword"
               name="confirmPassword"
               type="password"
-              placeholder="Confirm new password"
+              placeholder="Konfirmasi kata sandi baru"
               required
               minLength={6}
             />
@@ -79,7 +79,7 @@ export function PasswordForm() {
             <p className="text-sm text-green-600">{state.message}</p>
           )}
           <Button type="submit" disabled={isPending}>
-            {isPending ? 'Updating...' : 'Update Password'}
+            {isPending ? 'Memperbarui...' : 'Perbarui Kata Sandi'}
           </Button>
         </form>
       </CardContent>

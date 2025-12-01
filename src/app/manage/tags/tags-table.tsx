@@ -87,7 +87,7 @@ export function TagsTable({ tags }: TagsTableProps) {
     }
     const firstName =
       (products[0].metadata as ProductMetadata)?.name || products[0].code;
-    return `${firstName} +${products.length - 1} more`;
+    return `${firstName} +${products.length - 1} lainnya`;
   };
 
   return (
@@ -95,12 +95,12 @@ export function TagsTable({ tags }: TagsTableProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Code</TableHead>
-            <TableHead>Products</TableHead>
-            <TableHead>Publish</TableHead>
+            <TableHead>Kode</TableHead>
+            <TableHead>Produk</TableHead>
+            <TableHead>Publikasi</TableHead>
             <TableHead>Blockchain</TableHead>
-            <TableHead>Chain Status</TableHead>
-            <TableHead>Created</TableHead>
+            <TableHead>Status Chain</TableHead>
+            <TableHead>Dibuat</TableHead>
             <TableHead className="w-12"></TableHead>
           </TableRow>
         </TableHeader>
@@ -111,7 +111,7 @@ export function TagsTable({ tags }: TagsTableProps) {
                 colSpan={7}
                 className="text-center text-muted-foreground"
               >
-                No tags found
+                Belum ada tag
               </TableCell>
             </TableRow>
           ) : (
@@ -131,7 +131,7 @@ export function TagsTable({ tags }: TagsTableProps) {
                       {getProductNames(tag.products)}
                     </span>
                     <p className="text-xs text-muted-foreground">
-                      {tag.products.length} product(s)
+                      {tag.products.length} produk
                     </p>
                   </div>
                 </TableCell>
@@ -139,12 +139,12 @@ export function TagsTable({ tags }: TagsTableProps) {
                   <Badge
                     variant={tag.publish_status === 1 ? 'default' : 'secondary'}
                   >
-                    {tag.publish_status === 1 ? 'Published' : 'Draft'}
+                    {tag.publish_status === 1 ? 'Dipublikasi' : 'Draf'}
                   </Badge>
                 </TableCell>
                 <TableCell>
                   <Badge variant={tag.is_stamped === 1 ? 'default' : 'outline'}>
-                    {tag.is_stamped === 1 ? 'Stamped' : 'Not Stamped'}
+                    {tag.is_stamped === 1 ? 'Tercap' : 'Belum Tercap'}
                   </Badge>
                 </TableCell>
                 <TableCell>
@@ -153,13 +153,13 @@ export function TagsTable({ tags }: TagsTableProps) {
                   </span>
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {new Date(tag.created_at).toLocaleDateString()}
+                  {new Date(tag.created_at).toLocaleDateString('id-ID')}
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
-                        <span className="sr-only">Open menu</span>
+                        <span className="sr-only">Buka menu</span>
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -169,7 +169,7 @@ export function TagsTable({ tags }: TagsTableProps) {
                           {tag.is_stamped === 1 ? (
                             <>
                               <Eye className="mr-2 h-4 w-4" />
-                              View / Edit Status
+                              Lihat / Edit Status
                             </>
                           ) : (
                             <>
@@ -184,7 +184,9 @@ export function TagsTable({ tags }: TagsTableProps) {
                         disabled={isPending}
                       >
                         <Send className="mr-2 h-4 w-4" />
-                        {tag.publish_status === 1 ? 'Unpublish' : 'Publish'}
+                        {tag.publish_status === 1
+                          ? 'Batalkan Publikasi'
+                          : 'Publikasikan'}
                       </DropdownMenuItem>
                       {tag.is_stamped !== 1 && (
                         <>
@@ -194,7 +196,7 @@ export function TagsTable({ tags }: TagsTableProps) {
                             onClick={() => setDeleteConfirm(tag)}
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
+                            Hapus
                           </DropdownMenuItem>
                         </>
                       )}
@@ -213,22 +215,22 @@ export function TagsTable({ tags }: TagsTableProps) {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Tag</DialogTitle>
+            <DialogTitle>Hapus Tag</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete tag {deleteConfirm?.code}? This
-              action cannot be undone.
+              Apakah Anda yakin ingin menghapus tag {deleteConfirm?.code}?
+              Tindakan ini tidak dapat dibatalkan.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
-              Cancel
+              Batal
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={isPending}
             >
-              {isPending ? 'Deleting...' : 'Delete'}
+              {isPending ? 'Menghapus...' : 'Hapus'}
             </Button>
           </DialogFooter>
         </DialogContent>

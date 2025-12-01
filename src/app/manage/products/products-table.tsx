@@ -76,7 +76,7 @@ export function ProductsTable({
   };
 
   const getProductName = (metadata: ProductMetadata) => {
-    return metadata?.name || 'Unnamed Product';
+    return metadata?.name || 'Produk Tanpa Nama';
   };
 
   const getProductImage = (metadata: ProductMetadata) => {
@@ -159,17 +159,17 @@ export function ProductsTable({
                     <Badge
                       variant={product.status === 1 ? 'default' : 'destructive'}
                     >
-                      {product.status === 1 ? 'Active' : 'Inactive'}
+                      {product.status === 1 ? 'Aktif' : 'Nonaktif'}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {new Date(product.created_at).toLocaleDateString()}
+                    {new Date(product.created_at).toLocaleDateString('id-ID')}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon">
-                          <span className="sr-only">Open menu</span>
+                          <span className="sr-only">Buka menu</span>
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -185,7 +185,7 @@ export function ProductsTable({
                           disabled={isPending}
                         >
                           <Power className="mr-2 h-4 w-4" />
-                          {product.status === 1 ? 'Deactivate' : 'Activate'}
+                          {product.status === 1 ? 'Nonaktifkan' : 'Aktifkan'}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
@@ -193,7 +193,7 @@ export function ProductsTable({
                           onClick={() => setDeleteConfirm(product)}
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
+                          Hapus
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -211,24 +211,24 @@ export function ProductsTable({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Product</DialogTitle>
+            <DialogTitle>Hapus Produk</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete{' '}
+              Apakah Anda yakin ingin menghapus{' '}
               {(deleteConfirm?.metadata as ProductMetadata)?.name ||
                 deleteConfirm?.code}
-              ? This action cannot be undone.
+              ? Tindakan ini tidak dapat dibatalkan.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
-              Cancel
+              Batal
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={isPending}
             >
-              {isPending ? 'Deleting...' : 'Delete'}
+              {isPending ? 'Menghapus...' : 'Hapus'}
             </Button>
           </DialogFooter>
         </DialogContent>

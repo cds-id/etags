@@ -81,11 +81,11 @@ export function BrandsTable({ brands }: BrandsTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead className="w-12"></TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Products</TableHead>
+            <TableHead>Nama</TableHead>
+            <TableHead>Deskripsi</TableHead>
+            <TableHead>Produk</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Created</TableHead>
+            <TableHead>Dibuat</TableHead>
             <TableHead className="w-12"></TableHead>
           </TableRow>
         </TableHeader>
@@ -96,7 +96,7 @@ export function BrandsTable({ brands }: BrandsTableProps) {
                 colSpan={7}
                 className="text-center text-muted-foreground"
               >
-                No brands found
+                Belum ada brand
               </TableCell>
             </TableRow>
           ) : (
@@ -124,17 +124,17 @@ export function BrandsTable({ brands }: BrandsTableProps) {
                   <Badge
                     variant={brand.status === 1 ? 'default' : 'destructive'}
                   >
-                    {brand.status === 1 ? 'Active' : 'Inactive'}
+                    {brand.status === 1 ? 'Aktif' : 'Nonaktif'}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {new Date(brand.created_at).toLocaleDateString()}
+                  {new Date(brand.created_at).toLocaleDateString('id-ID')}
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon-sm">
-                        <span className="sr-only">Open menu</span>
+                        <span className="sr-only">Buka menu</span>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="16"
@@ -160,7 +160,7 @@ export function BrandsTable({ brands }: BrandsTableProps) {
                         onClick={() => handleToggleStatus(brand)}
                         disabled={isPending}
                       >
-                        {brand.status === 1 ? 'Deactivate' : 'Activate'}
+                        {brand.status === 1 ? 'Nonaktifkan' : 'Aktifkan'}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
@@ -168,7 +168,7 @@ export function BrandsTable({ brands }: BrandsTableProps) {
                         onClick={() => setDeleteConfirm(brand)}
                         disabled={brand._count.products > 0}
                       >
-                        Delete
+                        Hapus
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -191,28 +191,28 @@ export function BrandsTable({ brands }: BrandsTableProps) {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Brand</DialogTitle>
+            <DialogTitle>Hapus Brand</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete {deleteConfirm?.name}? This action
-              cannot be undone.
+              Apakah Anda yakin ingin menghapus {deleteConfirm?.name}? Tindakan
+              ini tidak dapat dibatalkan.
               {deleteConfirm && deleteConfirm._count.products > 0 && (
                 <span className="mt-2 block text-destructive">
-                  This brand has {deleteConfirm._count.products} product(s).
-                  Delete products first.
+                  Brand ini memiliki {deleteConfirm._count.products} produk.
+                  Hapus produk terlebih dahulu.
                 </span>
               )}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
-              Cancel
+              Batal
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={isPending || (deleteConfirm?._count.products ?? 0) > 0}
             >
-              {isPending ? 'Deleting...' : 'Delete'}
+              {isPending ? 'Menghapus...' : 'Hapus'}
             </Button>
           </DialogFooter>
         </DialogContent>
