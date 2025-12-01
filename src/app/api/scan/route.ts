@@ -153,7 +153,10 @@ export async function POST(request: NextRequest) {
           type: 'first_scan',
           message:
             'Selamat! Anda adalah pemindai pertama tag ini. Apakah Anda pemilik pertama (tangan pertama) produk ini?',
-          options: ['Ya, saya pemilik pertama', 'Tidak, saya mendapat dari orang lain'],
+          options: [
+            'Ya, saya pemilik pertama',
+            'Tidak, saya mendapat dari orang lain',
+          ],
         };
       } else if (uniqueScannerCount === 1) {
         // Second unique scanner
@@ -216,7 +219,8 @@ export async function POST(request: NextRequest) {
       history = tag.scans.map((s) => ({
         scanNumber: s.scan_number,
         createdAt: s.created_at.toISOString(),
-        isFirstHand: s.is_first_hand === 1 ? true : s.is_first_hand === 0 ? false : null,
+        isFirstHand:
+          s.is_first_hand === 1 ? true : s.is_first_hand === 0 ? false : null,
         sourceInfo: s.source_info,
       }));
       // Add current scan to history

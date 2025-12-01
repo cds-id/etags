@@ -21,6 +21,13 @@ export type TagProductInfo = {
   };
 };
 
+export type TagDistributionInfo = {
+  region?: string;
+  country?: string;
+  channel?: string;
+  intended_market?: string;
+};
+
 export type TagStaticMetadata = {
   version: '1.0';
   tag: {
@@ -30,6 +37,7 @@ export type TagStaticMetadata = {
     metadata: TagMetadata;
   };
   products: TagProductInfo[];
+  distribution: TagDistributionInfo;
   verification: {
     qr_code_url: string;
     verify_url: string;
@@ -103,6 +111,14 @@ async function buildTagMetadata(tagId: number): Promise<TagStaticMetadata> {
   const tagMetadata = tag.metadata as TagMetadata;
   const verifyUrl = getVerifyUrl(tag.code);
 
+  // Build distribution info from tag metadata
+  const distributionInfo: TagDistributionInfo = {
+    region: tagMetadata.distribution_region,
+    country: tagMetadata.distribution_country,
+    channel: tagMetadata.distribution_channel,
+    intended_market: tagMetadata.intended_market,
+  };
+
   // Placeholder URLs - will be updated after upload
   const staticMetadata: TagStaticMetadata = {
     version: '1.0',
@@ -113,6 +129,7 @@ async function buildTagMetadata(tagId: number): Promise<TagStaticMetadata> {
       metadata: tagMetadata,
     },
     products: productInfos,
+    distribution: distributionInfo,
     verification: {
       qr_code_url: '', // Will be set after QR upload
       verify_url: verifyUrl,

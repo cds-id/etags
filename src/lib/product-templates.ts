@@ -215,5 +215,10 @@ export type TagMetadata = {
   batch_number?: string;
   manufacture_date?: string;
   expiry_date?: string;
+  // Distribution information
+  distribution_region?: string; // e.g., "Indonesia", "Jakarta", "Asia Pacific"
+  distribution_channel?: string; // e.g., "Official Store", "Authorized Retailer", "Online Marketplace"
+  distribution_country?: string; // e.g., "ID", "SG", "MY"
+  intended_market?: string; // e.g., "Domestic", "Export", "Global"
   [key: string]: unknown;
 };

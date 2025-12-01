@@ -860,6 +860,122 @@ export function TagFormPage({
                     />
                   </div>
                 </div>
+
+                <Separator className="my-4" />
+
+                {/* Distribution Information */}
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-sm font-medium">
+                      Distribution Information
+                    </h4>
+                    <p className="text-xs text-muted-foreground">
+                      Specify where this tag will be distributed (recorded on
+                      blockchain)
+                    </p>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="distribution_region">
+                        Distribution Region
+                      </Label>
+                      <Input
+                        id="distribution_region"
+                        value={metadata.distribution_region || ''}
+                        onChange={(e) =>
+                          handleMetadataChange(
+                            'distribution_region',
+                            e.target.value
+                          )
+                        }
+                        placeholder="e.g., Jakarta, Jawa Barat, Indonesia"
+                        disabled={isStamped}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="distribution_country">Country Code</Label>
+                      <Select
+                        value={metadata.distribution_country || ''}
+                        onValueChange={(value) =>
+                          handleMetadataChange('distribution_country', value)
+                        }
+                        disabled={isStamped}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select country" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ID">Indonesia (ID)</SelectItem>
+                          <SelectItem value="SG">Singapore (SG)</SelectItem>
+                          <SelectItem value="MY">Malaysia (MY)</SelectItem>
+                          <SelectItem value="TH">Thailand (TH)</SelectItem>
+                          <SelectItem value="VN">Vietnam (VN)</SelectItem>
+                          <SelectItem value="PH">Philippines (PH)</SelectItem>
+                          <SelectItem value="GLOBAL">Global</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="distribution_channel">
+                        Distribution Channel
+                      </Label>
+                      <Select
+                        value={metadata.distribution_channel || ''}
+                        onValueChange={(value) =>
+                          handleMetadataChange('distribution_channel', value)
+                        }
+                        disabled={isStamped}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select channel" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="official_store">
+                            Official Store
+                          </SelectItem>
+                          <SelectItem value="authorized_retailer">
+                            Authorized Retailer
+                          </SelectItem>
+                          <SelectItem value="online_marketplace">
+                            Online Marketplace
+                          </SelectItem>
+                          <SelectItem value="distributor">
+                            Distributor
+                          </SelectItem>
+                          <SelectItem value="direct_sales">
+                            Direct Sales
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="intended_market">Intended Market</Label>
+                      <Select
+                        value={metadata.intended_market || ''}
+                        onValueChange={(value) =>
+                          handleMetadataChange('intended_market', value)
+                        }
+                        disabled={isStamped}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select market" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="domestic">Domestic</SelectItem>
+                          <SelectItem value="export">Export</SelectItem>
+                          <SelectItem value="global">Global</SelectItem>
+                          <SelectItem value="southeast_asia">
+                            Southeast Asia
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
