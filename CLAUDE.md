@@ -70,6 +70,7 @@ Server actions are organized in `src/lib/actions/`:
 ### Routes
 
 **Admin Dashboard (`/manage`):**
+
 - `/manage` - Dashboard home with statistics
 - `/manage/brands` - Brand management
 - `/manage/products` - Product CRUD with `/new` and `/[id]/edit`
@@ -78,6 +79,7 @@ Server actions are organized in `src/lib/actions/`:
 - `/manage/profile` - User profile settings
 
 **Public Routes:**
+
 - `/` - Public landing page
 - `/login` - Login page (redirects to /manage if authenticated)
 - `/scan` - QR code scanner for tag verification
@@ -87,6 +89,7 @@ Server actions are organized in `src/lib/actions/`:
 - `/docs` - Swagger API documentation UI
 
 **API Routes:**
+
 - `/api/docs` - OpenAPI JSON spec
 - `/api/scan` - Tag scan endpoint (records scans with fingerprint)
 - `/api/scan/claim` - Claim a tag as owner

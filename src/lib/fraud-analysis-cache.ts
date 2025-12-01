@@ -47,7 +47,11 @@ function hashScanLocation(location: ScanLocation): string {
  * Check if cached result is still valid
  */
 function isCacheValid(
-  cached: { result: FraudAnalysisResult; timestamp: number; scanLocationHash: string },
+  cached: {
+    result: FraudAnalysisResult;
+    timestamp: number;
+    scanLocationHash: string;
+  },
   currentLocationHash: string
 ): boolean {
   const now = Date.now();
@@ -70,7 +74,9 @@ export async function getCachedFraudAnalysis(
     uniqueScanners: number;
     recentLocations: string[];
   }
-): Promise<FraudAnalysisResult & { fromCache: boolean; cacheExpiresAt?: string }> {
+): Promise<
+  FraudAnalysisResult & { fromCache: boolean; cacheExpiresAt?: string }
+> {
   const locationHash = hashScanLocation(scanLocation);
   const cached = fraudAnalysisCache.get(tagCode);
 
@@ -160,7 +166,11 @@ export function getFraudCacheStats(): {
   entries: Array<{ tagCode: string; expiresAt: string; isExpired: boolean }>;
 } {
   const now = Date.now();
-  const entries: Array<{ tagCode: string; expiresAt: string; isExpired: boolean }> = [];
+  const entries: Array<{
+    tagCode: string;
+    expiresAt: string;
+    isExpired: boolean;
+  }> = [];
 
   fraudAnalysisCache.forEach((value, key) => {
     const expiresAt = new Date(value.timestamp + CACHE_TTL_MS);
@@ -201,7 +211,9 @@ export async function getEnhancedFraudAnalysis(
   tagCode: string,
   distribution: DistributionInfo,
   currentScanLocation: ScanLocation
-): Promise<FraudAnalysisResult & { fromCache: boolean; cacheExpiresAt?: string }> {
+): Promise<
+  FraudAnalysisResult & { fromCache: boolean; cacheExpiresAt?: string }
+> {
   // Get scan history from database
   const tag = await prisma.tag.findUnique({
     where: { code: tagCode },
