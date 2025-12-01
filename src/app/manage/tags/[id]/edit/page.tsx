@@ -1,7 +1,7 @@
 import { auth } from '@/lib/auth';
 import { redirect, notFound } from 'next/navigation';
 import { getAllProducts } from '@/lib/actions/products';
-import { getTagById, getTagUrls } from '@/lib/actions/tags';
+import { getTagById, getTagUrls, getTagScans } from '@/lib/actions/tags';
 import { TagFormPage } from '../../_components/tag-form-page';
 
 type Props = {
@@ -22,15 +22,23 @@ export default async function EditTagPage({ params }: Props) {
     notFound();
   }
 
-  const [tag, products, tagUrls] = await Promise.all([
+  const [tag, products, tagUrls, tagScans] = await Promise.all([
     getTagById(tagId),
     getAllProducts(),
     getTagUrls(tagId),
+    getTagScans(tagId),
   ]);
 
   if (!tag) {
     notFound();
   }
 
-  return <TagFormPage tag={tag} products={products} tagUrls={tagUrls} />;
+  return (
+    <TagFormPage
+      tag={tag}
+      products={products}
+      tagUrls={tagUrls}
+      tagScans={tagScans}
+    />
+  );
 }

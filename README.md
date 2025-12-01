@@ -6,7 +6,8 @@ Aplikasi untuk mengelola brand, produk, dan tag dengan pelacakan transaksi block
 
 ## Demo
 
-🔗 **Live Demo:** https://internal-etags.gqp4pd.easypanel.host/
+🔗 **Live Demo:**
+https://tags.cylink.site/
 
 ## Repository
 

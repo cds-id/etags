@@ -54,14 +54,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       }
     }
 
-    // Generate verification URL
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://etags.app';
-    const verifyUrl = `${baseUrl}/verify/${code}`;
-
-    // Generate designed tag
+    // Generate designed tag with tag code only (not URL)
     const result = await generateDesignedTag(
       {
-        qrData: verifyUrl,
+        qrData: code,
         tagCode: code,
         productName,
         brandName,
