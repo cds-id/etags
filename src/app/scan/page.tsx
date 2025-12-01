@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import Image from 'next/image';
 import { Html5Qrcode } from 'html5-qrcode';
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,10 @@ import {
   AlertTriangle,
   ShieldAlert,
   ShieldX,
+  Link as LinkIcon,
+  ExternalLink,
+  Hash,
+  FileJson,
 } from 'lucide-react';
 import type { ScanResponse } from '@/app/api/scan/route';
 import type { ClaimResponse } from '@/app/api/scan/claim/route';
@@ -89,7 +94,6 @@ export default function ScanPage() {
 
   // Request GPS location
   const [showLocationDialog, setShowLocationDialog] = useState(false);
-  const [locationDenied, setLocationDenied] = useState(false);
 
   const requestLocation = useCallback(() => {
     if (!navigator.geolocation) {
@@ -122,7 +126,6 @@ export default function ScanPage() {
       },
       (err) => {
         console.error('Location error:', err);
-        setLocationDenied(true);
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -130,7 +133,6 @@ export default function ScanPage() {
 
   const skipLocationAccess = useCallback(() => {
     setShowLocationDialog(false);
-    setLocationDenied(true);
   }, []);
 
   // Process scanned code
@@ -369,42 +371,195 @@ export default function ScanPage() {
         {/* Scan Result */}
         {scanResult && (
           <>
-            {/* Validity Card */}
-            <Card
-              className={`mb-4 ${scanResult.valid ? 'border-green-200' : 'border-red-200'}`}
-            >
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-3">
-                  {scanResult.valid ? (
-                    <CheckCircle2 className="h-10 w-10 text-green-500" />
-                  ) : (
-                    <XCircle className="h-10 w-10 text-red-500" />
-                  )}
-                  <div>
-                    <CardTitle
-                      className={
-                        scanResult.valid ? 'text-green-700' : 'text-red-700'
-                      }
-                    >
-                      {scanResult.valid
-                        ? 'Produk Terverifikasi'
-                        : 'Produk Tidak Terverifikasi'}
-                    </CardTitle>
-                    <CardDescription>
-                      {scanResult.valid
-                        ? 'Tag ini telah terdaftar di blockchain'
-                        : 'Tag ini belum terdaftar atau tidak valid'}
-                    </CardDescription>
+            {/* Revoked Warning Card - Show prominently if tag is revoked */}
+            {scanResult.isRevoked && (
+              <Card className="mb-4 border-red-500 bg-red-100">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center gap-3">
+                    <ShieldX className="h-12 w-12 text-red-600" />
+                    <div>
+                      <CardTitle className="text-red-800 text-xl">
+                        TAG DICABUT (REVOKED)
+                      </CardTitle>
+                      <CardDescription className="text-red-700">
+                        Tag ini telah dicabut dari blockchain
+                      </CardDescription>
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Shield className="h-4 w-4" />
-                  <span>Kode: {scanResult.tag?.code}</span>
-                </div>
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent>
+                  <div className="rounded-lg bg-red-200 p-4 text-red-900">
+                    <p className="font-medium mb-2">⚠️ Peringatan Keamanan:</p>
+                    <p className="text-sm">
+                      {scanResult.blockchainValidation?.revokedMessage ||
+                        'Tag ini telah dicabut (revoked) dari blockchain. Produk dengan tag ini mungkin palsu, dicuri, atau tidak sah. Jangan membeli atau menggunakan produk ini.'}
+                    </p>
+                  </div>
+                  <div className="mt-3 flex items-center gap-2 text-sm text-red-700">
+                    <Shield className="h-4 w-4" />
+                    <span>Kode: {scanResult.tag?.code}</span>
+                    {scanResult.tag?.chainStatusLabel && (
+                      <Badge variant="destructive" className="ml-2">
+                        {scanResult.tag.chainStatusLabel}
+                      </Badge>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Validity Card - Show if not revoked */}
+            {!scanResult.isRevoked && (
+              <Card
+                className={`mb-4 ${scanResult.valid ? 'border-green-200' : 'border-red-200'}`}
+              >
+                <CardHeader className="pb-2">
+                  <div className="flex items-center gap-3">
+                    {scanResult.valid ? (
+                      <CheckCircle2 className="h-10 w-10 text-green-500" />
+                    ) : (
+                      <XCircle className="h-10 w-10 text-red-500" />
+                    )}
+                    <div>
+                      <CardTitle
+                        className={
+                          scanResult.valid ? 'text-green-700' : 'text-red-700'
+                        }
+                      >
+                        {scanResult.valid
+                          ? 'Produk Terverifikasi'
+                          : 'Produk Tidak Terverifikasi'}
+                      </CardTitle>
+                      <CardDescription>
+                        {scanResult.valid
+                          ? 'Tag ini telah terdaftar di blockchain'
+                          : 'Tag ini belum terdaftar atau tidak valid'}
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Shield className="h-4 w-4" />
+                    <span>Kode: {scanResult.tag?.code}</span>
+                    {scanResult.tag?.chainStatusLabel && (
+                      <Badge variant="secondary" className="ml-2">
+                        {scanResult.tag.chainStatusLabel}
+                      </Badge>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Blockchain Metadata */}
+            {scanResult.blockchainMetadata && (
+              <Card className="mb-4 border-blue-200">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Hash className="h-5 w-5 text-blue-600" />
+                    Data Blockchain
+                  </CardTitle>
+                  <CardDescription>
+                    Informasi yang tercatat di blockchain
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {/* Stamped Date */}
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500">Waktu Stamp:</span>
+                    <span className="font-medium">
+                      {new Date(
+                        scanResult.blockchainMetadata.stampedAt
+                      ).toLocaleString('id-ID')}
+                    </span>
+                  </div>
+
+                  {/* Network */}
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500">Network:</span>
+                    <span className="font-medium">
+                      {scanResult.blockchainMetadata.network} (Chain ID:{' '}
+                      {scanResult.blockchainMetadata.chainId})
+                    </span>
+                  </div>
+
+                  {/* Transaction Hash */}
+                  {scanResult.blockchainMetadata.transactionHash && (
+                    <div className="space-y-1">
+                      <span className="text-sm text-gray-500">
+                        Transaction Hash:
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <code className="flex-1 rounded bg-gray-100 px-2 py-1 text-xs font-mono truncate">
+                          {scanResult.blockchainMetadata.transactionHash}
+                        </code>
+                        <a
+                          href={`https://sepolia.basescan.org/tx/${scanResult.blockchainMetadata.transactionHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Contract Address */}
+                  <div className="space-y-1">
+                    <span className="text-sm text-gray-500">Contract:</span>
+                    <div className="flex items-center gap-2">
+                      <code className="flex-1 rounded bg-gray-100 px-2 py-1 text-xs font-mono truncate">
+                        {scanResult.blockchainMetadata.contractAddress}
+                      </code>
+                      <a
+                        href={`https://sepolia.basescan.org/address/${scanResult.blockchainMetadata.contractAddress}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Links */}
+                  <div className="flex gap-2 pt-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      asChild
+                      className="flex-1"
+                    >
+                      <a
+                        href={scanResult.blockchainMetadata.metadataUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <FileJson className="mr-2 h-4 w-4" />
+                        Metadata
+                      </a>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      asChild
+                      className="flex-1"
+                    >
+                      <a
+                        href={scanResult.blockchainMetadata.verifyUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <LinkIcon className="mr-2 h-4 w-4" />
+                        Verify URL
+                      </a>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Product Info */}
             {scanResult.tag?.products && scanResult.tag.products.length > 0 && (
@@ -422,9 +577,11 @@ export default function ScanPage() {
                       className="flex items-center gap-4 border-b py-3 last:border-0"
                     >
                       {product.brandLogo && (
-                        <img
+                        <Image
                           src={product.brandLogo}
                           alt={product.brand}
+                          width={48}
+                          height={48}
                           className="h-12 w-12 rounded-lg object-contain"
                         />
                       )}

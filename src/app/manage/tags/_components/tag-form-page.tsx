@@ -66,7 +66,6 @@ import {
   Download,
   ImageIcon,
   History,
-  Users,
   MapPin,
   Smartphone,
   Globe,
@@ -636,7 +635,7 @@ export function TagFormPage({
                     </div>
                   ) : (
                     <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
-                      {tagScans.scans.map((scan, index) => (
+                      {tagScans.scans.map((scan) => (
                         <div
                           key={scan.id}
                           className="relative border-l-2 border-gray-200 pl-4 pb-4 last:pb-0"

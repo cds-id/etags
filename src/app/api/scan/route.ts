@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import type { ProductMetadata, TagMetadata } from '@/lib/product-templates';
 import { analyzeFraud, quickFraudCheck } from '@/lib/fraud-detection';
+import { fetchTagMetadata } from '@/lib/tag-stamping';
+import { validateTagOnChain } from '@/lib/tag-sync';
+import { CHAIN_STATUS, getChainStatusLabel } from '@/lib/constants';
 import {
   checkRateLimit,
   getClientIdentifier,
@@ -21,10 +24,12 @@ export type ScanRequest = {
 export type ScanResponse = {
   success: boolean;
   valid: boolean;
+  isRevoked?: boolean;
   tag?: {
     code: string;
     isStamped: boolean;
     chainStatus: number | null;
+    chainStatusLabel: string;
     products: Array<{
       code: string;
       name: string;
@@ -38,6 +43,25 @@ export type ScanResponse = {
       channel?: string;
       intendedMarket?: string;
     };
+  };
+  blockchainValidation?: {
+    isValidOnChain: boolean;
+    chainStatus: number | null;
+    chainStatusLabel: string;
+    metadataUri?: string;
+    createdAt?: string;
+    isRevoked: boolean;
+    revokedMessage?: string;
+  };
+  blockchainMetadata?: {
+    stampedAt: string;
+    transactionHash: string | null;
+    network: string;
+    chainId: number;
+    contractAddress: string;
+    metadataUrl: string;
+    qrCodeUrl: string;
+    verifyUrl: string;
   };
   scanInfo: {
     scanNumber: number;
@@ -173,8 +197,55 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if tag is stamped (valid)
-    const isValid = tag.is_stamped === 1;
+    // Check if tag is stamped (valid in database)
+    const isStampedInDb = tag.is_stamped === 1;
+
+    // Validate tag on blockchain if it's stamped
+    let blockchainValidation: ScanResponse['blockchainValidation'] = undefined;
+    let isRevoked = false;
+    let isValid = isStampedInDb;
+
+    if (isStampedInDb) {
+      const chainValidation = await validateTagOnChain(tag.code);
+
+      if (chainValidation) {
+        const chainStatus = chainValidation.status ?? null;
+        isRevoked = chainStatus === CHAIN_STATUS.REVOKED;
+
+        // If revoked on blockchain, tag is not valid
+        if (isRevoked) {
+          isValid = false;
+        }
+
+        blockchainValidation = {
+          isValidOnChain: chainValidation.isValid,
+          chainStatus: chainStatus,
+          chainStatusLabel: getChainStatusLabel(chainStatus),
+          metadataUri: chainValidation.metadataUri,
+          createdAt: chainValidation.createdAt?.toISOString(),
+          isRevoked,
+          revokedMessage: isRevoked
+            ? 'Tag ini telah dicabut (revoked) dari blockchain. Produk mungkin palsu atau tidak sah.'
+            : undefined,
+        };
+
+        // Sync chain status to database if different
+        if (chainStatus !== null && chainStatus !== tag.chain_status) {
+          await prisma.tag.update({
+            where: { id: tag.id },
+            data: { chain_status: chainStatus },
+          });
+        }
+      } else {
+        // Could not validate on chain - tag might not exist on blockchain
+        blockchainValidation = {
+          isValidOnChain: false,
+          chainStatus: null,
+          chainStatusLabel: 'Tidak ditemukan di blockchain',
+          isRevoked: false,
+        };
+      }
+    }
 
     // Get tag metadata for distribution info
     const tagMetadata = tag.metadata as TagMetadata;
@@ -214,9 +285,6 @@ export async function POST(request: NextRequest) {
     // Count unique fingerprints that have scanned this tag
     const uniqueFingerprints = new Set(tag.scans.map((s) => s.fingerprint_id));
     const uniqueScannerCount = uniqueFingerprints.size;
-
-    // Calculate which scan number this is for the current fingerprint
-    const fingerprintScanNumber = previousScansFromFingerprint + 1;
 
     // Determine what question to ask (based on unique scanners, not total scans)
     let question: ScanResponse['question'];
@@ -375,16 +443,45 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Fetch blockchain metadata if tag is stamped
+    let blockchainMetadata: ScanResponse['blockchainMetadata'] = undefined;
+
+    if (isValid) {
+      const metadataResult = await fetchTagMetadata(tag.code);
+      if (metadataResult.success && metadataResult.metadata) {
+        const meta = metadataResult.metadata;
+        blockchainMetadata = {
+          stampedAt: meta.tag.stamped_at,
+          transactionHash: meta.verification.blockchain.transaction_hash,
+          network: meta.verification.blockchain.network,
+          chainId: meta.verification.blockchain.chain_id,
+          contractAddress: meta.verification.blockchain.contract_address,
+          metadataUrl: meta.verification.qr_code_url.replace(
+            '/qr-code.png',
+            '/metadata.json'
+          ),
+          qrCodeUrl: meta.verification.qr_code_url,
+          verifyUrl: meta.verification.verify_url,
+        };
+      }
+    }
+
     return NextResponse.json<ScanResponse>({
       success: true,
       valid: isValid,
+      isRevoked,
       tag: {
         code: tag.code,
         isStamped: tag.is_stamped === 1,
-        chainStatus: tag.chain_status,
+        chainStatus: blockchainValidation?.chainStatus ?? tag.chain_status,
+        chainStatusLabel:
+          blockchainValidation?.chainStatusLabel ||
+          getChainStatusLabel(tag.chain_status),
         products: productInfo,
         distribution: distributionInfo,
       },
+      blockchainValidation,
+      blockchainMetadata,
       scanInfo: {
         scanNumber: totalScans + 1,
         totalScans: totalScans + 1,
