@@ -1,50 +1,22 @@
-'use client';
-
-import { useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ProductForm } from './product-form';
+import { Plus } from 'lucide-react';
 
-type Brand = {
-  id: number;
-  name: string;
-};
-
-type ProductsHeaderProps = {
-  brands: Brand[];
-};
-
-export function ProductsHeader({ brands }: ProductsHeaderProps) {
-  const [open, setOpen] = useState(false);
-
+export function ProductsHeader() {
   return (
-    <>
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Products</h2>
-          <p className="text-muted-foreground">
-            Manage products with dynamic templates
-          </p>
-        </div>
-        <Button onClick={() => setOpen(true)}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="mr-2"
-          >
-            <path d="M5 12h14" />
-            <path d="M12 5v14" />
-          </svg>
-          Add Product
-        </Button>
+    <div className="flex items-center justify-between">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Products</h2>
+        <p className="text-muted-foreground">
+          Manage products with dynamic templates
+        </p>
       </div>
-      <ProductForm open={open} onOpenChange={setOpen} brands={brands} />
-    </>
+      <Button asChild>
+        <Link href="/manage/products/new">
+          <Plus className="mr-2 h-4 w-4" />
+          Add Product
+        </Link>
+      </Button>
+    </div>
   );
 }

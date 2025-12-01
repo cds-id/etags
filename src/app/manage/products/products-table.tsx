@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -26,10 +28,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { ProductForm } from './product-form';
 import { deleteProduct, toggleProductStatus } from '@/lib/actions/products';
 import type { ProductMetadata } from '@/lib/product-templates';
-import Image from 'next/image';
+import { MoreVertical, Pencil, Power, Trash2, ImageIcon } from 'lucide-react';
 
 type Brand = {
   id: number;
@@ -50,11 +51,9 @@ type Product = {
 
 type ProductsTableProps = {
   products: Product[];
-  brands: Brand[];
 };
 
-export function ProductsTable({ products, brands }: ProductsTableProps) {
-  const [editProduct, setEditProduct] = useState<Product | null>(null);
+export function ProductsTable({ products }: ProductsTableProps) {
   const [deleteConfirm, setDeleteConfirm] = useState<Product | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -131,37 +130,20 @@ export function ProductsTable({ products, brands }: ProductsTableProps) {
                       />
                     ) : (
                       <div className="flex h-12 w-12 items-center justify-center rounded-md border bg-muted">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="text-muted-foreground"
-                        >
-                          <rect
-                            width="18"
-                            height="18"
-                            x="3"
-                            y="3"
-                            rx="2"
-                            ry="2"
-                          />
-                          <circle cx="9" cy="9" r="2" />
-                          <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-                        </svg>
+                        <ImageIcon className="h-5 w-5 text-muted-foreground" />
                       </div>
                     )}
                   </TableCell>
                   <TableCell className="font-mono text-sm">
                     {product.code}
                   </TableCell>
-                  <TableCell className="font-medium">
-                    {getProductName(metadata)}
+                  <TableCell>
+                    <Link
+                      href={`/manage/products/${product.id}/edit`}
+                      className="font-medium hover:underline"
+                    >
+                      {getProductName(metadata)}
+                    </Link>
                   </TableCell>
                   <TableCell>{product.brand.name}</TableCell>
                   <TableCell>
@@ -182,35 +164,23 @@ export function ProductsTable({ products, brands }: ProductsTableProps) {
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon-sm">
+                        <Button variant="ghost" size="icon">
                           <span className="sr-only">Open menu</span>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <circle cx="12" cy="12" r="1" />
-                            <circle cx="12" cy="5" r="1" />
-                            <circle cx="12" cy="19" r="1" />
-                          </svg>
+                          <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => setEditProduct(product)}
-                        >
-                          Edit
+                        <DropdownMenuItem asChild>
+                          <Link href={`/manage/products/${product.id}/edit`}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => handleToggleStatus(product)}
                           disabled={isPending}
                         >
+                          <Power className="mr-2 h-4 w-4" />
                           {product.status === 1 ? 'Deactivate' : 'Activate'}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
@@ -218,6 +188,7 @@ export function ProductsTable({ products, brands }: ProductsTableProps) {
                           className="text-destructive"
                           onClick={() => setDeleteConfirm(product)}
                         >
+                          <Trash2 className="mr-2 h-4 w-4" />
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -229,13 +200,6 @@ export function ProductsTable({ products, brands }: ProductsTableProps) {
           )}
         </TableBody>
       </Table>
-
-      <ProductForm
-        open={!!editProduct}
-        onOpenChange={(open) => !open && setEditProduct(null)}
-        product={editProduct}
-        brands={brands}
-      />
 
       <Dialog
         open={!!deleteConfirm}
