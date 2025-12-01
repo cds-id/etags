@@ -25,8 +25,15 @@ export type ClaimResponse = {
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as ClaimRequest;
-    const { tagCode, fingerprintId, isFirstHand, sourceInfo, latitude, longitude, locationName } =
-      body;
+    const {
+      tagCode,
+      fingerprintId,
+      isFirstHand,
+      sourceInfo,
+      latitude,
+      longitude,
+      locationName,
+    } = body;
 
     if (!tagCode || !fingerprintId) {
       return NextResponse.json<ClaimResponse>(
