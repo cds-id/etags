@@ -96,6 +96,43 @@ export default function VerifyPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAllHistory, setShowAllHistory] = useState(false);
+  const [userLocation, setUserLocation] = useState<{
+    latitude?: number;
+    longitude?: number;
+    locationName?: string;
+  }>({});
+
+  // Get user's current location for AI analysis
+  useEffect(() => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          let locationName: string | undefined;
+
+          // Try to reverse geocode the location
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`
+            );
+            if (response.ok) {
+              const data = await response.json();
+              locationName = data.display_name;
+            }
+          } catch (e) {
+            console.log('Reverse geocoding failed:', e);
+          }
+
+          setUserLocation({ latitude, longitude, locationName });
+        },
+        (err) => {
+          console.log('Geolocation error:', err.message);
+          // Continue without location - AI will use scan history instead
+        },
+        { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+      );
+    }
+  }, []);
 
   const fetchVerification = useCallback(async () => {
     if (!code) return;
@@ -104,9 +141,19 @@ export default function VerifyPage() {
     setError(null);
 
     try {
-      const response = await fetch(
-        `/api/verify?code=${encodeURIComponent(code)}`
-      );
+      // Build URL with location parameters for AI analysis
+      const params = new URLSearchParams({ code });
+      if (userLocation.latitude) {
+        params.set('lat', userLocation.latitude.toString());
+      }
+      if (userLocation.longitude) {
+        params.set('lon', userLocation.longitude.toString());
+      }
+      if (userLocation.locationName) {
+        params.set('location', userLocation.locationName);
+      }
+
+      const response = await fetch(`/api/verify?${params.toString()}`);
       const result: VerifyResponse = await response.json();
 
       if (result.success) {
@@ -121,7 +168,7 @@ export default function VerifyPage() {
     } finally {
       setLoading(false);
     }
-  }, [code]);
+  }, [code, userLocation]);
 
   useEffect(() => {
     fetchVerification();
@@ -201,10 +248,12 @@ export default function VerifyPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center px-4">
         <div className="text-center">
-          <RefreshCw className="h-12 w-12 animate-spin text-blue-500 mx-auto mb-4" />
-          <p className="text-gray-600">Memverifikasi tag...</p>
+          <RefreshCw className="h-10 w-10 sm:h-12 sm:w-12 animate-spin text-blue-500 mx-auto mb-4" />
+          <p className="text-sm sm:text-base text-gray-600">
+            Memverifikasi tag...
+          </p>
         </div>
       </div>
     );
@@ -214,19 +263,22 @@ export default function VerifyPage() {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       {/* Header */}
       <div className="border-b bg-white">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <Shield className="h-7 w-7 text-blue-600" />
+        <div className="container mx-auto px-4 py-4 sm:py-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <Shield className="h-6 w-6 sm:h-7 sm:w-7 text-blue-600 shrink-0" />
                 Verifikasi Tag
               </h1>
-              <p className="text-sm text-gray-600 font-mono">{code}</p>
+              <p className="text-xs sm:text-sm text-gray-600 font-mono truncate">
+                {code}
+              </p>
             </div>
             <Button
               variant="outline"
               onClick={fetchVerification}
               disabled={loading}
+              className="w-full sm:w-auto"
             >
               <RefreshCw
                 className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`}
@@ -241,13 +293,15 @@ export default function VerifyPage() {
         {/* Error State */}
         {error && !data?.tag && (
           <Card className="mb-6 border-red-300 bg-red-50">
-            <CardContent className="p-6 text-center">
-              <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-red-800 mb-2">
+            <CardContent className="p-4 sm:p-6 text-center">
+              <XCircle className="h-12 w-12 sm:h-16 sm:w-16 text-red-500 mx-auto mb-3 sm:mb-4" />
+              <h2 className="text-lg sm:text-xl font-semibold text-red-800 mb-2">
                 Tag Tidak Ditemukan
               </h2>
-              <p className="text-red-600 mb-4">{error}</p>
-              <p className="text-sm text-red-500">
+              <p className="text-sm sm:text-base text-red-600 mb-3 sm:mb-4">
+                {error}
+              </p>
+              <p className="text-xs sm:text-sm text-red-500">
                 Pastikan kode tag yang Anda masukkan benar atau hubungi penjual
                 untuk konfirmasi.
               </p>
@@ -267,19 +321,19 @@ export default function VerifyPage() {
                     : 'border-yellow-300 bg-yellow-50'
               }`}
             >
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-start sm:items-center gap-3 sm:gap-4">
                     {data.tag.isRevoked ? (
-                      <ShieldX className="h-16 w-16 text-red-500" />
+                      <ShieldX className="h-12 w-12 sm:h-16 sm:w-16 text-red-500 shrink-0" />
                     ) : data.tag.isStamped ? (
-                      <ShieldCheck className="h-16 w-16 text-green-500" />
+                      <ShieldCheck className="h-12 w-12 sm:h-16 sm:w-16 text-green-500 shrink-0" />
                     ) : (
-                      <ShieldAlert className="h-16 w-16 text-yellow-500" />
+                      <ShieldAlert className="h-12 w-12 sm:h-16 sm:w-16 text-yellow-500 shrink-0" />
                     )}
-                    <div>
+                    <div className="min-w-0">
                       <h2
-                        className={`text-2xl font-bold ${
+                        className={`text-lg sm:text-2xl font-bold ${
                           data.tag.isRevoked
                             ? 'text-red-800'
                             : data.tag.isStamped
@@ -294,7 +348,7 @@ export default function VerifyPage() {
                             : 'Tag Tidak Terverifikasi'}
                       </h2>
                       <p
-                        className={`text-sm ${
+                        className={`text-xs sm:text-sm ${
                           data.tag.isRevoked
                             ? 'text-red-600'
                             : data.tag.isStamped
@@ -312,7 +366,7 @@ export default function VerifyPage() {
                   </div>
                   <Badge
                     variant={data.tag.isRevoked ? 'destructive' : 'secondary'}
-                    className="text-sm px-3 py-1"
+                    className="text-xs sm:text-sm px-2 sm:px-3 py-1 self-start sm:self-auto shrink-0"
                   >
                     {getChainStatusLabel(data.tag.chainStatusLabel)}
                   </Badge>
@@ -323,9 +377,9 @@ export default function VerifyPage() {
             {/* Fraud Analysis Card */}
             <Card className="mb-6">
               <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Shield className="h-5 w-5 text-blue-600" />
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-blue-600 shrink-0" />
                     Analisis Keamanan
                   </CardTitle>
                   {getRiskBadge(data.fraudAnalysis.overallRisk)}
@@ -335,14 +389,16 @@ export default function VerifyPage() {
                 {/* Risk Score Bar */}
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-600">Skor Risiko</span>
-                    <span className="text-sm font-semibold">
+                    <span className="text-xs sm:text-sm text-gray-600">
+                      Skor Risiko
+                    </span>
+                    <span className="text-xs sm:text-sm font-semibold">
                       {data.fraudAnalysis.riskScore}/100
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div className="w-full bg-gray-200 rounded-full h-2.5 sm:h-3">
                     <div
-                      className={`h-3 rounded-full ${getRiskColor(data.fraudAnalysis.overallRisk)}`}
+                      className={`h-2.5 sm:h-3 rounded-full ${getRiskColor(data.fraudAnalysis.overallRisk)}`}
                       style={{ width: `${data.fraudAnalysis.riskScore}%` }}
                     />
                   </div>
@@ -353,7 +409,7 @@ export default function VerifyPage() {
                   {data.fraudAnalysis.flags.map((flag, index) => (
                     <div
                       key={index}
-                      className={`flex items-start gap-3 p-3 rounded-lg ${
+                      className={`flex items-start gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg ${
                         flag.severity === 'danger'
                           ? 'bg-red-50'
                           : flag.severity === 'warning'
@@ -361,9 +417,11 @@ export default function VerifyPage() {
                             : 'bg-green-50'
                       }`}
                     >
-                      {getFlagIcon(flag.severity)}
+                      <div className="shrink-0 mt-0.5">
+                        {getFlagIcon(flag.severity)}
+                      </div>
                       <span
-                        className={`text-sm ${
+                        className={`text-xs sm:text-sm ${
                           flag.severity === 'danger'
                             ? 'text-red-700'
                             : flag.severity === 'warning'
@@ -376,6 +434,128 @@ export default function VerifyPage() {
                     </div>
                   ))}
                 </div>
+
+                {/* AI Analysis Recommendation */}
+                {data.aiAnalysis && (
+                  <div className="mt-4 pt-4 border-t">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                      <p className="text-xs sm:text-sm font-medium text-gray-700 flex items-center gap-1.5">
+                        <span className="inline-block w-2 h-2 bg-blue-500 rounded-full"></span>
+                        Analisis AI
+                      </p>
+                      <div className="flex items-center gap-2">
+                        {data.aiAnalysis.fromCache && (
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] sm:text-xs"
+                          >
+                            Cached
+                          </Badge>
+                        )}
+                        {data.aiAnalysis.cacheExpiresAt && (
+                          <span className="text-[10px] sm:text-xs text-gray-400">
+                            Update:{' '}
+                            {new Date(
+                              data.aiAnalysis.cacheExpiresAt
+                            ).toLocaleTimeString('id-ID', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* AI Recommendation */}
+                    <div
+                      className={`p-3 rounded-lg ${
+                        data.aiAnalysis.isSuspicious
+                          ? 'bg-orange-50 border border-orange-200'
+                          : 'bg-blue-50 border border-blue-200'
+                      }`}
+                    >
+                      <p
+                        className={`text-xs sm:text-sm ${
+                          data.aiAnalysis.isSuspicious
+                            ? 'text-orange-800'
+                            : 'text-blue-800'
+                        }`}
+                      >
+                        {data.aiAnalysis.recommendation}
+                      </p>
+                    </div>
+
+                    {/* AI Analysis Details */}
+                    <div className="mt-3 grid grid-cols-3 gap-2">
+                      <div
+                        className={`p-2 rounded text-center ${
+                          data.aiAnalysis.details.locationMatch
+                            ? 'bg-green-50'
+                            : 'bg-red-50'
+                        }`}
+                      >
+                        <p className="text-[10px] sm:text-xs text-gray-500">
+                          Lokasi
+                        </p>
+                        <p
+                          className={`text-xs sm:text-sm font-medium ${
+                            data.aiAnalysis.details.locationMatch
+                              ? 'text-green-700'
+                              : 'text-red-700'
+                          }`}
+                        >
+                          {data.aiAnalysis.details.locationMatch
+                            ? 'Sesuai'
+                            : 'Tidak Sesuai'}
+                        </p>
+                      </div>
+                      <div
+                        className={`p-2 rounded text-center ${
+                          data.aiAnalysis.details.channelMatch
+                            ? 'bg-green-50'
+                            : 'bg-red-50'
+                        }`}
+                      >
+                        <p className="text-[10px] sm:text-xs text-gray-500">
+                          Channel
+                        </p>
+                        <p
+                          className={`text-xs sm:text-sm font-medium ${
+                            data.aiAnalysis.details.channelMatch
+                              ? 'text-green-700'
+                              : 'text-red-700'
+                          }`}
+                        >
+                          {data.aiAnalysis.details.channelMatch
+                            ? 'Sesuai'
+                            : 'Tidak Sesuai'}
+                        </p>
+                      </div>
+                      <div
+                        className={`p-2 rounded text-center ${
+                          data.aiAnalysis.details.marketMatch
+                            ? 'bg-green-50'
+                            : 'bg-red-50'
+                        }`}
+                      >
+                        <p className="text-[10px] sm:text-xs text-gray-500">
+                          Pasar
+                        </p>
+                        <p
+                          className={`text-xs sm:text-sm font-medium ${
+                            data.aiAnalysis.details.marketMatch
+                              ? 'text-green-700'
+                              : 'text-red-700'
+                          }`}
+                        >
+                          {data.aiAnalysis.details.marketMatch
+                            ? 'Sesuai'
+                            : 'Tidak Sesuai'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -383,8 +563,8 @@ export default function VerifyPage() {
             {data.tag.products.length > 0 && (
               <Card className="mb-6">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Package className="h-5 w-5 text-purple-600" />
+                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                    <Package className="h-5 w-5 text-purple-600 shrink-0" />
                     Informasi Produk
                   </CardTitle>
                 </CardHeader>
@@ -392,7 +572,7 @@ export default function VerifyPage() {
                   {data.tag.products.map((product, index) => (
                     <div
                       key={index}
-                      className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg"
+                      className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg"
                     >
                       {product.brandLogo && (
                         <Image
@@ -400,16 +580,18 @@ export default function VerifyPage() {
                           alt={product.brand}
                           width={64}
                           height={64}
-                          className="h-16 w-16 rounded-lg object-contain bg-white p-2"
+                          className="h-14 w-14 sm:h-16 sm:w-16 rounded-lg object-contain bg-white p-2 shrink-0"
                         />
                       )}
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-base sm:text-lg">
                           {product.name}
                         </h3>
-                        <p className="text-sm text-gray-600">{product.brand}</p>
+                        <p className="text-xs sm:text-sm text-gray-600">
+                          {product.brand}
+                        </p>
                         {product.description && (
-                          <p className="text-sm text-gray-500 mt-2">
+                          <p className="text-xs sm:text-sm text-gray-500 mt-2 line-clamp-3">
                             {product.description}
                           </p>
                         )}
@@ -427,20 +609,20 @@ export default function VerifyPage() {
                 data.tag.distribution.channel) && (
                 <Card className="mb-6">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Globe className="h-5 w-5 text-blue-600" />
+                    <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                      <Globe className="h-5 w-5 text-blue-600 shrink-0" />
                       Informasi Distribusi
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-xs sm:text-sm">
                       Wilayah distribusi resmi produk ini
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       {data.tag.distribution.country && (
                         <div className="bg-gray-50 rounded-lg p-3">
                           <p className="text-xs text-gray-500">Negara</p>
-                          <p className="font-medium">
+                          <p className="font-medium text-sm sm:text-base">
                             {getCountryLabel(data.tag.distribution.country)}
                           </p>
                         </div>
@@ -448,7 +630,7 @@ export default function VerifyPage() {
                       {data.tag.distribution.region && (
                         <div className="bg-gray-50 rounded-lg p-3">
                           <p className="text-xs text-gray-500">Wilayah</p>
-                          <p className="font-medium">
+                          <p className="font-medium text-sm sm:text-base">
                             {data.tag.distribution.region}
                           </p>
                         </div>
@@ -456,7 +638,7 @@ export default function VerifyPage() {
                       {data.tag.distribution.channel && (
                         <div className="bg-gray-50 rounded-lg p-3">
                           <p className="text-xs text-gray-500">Channel</p>
-                          <p className="font-medium">
+                          <p className="font-medium text-sm sm:text-base">
                             {getChannelLabel(data.tag.distribution.channel)}
                           </p>
                         </div>
@@ -464,7 +646,7 @@ export default function VerifyPage() {
                       {data.tag.distribution.intendedMarket && (
                         <div className="bg-gray-50 rounded-lg p-3">
                           <p className="text-xs text-gray-500">Pasar</p>
-                          <p className="font-medium">
+                          <p className="font-medium text-sm sm:text-base">
                             {getMarketLabel(
                               data.tag.distribution.intendedMarket
                             )}
@@ -479,37 +661,37 @@ export default function VerifyPage() {
             {/* Scan Statistics */}
             <Card className="mb-6">
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Scan className="h-5 w-5 text-green-600" />
+                <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                  <Scan className="h-5 w-5 text-green-600 shrink-0" />
                   Statistik Pemindaian
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-gray-50 rounded-lg p-4 text-center">
-                    <Scan className="h-6 w-6 text-blue-500 mx-auto mb-2" />
-                    <p className="text-2xl font-bold">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  <div className="bg-gray-50 rounded-lg p-3 sm:p-4 text-center">
+                    <Scan className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500 mx-auto mb-1 sm:mb-2" />
+                    <p className="text-xl sm:text-2xl font-bold">
                       {data.scanStats.totalScans}
                     </p>
                     <p className="text-xs text-gray-500">Total Scan</p>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-4 text-center">
-                    <Users className="h-6 w-6 text-purple-500 mx-auto mb-2" />
-                    <p className="text-2xl font-bold">
+                  <div className="bg-gray-50 rounded-lg p-3 sm:p-4 text-center">
+                    <Users className="h-5 w-5 sm:h-6 sm:w-6 text-purple-500 mx-auto mb-1 sm:mb-2" />
+                    <p className="text-xl sm:text-2xl font-bold">
                       {data.scanStats.uniqueScanners}
                     </p>
                     <p className="text-xs text-gray-500">Pemindai Unik</p>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-4 text-center">
-                    <MapPin className="h-6 w-6 text-red-500 mx-auto mb-2" />
-                    <p className="text-2xl font-bold">
+                  <div className="bg-gray-50 rounded-lg p-3 sm:p-4 text-center">
+                    <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-red-500 mx-auto mb-1 sm:mb-2" />
+                    <p className="text-xl sm:text-2xl font-bold">
                       {data.scanStats.scanLocations.length}
                     </p>
                     <p className="text-xs text-gray-500">Lokasi Berbeda</p>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-4 text-center">
-                    <Calendar className="h-6 w-6 text-green-500 mx-auto mb-2" />
-                    <p className="text-sm font-medium">
+                  <div className="bg-gray-50 rounded-lg p-3 sm:p-4 text-center">
+                    <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-green-500 mx-auto mb-1 sm:mb-2" />
+                    <p className="text-xs sm:text-sm font-medium leading-tight">
                       {data.scanStats.lastScanAt
                         ? formatTime(data.scanStats.lastScanAt)
                         : '-'}
@@ -531,12 +713,14 @@ export default function VerifyPage() {
                           <Badge
                             key={index}
                             variant="secondary"
-                            className="text-xs"
+                            className="text-xs max-w-full"
                           >
-                            <MapPin className="h-3 w-3 mr-1" />
-                            {location.length > 50
-                              ? location.substring(0, 50) + '...'
-                              : location}
+                            <MapPin className="h-3 w-3 mr-1 shrink-0" />
+                            <span className="truncate">
+                              {location.length > 30
+                                ? location.substring(0, 30) + '...'
+                                : location}
+                            </span>
                           </Badge>
                         ))}
                       {data.scanStats.scanLocations.length > 5 && (
@@ -554,27 +738,27 @@ export default function VerifyPage() {
             {data.scanHistory.length > 0 && (
               <Card className="mb-6">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Clock className="h-5 w-5 text-orange-600" />
+                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-orange-600 shrink-0" />
                     Riwayat Pemindaian
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-xs sm:text-sm">
                     {data.scanHistory.length} pemindaian tercatat
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {(showAllHistory
                       ? data.scanHistory
                       : data.scanHistory.slice(0, 5)
                     ).map((scan, index) => (
                       <div
                         key={index}
-                        className="relative border-l-2 border-gray-200 pl-4 pb-4 last:pb-0"
+                        className="relative border-l-2 border-gray-200 pl-3 sm:pl-4 pb-3 sm:pb-4 last:pb-0"
                       >
                         {/* Timeline dot */}
                         <div
-                          className={`absolute -left-[9px] top-0 h-4 w-4 rounded-full border-2 border-white ${
+                          className={`absolute -left-[7px] sm:-left-[9px] top-0 h-3 w-3 sm:h-4 sm:w-4 rounded-full border-2 border-white ${
                             scan.isFirstHand === true
                               ? 'bg-green-500'
                               : scan.isFirstHand === false
@@ -583,32 +767,32 @@ export default function VerifyPage() {
                           }`}
                         />
 
-                        <div className="bg-gray-50 rounded-lg p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium">
+                        <div className="bg-gray-50 rounded-lg p-2.5 sm:p-3">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0 mb-2">
+                            <span className="text-xs sm:text-sm font-medium">
                               Scan #{scan.scanNumber}
                             </span>
-                            <span className="text-xs text-gray-500">
+                            <span className="text-[10px] sm:text-xs text-gray-500">
                               {formatTime(scan.createdAt)}
                             </span>
                           </div>
 
                           {scan.locationName && (
-                            <div className="flex items-center gap-1 text-xs text-gray-600 mb-1">
-                              <MapPin className="h-3 w-3" />
-                              <span className="truncate">
+                            <div className="flex items-start gap-1 text-xs text-gray-600 mb-1">
+                              <MapPin className="h-3 w-3 shrink-0 mt-0.5" />
+                              <span className="break-words line-clamp-2">
                                 {scan.locationName}
                               </span>
                             </div>
                           )}
 
-                          <div className="flex items-center gap-2 mt-2">
+                          <div className="flex flex-wrap items-center gap-2 mt-2">
                             {scan.isFirstHand !== null && (
                               <Badge
                                 variant={
                                   scan.isFirstHand ? 'default' : 'secondary'
                                 }
-                                className="text-xs"
+                                className="text-[10px] sm:text-xs"
                               >
                                 {scan.isFirstHand
                                   ? 'Tangan Pertama'
@@ -616,7 +800,7 @@ export default function VerifyPage() {
                               </Badge>
                             )}
                             {scan.sourceInfo && (
-                              <span className="text-xs text-gray-500">
+                              <span className="text-[10px] sm:text-xs text-gray-500 break-words">
                                 {scan.sourceInfo}
                               </span>
                             )}
@@ -629,7 +813,7 @@ export default function VerifyPage() {
                   {data.scanHistory.length > 5 && (
                     <Button
                       variant="ghost"
-                      className="w-full mt-4"
+                      className="w-full mt-4 text-sm"
                       onClick={() => setShowAllHistory(!showAllHistory)}
                     >
                       {showAllHistory ? (
@@ -653,25 +837,25 @@ export default function VerifyPage() {
             {data.blockchainMetadata && (
               <Card className="mb-6">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Hash className="h-5 w-5 text-blue-600" />
+                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                    <Hash className="h-5 w-5 text-blue-600 shrink-0" />
                     Data Blockchain
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-xs sm:text-sm">
                     Informasi yang tercatat di blockchain
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <CardContent className="space-y-3 sm:space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className="bg-gray-50 rounded-lg p-3">
                       <p className="text-xs text-gray-500">Network</p>
-                      <p className="font-medium">
+                      <p className="font-medium text-sm sm:text-base">
                         {data.blockchainMetadata.network}
                       </p>
                     </div>
                     <div className="bg-gray-50 rounded-lg p-3">
                       <p className="text-xs text-gray-500">Waktu Stamp</p>
-                      <p className="font-medium text-sm">
+                      <p className="font-medium text-xs sm:text-sm">
                         {formatTime(data.blockchainMetadata.stampedAt)}
                       </p>
                     </div>
@@ -683,13 +867,13 @@ export default function VerifyPage() {
                         Transaction Hash
                       </p>
                       <div className="flex items-center gap-2">
-                        <code className="text-xs font-mono text-gray-700 truncate flex-1">
+                        <code className="text-[10px] sm:text-xs font-mono text-gray-700 truncate flex-1 min-w-0">
                           {data.blockchainMetadata.transactionHash}
                         </code>
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-7 w-7 p-0"
+                          className="h-7 w-7 p-0 shrink-0"
                           asChild
                         >
                           <a
@@ -709,13 +893,13 @@ export default function VerifyPage() {
                       Contract Address
                     </p>
                     <div className="flex items-center gap-2">
-                      <code className="text-xs font-mono text-gray-700 truncate flex-1">
+                      <code className="text-[10px] sm:text-xs font-mono text-gray-700 truncate flex-1 min-w-0">
                         {data.blockchainMetadata.contractAddress}
                       </code>
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-7 w-7 p-0"
+                        className="h-7 w-7 p-0 shrink-0"
                         asChild
                       >
                         <a
@@ -729,7 +913,7 @@ export default function VerifyPage() {
                     </div>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <Button
                       variant="outline"
                       size="sm"
@@ -767,10 +951,10 @@ export default function VerifyPage() {
 
             {/* Info Card */}
             <Card className="mb-6 bg-blue-50 border-blue-200">
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <Info className="h-5 w-5 text-blue-600 mt-0.5" />
-                  <div className="text-sm text-blue-800">
+              <CardContent className="p-3 sm:p-4">
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <Info className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 mt-0.5 shrink-0" />
+                  <div className="text-xs sm:text-sm text-blue-800 min-w-0">
                     <p className="font-medium mb-1">Tentang Verifikasi Tag</p>
                     <p className="text-blue-700">
                       Halaman ini menampilkan status verifikasi tag produk. Tag

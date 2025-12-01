@@ -4,6 +4,8 @@ import type { ProductMetadata, TagMetadata } from '@/lib/product-templates';
 import { validateTagOnChain } from '@/lib/tag-sync';
 import { CHAIN_STATUS, getChainStatusLabel } from '@/lib/constants';
 import { fetchTagMetadata } from '@/lib/tag-stamping';
+import { getCachedFraudAnalysis } from '@/lib/fraud-analysis-cache';
+import type { DistributionInfo, ScanLocation } from '@/lib/fraud-detection';
 
 export type VerifyResponse = {
   success: boolean;
@@ -74,16 +76,40 @@ export type VerifyResponse = {
     suspiciousScanPattern: boolean;
     multipleLocationsInShortTime: boolean;
   };
+  aiAnalysis?: {
+    isSuspicious: boolean;
+    riskLevel: 'low' | 'medium' | 'high' | 'critical';
+    riskScore: number;
+    reasons: string[];
+    recommendation: string;
+    details: {
+      locationMatch: boolean;
+      channelMatch: boolean;
+      marketMatch: boolean;
+    };
+    fromCache: boolean;
+    cacheExpiresAt?: string;
+  };
 };
 
 /**
- * GET /api/verify?code=TAG-XXXXX
+ * GET /api/verify?code=TAG-XXXXX&lat=...&lon=...&location=...
  *
  * Public endpoint to verify a tag
+ * Optional: lat, lon, location params for AI fraud analysis
  */
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const tagCode = searchParams.get('code');
+
+  // Optional location parameters for AI fraud analysis
+  const latitude = searchParams.get('lat')
+    ? parseFloat(searchParams.get('lat')!)
+    : undefined;
+  const longitude = searchParams.get('lon')
+    ? parseFloat(searchParams.get('lon')!)
+    : undefined;
+  const locationName = searchParams.get('location') || undefined;
 
   if (!tagCode) {
     return NextResponse.json<VerifyResponse>(
@@ -352,6 +378,88 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // AI-powered fraud analysis with caching (5-minute TTL)
+    let aiAnalysis: VerifyResponse['aiAnalysis'] = undefined;
+
+    // Build current scan location from query params or latest scan
+    const currentScanLocation: ScanLocation = {
+      latitude,
+      longitude,
+      locationName: locationName || lastScan?.location_name || undefined,
+    };
+
+    // Build distribution info for AI analysis
+    const distributionForAI: DistributionInfo = {
+      region: distributionInfo.region,
+      country: distributionInfo.country,
+      channel: distributionInfo.channel,
+      intended_market: distributionInfo.intendedMarket,
+    };
+
+    // Only run AI analysis if we have location data or distribution info
+    const hasLocationData =
+      currentScanLocation.latitude ||
+      currentScanLocation.longitude ||
+      currentScanLocation.locationName;
+    const hasDistributionInfo =
+      distributionForAI.country || distributionForAI.intended_market;
+
+    if (hasLocationData || hasDistributionInfo) {
+      try {
+        const aiResult = await getCachedFraudAnalysis(
+          tag.code,
+          distributionForAI,
+          currentScanLocation,
+          {
+            totalScans,
+            uniqueScanners,
+            recentLocations: scanLocations.slice(0, 5),
+          }
+        );
+
+        aiAnalysis = {
+          isSuspicious: aiResult.isSuspicious,
+          riskLevel: aiResult.riskLevel,
+          riskScore: aiResult.riskScore,
+          reasons: aiResult.reasons,
+          recommendation: aiResult.recommendation,
+          details: aiResult.details,
+          fromCache: aiResult.fromCache,
+          cacheExpiresAt: aiResult.cacheExpiresAt,
+        };
+
+        // Update overall risk if AI analysis indicates higher risk
+        if (aiResult.riskScore > riskScore) {
+          riskScore = aiResult.riskScore;
+          overallRisk = aiResult.riskLevel;
+        }
+
+        // Add AI-generated flags to fraud flags
+        if (aiResult.isSuspicious && aiResult.reasons.length > 0) {
+          aiResult.reasons.forEach((reason) => {
+            // Avoid duplicate flags
+            const isDuplicate = fraudFlags.some(
+              (f) => f.message.toLowerCase() === reason.toLowerCase()
+            );
+            if (!isDuplicate) {
+              fraudFlags.push({
+                type: 'ai_analysis',
+                severity:
+                  aiResult.riskLevel === 'critical' ||
+                  aiResult.riskLevel === 'high'
+                    ? 'danger'
+                    : 'warning',
+                message: reason,
+              });
+            }
+          });
+        }
+      } catch (aiError) {
+        console.error('AI fraud analysis error:', aiError);
+        // Continue without AI analysis - rule-based analysis is still available
+      }
+    }
+
     return NextResponse.json<VerifyResponse>({
       success: true,
       tag: {
@@ -382,6 +490,7 @@ export async function GET(request: NextRequest) {
         suspiciousScanPattern,
         multipleLocationsInShortTime,
       },
+      aiAnalysis,
     });
   } catch (error) {
     console.error('Verify error:', error);
