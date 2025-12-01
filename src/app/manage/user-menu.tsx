@@ -54,13 +54,13 @@ export function UserMenu({ user }: UserMenuProps) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/manage/profile">Profile</Link>
+          <Link href="/manage/profile">Profil</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <form action={logout} className="w-full">
             <button type="submit" className="w-full text-left">
-              Log out
+              Keluar
             </button>
           </form>
         </DropdownMenuItem>

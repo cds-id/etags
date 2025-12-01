@@ -65,21 +65,23 @@ export function UserForm({ open, onOpenChange, user }: UserFormProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Edit User' : 'Create User'}</DialogTitle>
+          <DialogTitle>
+            {isEdit ? 'Edit Pengguna' : 'Buat Pengguna'}
+          </DialogTitle>
           <DialogDescription>
             {isEdit
-              ? 'Update user details. Leave password blank to keep current.'
-              : 'Create a new user account.'}
+              ? 'Perbarui detail pengguna. Kosongkan kata sandi untuk mempertahankan yang saat ini.'
+              : 'Buat akun pengguna baru.'}
           </DialogDescription>
         </DialogHeader>
         <form ref={formRef} action={formAction} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">Nama</Label>
             <Input
               id="name"
               name="name"
               defaultValue={user?.name || ''}
-              placeholder="Enter name"
+              placeholder="Masukkan nama"
               required
             />
           </div>
@@ -90,28 +92,29 @@ export function UserForm({ open, onOpenChange, user }: UserFormProps) {
               name="email"
               type="email"
               defaultValue={user?.email || ''}
-              placeholder="Enter email"
+              placeholder="Masukkan email"
               required
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">
-              Password {isEdit && '(leave blank to keep current)'}
+              Kata Sandi{' '}
+              {isEdit && '(kosongkan untuk mempertahankan yang saat ini)'}
             </Label>
             <Input
               id="password"
               name="password"
               type="password"
-              placeholder={isEdit ? '••••••••' : 'Enter password'}
+              placeholder={isEdit ? '••••••••' : 'Masukkan kata sandi'}
               required={!isEdit}
               minLength={6}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="role">Role</Label>
+            <Label htmlFor="role">Peran</Label>
             <Select name="role" defaultValue={user?.role || 'brand'}>
               <SelectTrigger>
-                <SelectValue placeholder="Select role" />
+                <SelectValue placeholder="Pilih peran" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="admin">Admin</SelectItem>
@@ -123,11 +126,11 @@ export function UserForm({ open, onOpenChange, user }: UserFormProps) {
             <Label htmlFor="status">Status</Label>
             <Select name="status" defaultValue={String(user?.status ?? 1)}>
               <SelectTrigger>
-                <SelectValue placeholder="Select status" />
+                <SelectValue placeholder="Pilih status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1">Active</SelectItem>
-                <SelectItem value="0">Inactive</SelectItem>
+                <SelectItem value="1">Aktif</SelectItem>
+                <SelectItem value="0">Nonaktif</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -140,10 +143,10 @@ export function UserForm({ open, onOpenChange, user }: UserFormProps) {
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              Batal
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? 'Saving...' : isEdit ? 'Update' : 'Create'}
+              {isPending ? 'Menyimpan...' : isEdit ? 'Perbarui' : 'Buat'}
             </Button>
           </DialogFooter>
         </form>

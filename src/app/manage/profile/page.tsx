@@ -14,8 +14,8 @@ export default async function ProfilePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Profile</h2>
-        <p className="text-muted-foreground">Manage your account settings</p>
+        <h2 className="text-3xl font-bold tracking-tight">Profil</h2>
+        <p className="text-muted-foreground">Kelola pengaturan akun Anda</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">

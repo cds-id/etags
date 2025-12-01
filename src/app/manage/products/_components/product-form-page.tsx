@@ -54,9 +54,14 @@ type Product = {
 type ProductFormPageProps = {
   product?: Product | null;
   brands: Brand[];
+  isAdmin?: boolean;
 };
 
-export function ProductFormPage({ product, brands }: ProductFormPageProps) {
+export function ProductFormPage({
+  product,
+  brands,
+  isAdmin = true,
+}: ProductFormPageProps) {
   const router = useRouter();
   const isEdit = !!product;
 
@@ -109,7 +114,7 @@ export function ProductFormPage({ product, brands }: ProductFormPageProps) {
     const totalImages = imagePreviews.length + files.length;
 
     if (totalImages > 5) {
-      alert('Maximum 5 images allowed');
+      alert('Maksimal 5 gambar diperbolehkan');
       return;
     }
 
@@ -203,9 +208,7 @@ export function ProductFormPage({ product, brands }: ProductFormPageProps) {
             required={field.required}
           >
             <SelectTrigger>
-              <SelectValue
-                placeholder={`Select ${field.label.toLowerCase()}`}
-              />
+              <SelectValue placeholder={`Pilih ${field.label.toLowerCase()}`} />
             </SelectTrigger>
             <SelectContent>
               {field.options?.map((option) => (
@@ -247,13 +250,13 @@ export function ProductFormPage({ product, brands }: ProductFormPageProps) {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={preview}
-                      alt={`Preview ${index + 1}`}
+                      alt={`Pratinjau ${index + 1}`}
                       className="h-24 w-24 rounded-lg border object-cover"
                     />
                   ) : (
                     <Image
                       src={preview}
-                      alt={`Preview ${index + 1}`}
+                      alt={`Pratinjau ${index + 1}`}
                       width={96}
                       height={96}
                       className="h-24 w-24 rounded-lg border object-cover"
@@ -274,7 +277,7 @@ export function ProductFormPage({ product, brands }: ProductFormPageProps) {
                 <label className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors hover:border-primary hover:bg-muted/50">
                   <ImagePlus className="h-6 w-6 text-muted-foreground" />
                   <span className="mt-1 text-xs text-muted-foreground">
-                    Add
+                    Tambah
                   </span>
                   <Input
                     type="file"
@@ -320,12 +323,12 @@ export function ProductFormPage({ product, brands }: ProductFormPageProps) {
         </Button>
         <div>
           <h2 className="text-3xl font-bold tracking-tight">
-            {isEdit ? 'Edit Product' : 'Create Product'}
+            {isEdit ? 'Edit Produk' : 'Buat Produk'}
           </h2>
           <p className="text-muted-foreground">
             {isEdit
-              ? `Editing ${(product?.metadata as ProductMetadata)?.name || product?.code}`
-              : 'Add a new product to your catalog'}
+              ? `Mengedit ${(product?.metadata as ProductMetadata)?.name || product?.code}`
+              : 'Tambahkan produk baru ke katalog Anda'}
           </p>
         </div>
       </div>
@@ -337,21 +340,19 @@ export function ProductFormPage({ product, brands }: ProductFormPageProps) {
             {/* Basic Information */}
             <Card>
               <CardHeader>
-                <CardTitle>Basic Information</CardTitle>
-                <CardDescription>
-                  Enter the core product details
-                </CardDescription>
+                <CardTitle>Informasi Dasar</CardTitle>
+                <CardDescription>Masukkan detail inti produk</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {!isEdit && (
                   <div className="space-y-2">
-                    <Label htmlFor="template">Product Template</Label>
+                    <Label htmlFor="template">Template Produk</Label>
                     <Select
                       value={selectedTemplateId}
                       onValueChange={handleTemplateChange}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select template" />
+                        <SelectValue placeholder="Pilih template" />
                       </SelectTrigger>
                       <SelectContent>
                         {productTemplates.map((template) => (
@@ -371,7 +372,7 @@ export function ProductFormPage({ product, brands }: ProductFormPageProps) {
 
                 {isEdit && (
                   <div className="space-y-2">
-                    <Label>Product Code</Label>
+                    <Label>Kode Produk</Label>
                     <Input
                       value={product?.code}
                       disabled
@@ -400,9 +401,9 @@ export function ProductFormPage({ product, brands }: ProductFormPageProps) {
             {detailFields.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Product Details</CardTitle>
+                  <CardTitle>Detail Produk</CardTitle>
                   <CardDescription>
-                    Additional specifications and attributes
+                    Spesifikasi dan atribut tambahan
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -430,10 +431,10 @@ export function ProductFormPage({ product, brands }: ProductFormPageProps) {
             {imageField && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Product Images</CardTitle>
+                  <CardTitle>Gambar Produk</CardTitle>
                   <CardDescription>
-                    Upload up to 5 product images. First image will be the main
-                    display image.
+                    Unggah hingga 5 gambar produk. Gambar pertama akan menjadi
+                    gambar utama.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>{renderField(imageField)}</CardContent>
@@ -446,30 +447,41 @@ export function ProductFormPage({ product, brands }: ProductFormPageProps) {
             {/* Brand & Status */}
             <Card>
               <CardHeader>
-                <CardTitle>Organization</CardTitle>
+                <CardTitle>Organisasi</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="brand_id">
-                    Brand <span className="text-destructive">*</span>
-                  </Label>
-                  <Select
+                {isAdmin ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="brand_id">
+                      Brand <span className="text-destructive">*</span>
+                    </Label>
+                    <Select
+                      name="brand_id"
+                      defaultValue={product?.brand_id?.toString()}
+                      required
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih brand" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {brands.map((brand) => (
+                          <SelectItem
+                            key={brand.id}
+                            value={brand.id.toString()}
+                          >
+                            {brand.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ) : (
+                  <input
+                    type="hidden"
                     name="brand_id"
-                    defaultValue={product?.brand_id?.toString()}
-                    required
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select brand" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {brands.map((brand) => (
-                        <SelectItem key={brand.id} value={brand.id.toString()}>
-                          {brand.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                    value={brands[0]?.id?.toString() || ''}
+                  />
+                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>
@@ -478,15 +490,15 @@ export function ProductFormPage({ product, brands }: ProductFormPageProps) {
                     defaultValue={String(product?.status ?? 1)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
+                      <SelectValue placeholder="Pilih status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1">Active</SelectItem>
-                      <SelectItem value="0">Inactive</SelectItem>
+                      <SelectItem value="1">Aktif</SelectItem>
+                      <SelectItem value="0">Nonaktif</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-sm text-muted-foreground">
-                    Inactive products won&apos;t appear in tag selections
+                    Produk nonaktif tidak akan muncul dalam pilihan tag
                   </p>
                 </div>
               </CardContent>
@@ -501,13 +513,13 @@ export function ProductFormPage({ product, brands }: ProductFormPageProps) {
                 <div className="flex flex-col gap-2">
                   <Button type="submit" disabled={isPending} className="w-full">
                     {isPending
-                      ? 'Saving...'
+                      ? 'Menyimpan...'
                       : isEdit
-                        ? 'Update Product'
-                        : 'Create Product'}
+                        ? 'Perbarui Produk'
+                        : 'Buat Produk'}
                   </Button>
                   <Button type="button" variant="outline" asChild>
-                    <Link href="/manage/products">Cancel</Link>
+                    <Link href="/manage/products">Batal</Link>
                   </Button>
                 </div>
               </CardContent>

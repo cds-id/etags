@@ -11,7 +11,7 @@ type Props = {
 export default async function EditTagPage({ params }: Props) {
   const session = await auth();
 
-  if (!session?.user || session.user.role !== 'admin') {
+  if (!session?.user) {
     redirect('/manage');
   }
 

@@ -11,10 +11,8 @@ export function BrandsHeader() {
     <>
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Brands</h2>
-          <p className="text-muted-foreground">
-            Manage product brands and logos
-          </p>
+          <h2 className="text-3xl font-bold tracking-tight">Brand</h2>
+          <p className="text-muted-foreground">Kelola brand produk dan logo</p>
         </div>
         <Button onClick={() => setOpen(true)}>
           <svg
@@ -32,7 +30,7 @@ export function BrandsHeader() {
             <path d="M5 12h14" />
             <path d="M12 5v14" />
           </svg>
-          Add Brand
+          Tambah Brand
         </Button>
       </div>
       <BrandForm open={open} onOpenChange={setOpen} />

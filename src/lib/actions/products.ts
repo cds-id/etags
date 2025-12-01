@@ -12,13 +12,30 @@ export type ProductFormState = {
   message?: string;
 };
 
-// Helper to check admin role
-async function requireAdmin() {
+// Helper to require authentication and get user context
+async function requireAuth() {
   const session = await auth();
-  if (!session?.user || session.user.role !== 'admin') {
-    throw new Error('Unauthorized: Admin access required');
+  if (!session?.user) {
+    throw new Error('Unauthorized');
   }
-  return session;
+
+  const isAdmin = session.user.role === 'admin';
+
+  // Get brand_id for brand users
+  let brandId: number | null = null;
+  if (!isAdmin) {
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(session.user.id) },
+      select: { brand_id: true },
+    });
+    brandId = user?.brand_id || null;
+
+    if (!brandId) {
+      throw new Error('Brand user must have a brand assigned');
+    }
+  }
+
+  return { session, isAdmin, brandId };
 }
 
 // Generate unique product code
@@ -32,12 +49,19 @@ function generateProductCode(): string {
 export async function getProducts(
   page: number = 1,
   limit: number = 10,
-  brandId?: number
+  filterBrandId?: number
 ) {
-  await requireAdmin();
+  const { isAdmin, brandId: userBrandId } = await requireAuth();
 
   const skip = (page - 1) * limit;
-  const where = brandId ? { brand_id: brandId } : {};
+
+  // Brand users can only see their own products
+  const where: { brand_id?: number } = {};
+  if (!isAdmin) {
+    where.brand_id = userBrandId!;
+  } else if (filterBrandId) {
+    where.brand_id = filterBrandId;
+  }
 
   const [products, total] = await Promise.all([
     prisma.product.findMany({
@@ -66,12 +90,16 @@ export async function getProducts(
 }
 
 // Get all products for select dropdown (no pagination)
-export async function getAllProducts(brandId?: number) {
-  await requireAdmin();
+export async function getAllProducts(filterBrandId?: number) {
+  const { isAdmin, brandId: userBrandId } = await requireAuth();
 
   const where: { status: number; brand_id?: number } = { status: 1 };
-  if (brandId) {
-    where.brand_id = brandId;
+
+  // Brand users can only see their own products
+  if (!isAdmin) {
+    where.brand_id = userBrandId!;
+  } else if (filterBrandId) {
+    where.brand_id = filterBrandId;
   }
 
   return prisma.product.findMany({
@@ -90,7 +118,7 @@ export async function getAllProducts(brandId?: number) {
 
 // Get single product by ID
 export async function getProductById(id: number) {
-  await requireAdmin();
+  const { isAdmin, brandId: userBrandId } = await requireAuth();
 
   const product = await prisma.product.findUnique({
     where: { id },
@@ -101,6 +129,11 @@ export async function getProductById(id: number) {
     },
   });
 
+  // Brand users can only view their own products
+  if (!isAdmin && product && product.brand_id !== userBrandId) {
+    throw new Error('Unauthorized: Cannot access this product');
+  }
+
   return product;
 }
 
@@ -110,11 +143,16 @@ export async function createProduct(
   formData: FormData
 ): Promise<ProductFormState> {
   try {
-    await requireAdmin();
+    const { isAdmin, brandId: userBrandId } = await requireAuth();
 
-    const brandId = parseInt(formData.get('brand_id') as string);
+    let brandId = parseInt(formData.get('brand_id') as string);
     const templateId = formData.get('template_id') as string;
     const status = parseInt(formData.get('status') as string) || 1;
+
+    // Brand users can only create products for their own brand
+    if (!isAdmin) {
+      brandId = userBrandId!;
+    }
 
     if (!brandId || !templateId) {
       return { error: 'Brand and template are required' };
@@ -187,20 +225,34 @@ export async function updateProduct(
   formData: FormData
 ): Promise<ProductFormState> {
   try {
-    await requireAdmin();
+    const { isAdmin, brandId: userBrandId } = await requireAuth();
 
-    const brandId = parseInt(formData.get('brand_id') as string);
+    let brandId = parseInt(formData.get('brand_id') as string);
     const status = parseInt(formData.get('status') as string);
+
+    // Brand users can only update their own brand's products
+    if (!isAdmin) {
+      brandId = userBrandId!;
+    }
 
     if (!brandId) {
       return { error: 'Brand is required' };
     }
 
-    // Get existing product for image cleanup
+    // Get existing product for image cleanup and authorization check
     const existingProduct = await prisma.product.findUnique({
       where: { id },
-      select: { metadata: true },
+      select: { metadata: true, brand_id: true },
     });
+
+    // Brand users can only update their own products
+    if (
+      !isAdmin &&
+      existingProduct &&
+      existingProduct.brand_id !== userBrandId
+    ) {
+      return { error: 'Unauthorized: Cannot update this product' };
+    }
 
     // Parse metadata from form
     const metadataJson = formData.get('metadata') as string;
@@ -279,15 +331,20 @@ export async function updateProduct(
 // Delete product
 export async function deleteProduct(id: number): Promise<ProductFormState> {
   try {
-    await requireAdmin();
+    const { isAdmin, brandId: userBrandId } = await requireAuth();
 
     const product = await prisma.product.findUnique({
       where: { id },
-      select: { metadata: true },
+      select: { metadata: true, brand_id: true },
     });
 
     if (!product) {
       return { error: 'Product not found' };
+    }
+
+    // Brand users can only delete their own products
+    if (!isAdmin && product.brand_id !== userBrandId) {
+      return { error: 'Unauthorized: Cannot delete this product' };
     }
 
     // Check if product is used in any tags
@@ -331,15 +388,20 @@ export async function toggleProductStatus(
   id: number
 ): Promise<ProductFormState> {
   try {
-    await requireAdmin();
+    const { isAdmin, brandId: userBrandId } = await requireAuth();
 
     const product = await prisma.product.findUnique({
       where: { id },
-      select: { status: true },
+      select: { status: true, brand_id: true },
     });
 
     if (!product) {
       return { error: 'Product not found' };
+    }
+
+    // Brand users can only toggle their own products
+    if (!isAdmin && product.brand_id !== userBrandId) {
+      return { error: 'Unauthorized: Cannot update this product' };
     }
 
     await prisma.product.update({

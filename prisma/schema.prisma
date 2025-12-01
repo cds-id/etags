@@ -12,16 +12,21 @@ datasource db {
 }
 
 model User {
-  id         Int      @id @default(autoincrement())
-  name       String   @db.VarChar(255)
-  email      String   @unique @db.VarChar(255)
-  password   String   @db.VarChar(255)
-  role       String   @db.VarChar(50) // admin or brand
-  status     Int      @default(1) @db.TinyInt // 1 = active, 0 = inactive
-  avatar_url String?  @db.VarChar(500)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id                  Int      @id @default(autoincrement())
+  name                String   @db.VarChar(255)
+  email               String   @unique @db.VarChar(255)
+  password            String   @db.VarChar(255)
+  role                String   @db.VarChar(50) // admin or brand
+  status              Int      @default(1) @db.TinyInt // 1 = active, 0 = inactive
+  avatar_url          String?  @db.VarChar(500)
+  brand_id            Int? // Link to brand for brand users
+  onboarding_complete Int      @default(0) @db.TinyInt // 0 = not complete, 1 = complete
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
 
+  brand Brand? @relation(fields: [brand_id], references: [id], onDelete: SetNull)
+
+  @@index([brand_id])
   @@map("users")
 }
 
@@ -35,6 +40,7 @@ model Brand {
   updated_at   DateTime @updatedAt
 
   products Product[]
+  users    User[]
 
   @@map("brands")
 }

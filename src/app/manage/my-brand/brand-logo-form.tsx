@@ -1,7 +1,6 @@
 'use client';
 
 import { useActionState, useRef, useState, useTransition } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,27 +12,29 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
-  uploadAvatar,
-  removeAvatar,
-  type ProfileFormState,
-} from '@/lib/actions/profile';
+  uploadMyBrandLogo,
+  removeMyBrandLogo,
+  type MyBrandFormState,
+} from '@/lib/actions/my-brand';
+import Image from 'next/image';
 
-type AvatarFormProps = {
-  user: {
+type BrandLogoFormProps = {
+  brand: {
+    id: number;
     name: string;
-    avatar_url: string | null;
+    logo_url: string | null;
   };
 };
 
-export function AvatarForm({ user }: AvatarFormProps) {
+export function BrandLogoForm({ brand }: BrandLogoFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
-  const [preview, setPreview] = useState<string | null>(user.avatar_url);
+  const [preview, setPreview] = useState<string | null>(brand.logo_url);
   const [isPendingRemove, startTransition] = useTransition();
 
   const [state, formAction, isPending] = useActionState<
-    ProfileFormState,
+    MyBrandFormState,
     FormData
-  >(uploadAvatar, {});
+  >(uploadMyBrandLogo, {});
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -48,7 +49,7 @@ export function AvatarForm({ user }: AvatarFormProps) {
 
   const handleRemove = () => {
     startTransition(async () => {
-      await removeAvatar();
+      await removeMyBrandLogo();
       setPreview(null);
     });
   };
@@ -65,30 +66,48 @@ export function AvatarForm({ user }: AvatarFormProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Avatar</CardTitle>
-        <CardDescription>Unggah foto profil</CardDescription>
+        <CardTitle>Logo Brand</CardTitle>
+        <CardDescription>Unggah logo brand Anda</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex items-start gap-6">
-          <Avatar className="h-24 w-24">
-            <AvatarImage src={preview || undefined} />
-            <AvatarFallback className="text-2xl">
-              {getInitials(user.name)}
-            </AvatarFallback>
-          </Avatar>
+          <div className="flex h-24 w-24 items-center justify-center rounded-lg border bg-muted">
+            {preview ? (
+              preview.startsWith('data:') ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={preview}
+                  alt={brand.name}
+                  className="h-full w-full rounded-lg object-contain p-2"
+                />
+              ) : (
+                <Image
+                  src={preview}
+                  alt={brand.name}
+                  width={96}
+                  height={96}
+                  className="h-full w-full rounded-lg object-contain p-2"
+                />
+              )
+            ) : (
+              <span className="text-2xl font-semibold text-muted-foreground">
+                {getInitials(brand.name)}
+              </span>
+            )}
+          </div>
           <div className="flex-1 space-y-4">
             <form ref={formRef} action={formAction} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="avatar">Unggah avatar baru</Label>
+                <Label htmlFor="logo">Unggah logo baru</Label>
                 <Input
-                  id="avatar"
-                  name="avatar"
+                  id="logo"
+                  name="logo"
                   type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  accept="image/jpeg,image/png,image/webp,image/svg+xml"
                   onChange={handleFileChange}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Format yang diterima: JPEG, PNG, WebP, GIF (maks 5MB)
+                  Format yang diterima: JPEG, PNG, WebP, SVG (maks 5MB)
                 </p>
               </div>
               {state.error && (
@@ -101,7 +120,7 @@ export function AvatarForm({ user }: AvatarFormProps) {
                 <Button type="submit" disabled={isPending}>
                   {isPending ? 'Mengunggah...' : 'Unggah'}
                 </Button>
-                {(user.avatar_url || preview) && (
+                {(brand.logo_url || preview) && (
                   <Button
                     type="button"
                     variant="outline"

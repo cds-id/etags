@@ -11,10 +11,8 @@ export function UsersHeader() {
     <>
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Users</h2>
-          <p className="text-muted-foreground">
-            Manage user accounts and permissions
-          </p>
+          <h2 className="text-3xl font-bold tracking-tight">Pengguna</h2>
+          <p className="text-muted-foreground">Kelola akun pengguna dan izin</p>
         </div>
         <Button onClick={() => setOpen(true)}>
           <svg
@@ -32,7 +30,7 @@ export function UsersHeader() {
             <path d="M5 12h14" />
             <path d="M12 5v14" />
           </svg>
-          Add User
+          Tambah Pengguna
         </Button>
       </div>
       <UserForm open={open} onOpenChange={setOpen} />

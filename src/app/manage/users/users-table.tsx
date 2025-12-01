@@ -80,11 +80,11 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead className="w-12"></TableHead>
-            <TableHead>Name</TableHead>
+            <TableHead>Nama</TableHead>
             <TableHead>Email</TableHead>
-            <TableHead>Role</TableHead>
+            <TableHead>Peran</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Created</TableHead>
+            <TableHead>Dibuat</TableHead>
             <TableHead className="w-12"></TableHead>
           </TableRow>
         </TableHeader>
@@ -95,7 +95,7 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
                 colSpan={7}
                 className="text-center text-muted-foreground"
               >
-                No users found
+                Belum ada pengguna
               </TableCell>
             </TableRow>
           ) : (
@@ -120,17 +120,17 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
                   <Badge
                     variant={user.status === 1 ? 'default' : 'destructive'}
                   >
-                    {user.status === 1 ? 'Active' : 'Inactive'}
+                    {user.status === 1 ? 'Aktif' : 'Nonaktif'}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {new Date(user.created_at).toLocaleDateString()}
+                  {new Date(user.created_at).toLocaleDateString('id-ID')}
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon-sm">
-                        <span className="sr-only">Open menu</span>
+                        <span className="sr-only">Buka menu</span>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="16"
@@ -158,14 +158,14 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
                             onClick={() => handleToggleStatus(user)}
                             disabled={isPending}
                           >
-                            {user.status === 1 ? 'Deactivate' : 'Activate'}
+                            {user.status === 1 ? 'Nonaktifkan' : 'Aktifkan'}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className="text-destructive"
                             onClick={() => setDeleteConfirm(user)}
                           >
-                            Delete
+                            Hapus
                           </DropdownMenuItem>
                         </>
                       )}
@@ -190,22 +190,22 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete User</DialogTitle>
+            <DialogTitle>Hapus Pengguna</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete {deleteConfirm?.name}? This action
-              cannot be undone.
+              Apakah Anda yakin ingin menghapus {deleteConfirm?.name}? Tindakan
+              ini tidak dapat dibatalkan.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
-              Cancel
+              Batal
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={isPending}
             >
-              {isPending ? 'Deleting...' : 'Delete'}
+              {isPending ? 'Menghapus...' : 'Hapus'}
             </Button>
           </DialogFooter>
         </DialogContent>

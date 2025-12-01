@@ -96,9 +96,9 @@ function BrandFormContent({
   return (
     <>
       <DialogHeader>
-        <DialogTitle>{isEdit ? 'Edit Brand' : 'Create Brand'}</DialogTitle>
+        <DialogTitle>{isEdit ? 'Edit Brand' : 'Buat Brand'}</DialogTitle>
         <DialogDescription>
-          {isEdit ? 'Update brand details and logo.' : 'Create a new brand.'}
+          {isEdit ? 'Perbarui detail dan logo brand.' : 'Buat brand baru.'}
         </DialogDescription>
       </DialogHeader>
       <form ref={formRef} action={formAction} className="space-y-4">
@@ -109,23 +109,23 @@ function BrandFormContent({
         />
 
         <div className="space-y-2">
-          <Label htmlFor="name">Name</Label>
+          <Label htmlFor="name">Nama</Label>
           <Input
             id="name"
             name="name"
             defaultValue={brand?.name || ''}
-            placeholder="Enter brand name"
+            placeholder="Masukkan nama brand"
             required
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="descriptions">Description</Label>
+          <Label htmlFor="descriptions">Deskripsi</Label>
           <Textarea
             id="descriptions"
             name="descriptions"
             defaultValue={brand?.descriptions || ''}
-            placeholder="Enter brand description"
+            placeholder="Masukkan deskripsi brand"
             rows={3}
             required
           />
@@ -140,13 +140,13 @@ function BrandFormContent({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={logoPreview}
-                    alt="Logo preview"
+                    alt="Pratinjau logo"
                     className="h-20 w-20 rounded-md border object-contain"
                   />
                 ) : (
                   <Image
                     src={logoPreview}
-                    alt="Logo preview"
+                    alt="Pratinjau logo"
                     width={80}
                     height={80}
                     className="h-20 w-20 rounded-md border object-contain"
@@ -186,7 +186,7 @@ function BrandFormContent({
             />
           </div>
           <p className="text-xs text-muted-foreground">
-            Accepted formats: JPEG, PNG, WebP, SVG (max 5MB)
+            Format yang diterima: JPEG, PNG, WebP, SVG (maks 5MB)
           </p>
         </div>
 
@@ -194,11 +194,11 @@ function BrandFormContent({
           <Label htmlFor="status">Status</Label>
           <Select name="status" defaultValue={String(brand?.status ?? 1)}>
             <SelectTrigger>
-              <SelectValue placeholder="Select status" />
+              <SelectValue placeholder="Pilih status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="1">Active</SelectItem>
-              <SelectItem value="0">Inactive</SelectItem>
+              <SelectItem value="1">Aktif</SelectItem>
+              <SelectItem value="0">Nonaktif</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -213,10 +213,10 @@ function BrandFormContent({
             variant="outline"
             onClick={() => onOpenChange(false)}
           >
-            Cancel
+            Batal
           </Button>
           <Button type="submit" disabled={isPending}>
-            {isPending ? 'Saving...' : isEdit ? 'Update' : 'Create'}
+            {isPending ? 'Menyimpan...' : isEdit ? 'Perbarui' : 'Buat'}
           </Button>
         </DialogFooter>
       </form>

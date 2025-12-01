@@ -8,9 +8,17 @@ type SidebarProps = {
   isAdmin: boolean;
 };
 
-const navItems = [
+type NavItem = {
+  title: string;
+  href: string;
+  icon: React.ReactNode;
+  adminOnly: boolean;
+  brandOnly?: boolean;
+};
+
+const navItems: NavItem[] = [
   {
-    title: 'Dashboard',
+    title: 'Dasbor',
     href: '/manage',
     icon: (
       <svg
@@ -33,7 +41,7 @@ const navItems = [
     adminOnly: false,
   },
   {
-    title: 'Users',
+    title: 'Pengguna',
     href: '/manage/users',
     icon: (
       <svg
@@ -56,7 +64,7 @@ const navItems = [
     adminOnly: true,
   },
   {
-    title: 'Brands',
+    title: 'Brand',
     href: '/manage/brands',
     icon: (
       <svg
@@ -77,7 +85,29 @@ const navItems = [
     adminOnly: true,
   },
   {
-    title: 'Products',
+    title: 'Brand Saya',
+    href: '/manage/my-brand',
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+      </svg>
+    ),
+    adminOnly: false,
+    brandOnly: true,
+  },
+  {
+    title: 'Produk',
     href: '/manage/products',
     icon: (
       <svg
@@ -97,10 +127,10 @@ const navItems = [
         <path d="M12 22V12" />
       </svg>
     ),
-    adminOnly: true,
+    adminOnly: false,
   },
   {
-    title: 'Tags',
+    title: 'Tag',
     href: '/manage/tags',
     icon: (
       <svg
@@ -118,10 +148,10 @@ const navItems = [
         <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
       </svg>
     ),
-    adminOnly: true,
+    adminOnly: false,
   },
   {
-    title: 'Profile',
+    title: 'Profil',
     href: '/manage/profile',
     icon: (
       <svg
@@ -147,7 +177,18 @@ const navItems = [
 export function Sidebar({ isAdmin }: SidebarProps) {
   const pathname = usePathname();
 
-  const filteredItems = navItems.filter((item) => !item.adminOnly || isAdmin);
+  const filteredItems = navItems.filter((item) => {
+    // Admin-only items: only show for admin
+    if (item.adminOnly) {
+      return isAdmin;
+    }
+    // Brand-only items: only show for non-admin (brand users)
+    if (item.brandOnly) {
+      return !isAdmin;
+    }
+    // Regular items: show for everyone
+    return true;
+  });
 
   return (
     <aside className="w-64 border-r bg-muted/30">

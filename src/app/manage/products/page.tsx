@@ -7,17 +7,18 @@ import { ProductsHeader } from './products-header';
 export default async function ProductsPage() {
   const session = await auth();
 
-  if (!session?.user || session.user.role !== 'admin') {
+  if (!session?.user) {
     redirect('/manage');
   }
 
+  const isAdmin = session.user.role === 'admin';
   const { products } = await getProducts(1, 50);
 
   return (
     <div className="space-y-6">
-      <ProductsHeader />
+      <ProductsHeader isAdmin={isAdmin} />
       <div className="rounded-md border">
-        <ProductsTable products={products} />
+        <ProductsTable products={products} isAdmin={isAdmin} />
       </div>
     </div>
   );
