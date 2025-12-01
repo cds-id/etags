@@ -41,6 +41,53 @@ import type { VerifyResponse } from '@/app/api/verify/route';
 
 const BASESCAN_URL = 'https://sepolia.basescan.org';
 
+// Human-readable labels for constants
+const COUNTRY_LABELS: Record<string, string> = {
+  ID: 'Indonesia',
+  SG: 'Singapura',
+  MY: 'Malaysia',
+  TH: 'Thailand',
+  VN: 'Vietnam',
+  PH: 'Filipina',
+  GLOBAL: 'Global (Seluruh Dunia)',
+};
+
+const CHANNEL_LABELS: Record<string, string> = {
+  official_store: 'Toko Resmi',
+  authorized_retailer: 'Retailer Resmi',
+  online_marketplace: 'Marketplace Online',
+  distributor: 'Distributor',
+  direct_sales: 'Penjualan Langsung',
+};
+
+const MARKET_LABELS: Record<string, string> = {
+  domestic: 'Domestik',
+  export: 'Ekspor',
+  global: 'Global',
+  southeast_asia: 'Asia Tenggara',
+};
+
+const CHAIN_STATUS_LABELS: Record<string, string> = {
+  Created: 'Dibuat',
+  Distributed: 'Didistribusikan',
+  Claimed: 'Diklaim',
+  Transferred: 'Ditransfer',
+  Flagged: 'Ditandai',
+  Revoked: 'Dicabut',
+  'Not on chain': 'Belum di Blockchain',
+  Unknown: 'Tidak Diketahui',
+};
+
+// Helper to get human-readable label
+const getCountryLabel = (code?: string) =>
+  code ? COUNTRY_LABELS[code] || code : undefined;
+const getChannelLabel = (code?: string) =>
+  code ? CHANNEL_LABELS[code] || code : undefined;
+const getMarketLabel = (code?: string) =>
+  code ? MARKET_LABELS[code] || code : undefined;
+const getChainStatusLabel = (status?: string) =>
+  status ? CHAIN_STATUS_LABELS[status] || status : undefined;
+
 export default function VerifyPage() {
   const params = useParams();
   const code = params.code as string;
@@ -267,7 +314,7 @@ export default function VerifyPage() {
                     variant={data.tag.isRevoked ? 'destructive' : 'secondary'}
                     className="text-sm px-3 py-1"
                   >
-                    {data.tag.chainStatusLabel}
+                    {getChainStatusLabel(data.tag.chainStatusLabel)}
                   </Badge>
                 </div>
               </CardContent>
@@ -394,7 +441,7 @@ export default function VerifyPage() {
                         <div className="bg-gray-50 rounded-lg p-3">
                           <p className="text-xs text-gray-500">Negara</p>
                           <p className="font-medium">
-                            {data.tag.distribution.country}
+                            {getCountryLabel(data.tag.distribution.country)}
                           </p>
                         </div>
                       )}
@@ -410,7 +457,7 @@ export default function VerifyPage() {
                         <div className="bg-gray-50 rounded-lg p-3">
                           <p className="text-xs text-gray-500">Channel</p>
                           <p className="font-medium">
-                            {data.tag.distribution.channel}
+                            {getChannelLabel(data.tag.distribution.channel)}
                           </p>
                         </div>
                       )}
@@ -418,7 +465,9 @@ export default function VerifyPage() {
                         <div className="bg-gray-50 rounded-lg p-3">
                           <p className="text-xs text-gray-500">Pasar</p>
                           <p className="font-medium">
-                            {data.tag.distribution.intendedMarket}
+                            {getMarketLabel(
+                              data.tag.distribution.intendedMarket
+                            )}
                           </p>
                         </div>
                       )}
