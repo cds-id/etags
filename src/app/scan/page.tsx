@@ -48,6 +48,7 @@ type LocationData = {
 export default function ScanPage() {
   const [scanning, setScanning] = useState(false);
   const [fingerprintId, setFingerprintId] = useState<string | null>(null);
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [scanResult, setScanResult] = useState<ScanResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -58,9 +59,19 @@ export default function ScanPage() {
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const lastScannedRef = useRef<string | null>(null);
 
-  // Initialize fingerprint
+  // Initialize fingerprint and CSRF token
   useEffect(() => {
-    const initFingerprint = async () => {
+    const init = async () => {
+      // Get CSRF token
+      try {
+        const csrfResponse = await fetch('/api/csrf');
+        const csrfData = await csrfResponse.json();
+        setCsrfToken(csrfData.token);
+      } catch (err) {
+        console.error('CSRF token error:', err);
+      }
+
+      // Get fingerprint
       try {
         const fp = await FingerprintJS.load();
         const result = await fp.get();
@@ -73,7 +84,7 @@ export default function ScanPage() {
         );
       }
     };
-    initFingerprint();
+    init();
   }, []);
 
   // Request GPS location
@@ -142,7 +153,10 @@ export default function ScanPage() {
       try {
         const response = await fetch('/api/scan', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-csrf-token': csrfToken || '',
+          },
           body: JSON.stringify({
             tagCode,
             fingerprintId,
@@ -165,7 +179,14 @@ export default function ScanPage() {
         setLoading(false);
       }
     },
-    [fingerprintId, loading, location, locationRequested, requestLocation]
+    [
+      fingerprintId,
+      csrfToken,
+      loading,
+      location,
+      locationRequested,
+      requestLocation,
+    ]
   );
 
   // Start scanner
@@ -232,7 +253,10 @@ export default function ScanPage() {
     try {
       const response = await fetch('/api/scan/claim', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': csrfToken || '',
+        },
         body: JSON.stringify({
           tagCode: scanResult.tag.code,
           fingerprintId,

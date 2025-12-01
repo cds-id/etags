@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import type { ProductMetadata, TagMetadata } from '@/lib/product-templates';
 import { analyzeFraud, quickFraudCheck } from '@/lib/fraud-detection';
+import {
+  checkRateLimit,
+  getClientIdentifier,
+  getRateLimitHeaders,
+  RATE_LIMITS,
+} from '@/lib/rate-limit';
+import { checkCSRF } from '@/lib/csrf';
 
 export type ScanRequest = {
   tagCode: string;
@@ -65,9 +72,62 @@ export type ScanResponse = {
  * Scan a tag and record the scan with fingerprint, IP, user agent
  */
 export async function POST(request: NextRequest) {
+  // Get IP address early for rate limiting
+  const forwardedFor = request.headers.get('x-forwarded-for');
+  const ipAddress = forwardedFor
+    ? forwardedFor.split(',')[0].trim()
+    : request.headers.get('x-real-ip') || '127.0.0.1';
+  const userAgent = request.headers.get('user-agent') || 'Unknown';
+
+  // CSRF validation
+  const csrfCheck = await checkCSRF(request);
+  if (!csrfCheck.valid) {
+    return NextResponse.json<ScanResponse>(
+      {
+        success: false,
+        valid: false,
+        scanInfo: {
+          scanNumber: 0,
+          totalScans: 0,
+          isNewFingerprint: false,
+          previousScansFromFingerprint: 0,
+        },
+        error: 'Akses tidak valid. Silakan refresh halaman dan coba lagi.',
+      },
+      { status: 403 }
+    );
+  }
+
   try {
     const body = (await request.json()) as ScanRequest;
     const { tagCode, fingerprintId, latitude, longitude, locationName } = body;
+
+    // Rate limit check (per IP + fingerprint)
+    const clientId = getClientIdentifier(ipAddress, fingerprintId);
+    const rateLimitResult = checkRateLimit(
+      `scan:${clientId}`,
+      RATE_LIMITS.scan
+    );
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json<ScanResponse>(
+        {
+          success: false,
+          valid: false,
+          scanInfo: {
+            scanNumber: 0,
+            totalScans: 0,
+            isNewFingerprint: false,
+            previousScansFromFingerprint: 0,
+          },
+          error: `Terlalu banyak permintaan. Coba lagi dalam ${rateLimitResult.retryAfter} detik.`,
+        },
+        {
+          status: 429,
+          headers: getRateLimitHeaders(rateLimitResult),
+        }
+      );
+    }
 
     if (!tagCode || !fingerprintId) {
       return NextResponse.json<ScanResponse>(
@@ -85,13 +145,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    // Get IP address and user agent
-    const forwardedFor = request.headers.get('x-forwarded-for');
-    const ipAddress = forwardedFor
-      ? forwardedFor.split(',')[0].trim()
-      : request.headers.get('x-real-ip') || '127.0.0.1';
-    const userAgent = request.headers.get('user-agent') || 'Unknown';
 
     // Find the tag
     const tag = await prisma.tag.findUnique({
