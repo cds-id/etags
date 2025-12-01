@@ -60,9 +60,10 @@ import {
   AlertTriangle,
   Loader2,
   Ban,
-  RefreshCw,
   FileJson,
   Link as LinkIcon,
+  Download,
+  ImageIcon,
 } from 'lucide-react';
 
 type Product = {
@@ -509,6 +510,52 @@ export function TagFormPage({ tag, products, tagUrls }: TagFormPageProps) {
                           >
                             <LinkIcon className="mr-2 h-4 w-4" />
                             View Metadata
+                          </a>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Designed Tag Download */}
+                  <div className="mt-6 pt-6 border-t">
+                    <Label className="mb-3 block">
+                      Designed Tag (with Template)
+                    </Label>
+                    <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center rounded-lg border p-4 bg-muted/30">
+                      <div className="flex items-center gap-3 flex-1">
+                        <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                        <div>
+                          <p className="font-medium text-sm">
+                            Download with Design
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            QR code placed on template background
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 w-full sm:w-auto">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          asChild
+                        >
+                          <a
+                            href={`/api/tags/${tag?.code}/designed`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <ImageIcon className="mr-2 h-4 w-4" />
+                            Preview
+                          </a>
+                        </Button>
+                        <Button type="button" size="sm" asChild>
+                          <a
+                            href={`/api/tags/${tag?.code}/designed?download=true`}
+                            download
+                          >
+                            <Download className="mr-2 h-4 w-4" />
+                            Download
                           </a>
                         </Button>
                       </div>
