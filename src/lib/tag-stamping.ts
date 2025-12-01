@@ -320,3 +320,40 @@ export function getTagMetadataUrl(tagCode: string): string {
 export function getTagQRCodeUrl(tagCode: string): string {
   return getFileUrl(`tags/${tagCode}/qr-code.png`);
 }
+
+/**
+ * Fetch tag metadata from R2/blockchain storage
+ * Returns the full metadata JSON for a stamped tag
+ */
+export async function fetchTagMetadata(
+  tagCode: string
+): Promise<{ success: boolean; error?: string; metadata?: TagStaticMetadata }> {
+  try {
+    const metadataUrl = getTagMetadataUrl(tagCode);
+
+    const response = await fetch(metadataUrl, {
+      next: { revalidate: 60 }, // Cache for 60 seconds
+    });
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: `Failed to fetch metadata: ${response.status}`,
+      };
+    }
+
+    const metadata: TagStaticMetadata = await response.json();
+
+    return {
+      success: true,
+      metadata,
+    };
+  } catch (error) {
+    console.error('Fetch metadata error:', error);
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : 'Failed to fetch metadata',
+    };
+  }
+}
