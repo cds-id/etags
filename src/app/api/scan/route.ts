@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import type { ProductMetadata } from '@/lib/product-templates';
+import type { ProductMetadata, TagMetadata } from '@/lib/product-templates';
+import { analyzeFraud, quickFraudCheck } from '@/lib/fraud-detection';
 
 export type ScanRequest = {
   tagCode: string;
@@ -24,12 +25,25 @@ export type ScanResponse = {
       brandLogo?: string;
       images?: string[];
     }>;
+    distribution?: {
+      region?: string;
+      country?: string;
+      channel?: string;
+      intendedMarket?: string;
+    };
   };
   scanInfo: {
     scanNumber: number;
     totalScans: number;
     isNewFingerprint: boolean;
     previousScansFromFingerprint: number;
+  };
+  fraudAnalysis?: {
+    isSuspicious: boolean;
+    riskLevel: 'low' | 'medium' | 'high' | 'critical';
+    riskScore: number;
+    reasons: string[];
+    recommendation: string;
   };
   question?: {
     type: 'first_scan' | 'second_scan' | 'third_scan' | 'no_question';
@@ -108,6 +122,15 @@ export async function POST(request: NextRequest) {
 
     // Check if tag is stamped (valid)
     const isValid = tag.is_stamped === 1;
+
+    // Get tag metadata for distribution info
+    const tagMetadata = tag.metadata as TagMetadata;
+    const distributionInfo = {
+      region: tagMetadata.distribution_region,
+      country: tagMetadata.distribution_country,
+      channel: tagMetadata.distribution_channel,
+      intendedMarket: tagMetadata.intended_market,
+    };
 
     // Get product information
     const productIds = tag.product_ids as number[];
@@ -232,6 +255,73 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Perform fraud detection if location is available and tag has distribution info
+    let fraudAnalysis: ScanResponse['fraudAnalysis'] = undefined;
+
+    if (
+      locationName &&
+      (distributionInfo.country || distributionInfo.intendedMarket)
+    ) {
+      // Get recent scan locations for context
+      const recentLocations = tag.scans
+        .filter((s) => s.location_name)
+        .slice(0, 5)
+        .map((s) => s.location_name as string);
+
+      try {
+        // Use AI-powered fraud detection
+        const analysis = await analyzeFraud(
+          {
+            region: distributionInfo.region,
+            country: distributionInfo.country,
+            channel: distributionInfo.channel,
+            intended_market: distributionInfo.intendedMarket,
+          },
+          {
+            latitude,
+            longitude,
+            locationName,
+            ipAddress,
+          },
+          {
+            totalScans: totalScans + 1,
+            uniqueScanners: uniqueScannerCount + (isNewFingerprint ? 1 : 0),
+            recentLocations,
+          }
+        );
+
+        fraudAnalysis = {
+          isSuspicious: analysis.isSuspicious,
+          riskLevel: analysis.riskLevel,
+          riskScore: analysis.riskScore,
+          reasons: analysis.reasons,
+          recommendation: analysis.recommendation,
+        };
+      } catch (error) {
+        console.error('Fraud detection error:', error);
+        // Fall back to quick rule-based check
+        const quickCheck = quickFraudCheck(
+          {
+            region: distributionInfo.region,
+            country: distributionInfo.country,
+            channel: distributionInfo.channel,
+            intended_market: distributionInfo.intendedMarket,
+          },
+          { locationName, ipAddress }
+        );
+
+        if (quickCheck.isSuspicious) {
+          fraudAnalysis = {
+            isSuspicious: true,
+            riskLevel: 'medium',
+            riskScore: 50,
+            reasons: quickCheck.reason ? [quickCheck.reason] : [],
+            recommendation: 'Periksa keaslian produk dengan teliti.',
+          };
+        }
+      }
+    }
+
     return NextResponse.json<ScanResponse>({
       success: true,
       valid: isValid,
@@ -240,6 +330,7 @@ export async function POST(request: NextRequest) {
         isStamped: tag.is_stamped === 1,
         chainStatus: tag.chain_status,
         products: productInfo,
+        distribution: distributionInfo,
       },
       scanInfo: {
         scanNumber: totalScans + 1,
@@ -247,6 +338,7 @@ export async function POST(request: NextRequest) {
         isNewFingerprint,
         previousScansFromFingerprint,
       },
+      fraudAnalysis,
       question,
       history,
     });
