@@ -306,9 +306,7 @@ export function ProductFormPage({ product, brands }: ProductFormPageProps) {
   const detailFields =
     selectedTemplate?.fields.filter(
       (f) =>
-        !['name', 'description', 'category', 'price', 'images'].includes(
-          f.name
-        )
+        !['name', 'description', 'category', 'price', 'images'].includes(f.name)
     ) || [];
   const imageField = selectedTemplate?.fields.find((f) => f.type === 'images');
 
@@ -374,7 +372,11 @@ export function ProductFormPage({ product, brands }: ProductFormPageProps) {
                 {isEdit && (
                   <div className="space-y-2">
                     <Label>Product Code</Label>
-                    <Input value={product?.code} disabled className="font-mono" />
+                    <Input
+                      value={product?.code}
+                      disabled
+                      className="font-mono"
+                    />
                   </div>
                 )}
 
