@@ -51,11 +51,11 @@ export default function Home() {
                 Scan
               </Link>
             </Button>
+            <Button variant="outline" asChild size="sm">
+              <Link href="/login">Masuk</Link>
+            </Button>
             <Button asChild size="sm">
-              <Link href="/login">
-                <LogIn className="mr-2 h-4 w-4" />
-                Masuk
-              </Link>
+              <Link href="/register">Daftar</Link>
             </Button>
           </div>
         </div>
@@ -387,9 +387,9 @@ export default function Home() {
                 asChild
                 className="w-full sm:w-auto"
               >
-                <Link href="/login">
+                <Link href="/register">
                   <LogIn className="mr-2 h-5 w-5" />
-                  Masuk / Daftar
+                  Daftar Sekarang
                 </Link>
               </Button>
               <Button

@@ -20,13 +20,66 @@ export type TagFormState = {
   message?: string;
 };
 
-// Helper to check admin role
-async function requireAdmin() {
+// Helper to require authentication and get user context
+async function requireAuth() {
   const session = await auth();
-  if (!session?.user || session.user.role !== 'admin') {
-    throw new Error('Unauthorized: Admin access required');
+  if (!session?.user) {
+    throw new Error('Unauthorized');
   }
-  return session;
+
+  const isAdmin = session.user.role === 'admin';
+
+  // Get brand_id for brand users
+  let brandId: number | null = null;
+  if (!isAdmin) {
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(session.user.id) },
+      select: { brand_id: true },
+    });
+    brandId = user?.brand_id || null;
+
+    if (!brandId) {
+      throw new Error('Brand user must have a brand assigned');
+    }
+  }
+
+  return { session, isAdmin, brandId };
+}
+
+// Helper to get product IDs for a brand
+async function getBrandProductIds(brandId: number): Promise<number[]> {
+  const products = await prisma.product.findMany({
+    where: { brand_id: brandId },
+    select: { id: true },
+  });
+  return products.map((p) => p.id);
+}
+
+// Helper to check if tag belongs to user's brand
+async function tagBelongsToBrand(
+  tagId: number,
+  brandId: number
+): Promise<boolean> {
+  const tag = await prisma.tag.findUnique({
+    where: { id: tagId },
+    select: { product_ids: true },
+  });
+
+  if (!tag) return false;
+
+  const productIds = tag.product_ids as number[];
+  if (productIds.length === 0) return false;
+
+  // Check if any of the tag's products belong to the brand
+  const brandProducts = await prisma.product.findMany({
+    where: {
+      id: { in: productIds },
+      brand_id: brandId,
+    },
+    select: { id: true },
+  });
+
+  return brandProducts.length > 0;
 }
 
 // Generate unique tag code
@@ -38,22 +91,36 @@ function generateTagCode(): string {
 
 // Get all tags with pagination
 export async function getTags(page: number = 1, limit: number = 10) {
-  await requireAdmin();
+  const { isAdmin, brandId: userBrandId } = await requireAuth();
 
   const skip = (page - 1) * limit;
 
-  const [tags, total] = await Promise.all([
-    prisma.tag.findMany({
-      skip,
-      take: limit,
-      orderBy: { created_at: 'desc' },
-    }),
-    prisma.tag.count(),
-  ]);
+  // For brand users, only get tags that contain their products
+  let brandProductIds: number[] = [];
+  if (!isAdmin && userBrandId) {
+    brandProductIds = await getBrandProductIds(userBrandId);
+  }
+
+  // Get all tags first, then filter for brand users
+  const allTags = await prisma.tag.findMany({
+    orderBy: { created_at: 'desc' },
+  });
+
+  // Filter tags for brand users
+  let filteredTags = allTags;
+  if (!isAdmin) {
+    filteredTags = allTags.filter((tag) => {
+      const productIds = tag.product_ids as number[];
+      return productIds.some((id) => brandProductIds.includes(id));
+    });
+  }
+
+  const total = filteredTags.length;
+  const paginatedTags = filteredTags.slice(skip, skip + limit);
 
   // Fetch related products for each tag
   const tagsWithProducts = await Promise.all(
-    tags.map(async (tag) => {
+    paginatedTags.map(async (tag) => {
       const productIds = tag.product_ids as number[];
       const products = await prisma.product.findMany({
         where: { id: { in: productIds } },
@@ -83,13 +150,21 @@ export async function getTags(page: number = 1, limit: number = 10) {
 
 // Get single tag by ID
 export async function getTagById(id: number) {
-  await requireAdmin();
+  const { isAdmin, brandId: userBrandId } = await requireAuth();
 
   const tag = await prisma.tag.findUnique({
     where: { id },
   });
 
   if (!tag) return null;
+
+  // Check if brand user can access this tag
+  if (!isAdmin && userBrandId) {
+    const belongsToBrand = await tagBelongsToBrand(id, userBrandId);
+    if (!belongsToBrand) {
+      throw new Error('Unauthorized: Cannot access this tag');
+    }
+  }
 
   // Fetch related products
   const productIds = tag.product_ids as number[];
@@ -139,7 +214,7 @@ export async function createTag(
   formData: FormData
 ): Promise<TagFormState> {
   try {
-    await requireAdmin();
+    const { isAdmin, brandId: userBrandId } = await requireAuth();
 
     const productIdsJson = formData.get('product_ids') as string;
     const metadataJson = formData.get('metadata') as string;
@@ -158,6 +233,17 @@ export async function createTag(
 
     if (productIds.length === 0) {
       return { error: 'At least one product is required' };
+    }
+
+    // For brand users, verify products belong to their brand
+    if (!isAdmin && userBrandId) {
+      const brandProductIds = await getBrandProductIds(userBrandId);
+      const allProductsBelongToBrand = productIds.every((id) =>
+        brandProductIds.includes(id)
+      );
+      if (!allProductsBelongToBrand) {
+        return { error: 'You can only create tags for your own products' };
+      }
     }
 
     // Verify all products exist
@@ -197,7 +283,15 @@ export async function updateTag(
   formData: FormData
 ): Promise<TagFormState> {
   try {
-    await requireAdmin();
+    const { isAdmin, brandId: userBrandId } = await requireAuth();
+
+    // Check authorization for brand users
+    if (!isAdmin && userBrandId) {
+      const belongsToBrand = await tagBelongsToBrand(id, userBrandId);
+      if (!belongsToBrand) {
+        return { error: 'Unauthorized: Cannot update this tag' };
+      }
+    }
 
     const tag = await prisma.tag.findUnique({
       where: { id },
@@ -241,6 +335,17 @@ export async function updateTag(
       return { error: 'At least one product is required' };
     }
 
+    // For brand users, verify products belong to their brand
+    if (!isAdmin && userBrandId) {
+      const brandProductIds = await getBrandProductIds(userBrandId);
+      const allProductsBelongToBrand = productIds.every((id) =>
+        brandProductIds.includes(id)
+      );
+      if (!allProductsBelongToBrand) {
+        return { error: 'You can only use your own products in tags' };
+      }
+    }
+
     // Verify all products exist
     const productsCount = await prisma.product.count({
       where: { id: { in: productIds } },
@@ -270,7 +375,15 @@ export async function updateTag(
 // Delete tag
 export async function deleteTag(id: number): Promise<TagFormState> {
   try {
-    await requireAdmin();
+    const { isAdmin, brandId: userBrandId } = await requireAuth();
+
+    // Check authorization for brand users
+    if (!isAdmin && userBrandId) {
+      const belongsToBrand = await tagBelongsToBrand(id, userBrandId);
+      if (!belongsToBrand) {
+        return { error: 'Unauthorized: Cannot delete this tag' };
+      }
+    }
 
     const tag = await prisma.tag.findUnique({
       where: { id },
@@ -305,7 +418,15 @@ export async function toggleTagPublishStatus(
   id: number
 ): Promise<TagFormState> {
   try {
-    await requireAdmin();
+    const { isAdmin, brandId: userBrandId } = await requireAuth();
+
+    // Check authorization for brand users
+    if (!isAdmin && userBrandId) {
+      const belongsToBrand = await tagBelongsToBrand(id, userBrandId);
+      if (!belongsToBrand) {
+        return { error: 'Unauthorized: Cannot update this tag' };
+      }
+    }
 
     const tag = await prisma.tag.findUnique({
       where: { id },
@@ -357,7 +478,18 @@ export async function getStampingPreview(
   id: number
 ): Promise<PreviewStampingResult> {
   try {
-    await requireAdmin();
+    const { isAdmin, brandId: userBrandId } = await requireAuth();
+
+    // Check authorization for brand users
+    if (!isAdmin && userBrandId) {
+      const belongsToBrand = await tagBelongsToBrand(id, userBrandId);
+      if (!belongsToBrand) {
+        return {
+          success: false,
+          error: 'Unauthorized: Cannot access this tag',
+        };
+      }
+    }
 
     const tag = await prisma.tag.findUnique({
       where: { id },
@@ -412,7 +544,15 @@ export async function stampTagToBlockchain(
   id: number
 ): Promise<StampingFormState> {
   try {
-    await requireAdmin();
+    const { isAdmin, brandId: userBrandId } = await requireAuth();
+
+    // Check authorization for brand users
+    if (!isAdmin && userBrandId) {
+      const belongsToBrand = await tagBelongsToBrand(id, userBrandId);
+      if (!belongsToBrand) {
+        return { success: false, error: 'Unauthorized: Cannot stamp this tag' };
+      }
+    }
 
     const result = await stampTagService(id);
 
@@ -443,7 +583,15 @@ export async function updateChainStatus(
   newStatus: ChainStatus
 ): Promise<TagFormState> {
   try {
-    await requireAdmin();
+    const { isAdmin, brandId: userBrandId } = await requireAuth();
+
+    // Check authorization for brand users
+    if (!isAdmin && userBrandId) {
+      const belongsToBrand = await tagBelongsToBrand(id, userBrandId);
+      if (!belongsToBrand) {
+        return { error: 'Unauthorized: Cannot update this tag' };
+      }
+    }
 
     // Cannot use this function to set REVOKED status
     if (newStatus === CHAIN_STATUS.REVOKED) {
@@ -494,7 +642,15 @@ export async function revokeTagOnBlockchain(
   reason: string
 ): Promise<TagFormState> {
   try {
-    await requireAdmin();
+    const { isAdmin, brandId: userBrandId } = await requireAuth();
+
+    // Check authorization for brand users
+    if (!isAdmin && userBrandId) {
+      const belongsToBrand = await tagBelongsToBrand(id, userBrandId);
+      if (!belongsToBrand) {
+        return { error: 'Unauthorized: Cannot revoke this tag' };
+      }
+    }
 
     if (!reason || reason.trim().length === 0) {
       return { error: 'Reason is required for revoking a tag' };
@@ -542,7 +698,15 @@ export async function getTagUrls(
   id: number
 ): Promise<{ metadataUrl: string; qrCodeUrl: string } | null> {
   try {
-    await requireAdmin();
+    const { isAdmin, brandId: userBrandId } = await requireAuth();
+
+    // Check authorization for brand users
+    if (!isAdmin && userBrandId) {
+      const belongsToBrand = await tagBelongsToBrand(id, userBrandId);
+      if (!belongsToBrand) {
+        return null;
+      }
+    }
 
     const tag = await prisma.tag.findUnique({
       where: { id },
@@ -592,7 +756,15 @@ export async function getTagScans(
   tagId: number
 ): Promise<TagScansResult | null> {
   try {
-    await requireAdmin();
+    const { isAdmin, brandId: userBrandId } = await requireAuth();
+
+    // Check authorization for brand users
+    if (!isAdmin && userBrandId) {
+      const belongsToBrand = await tagBelongsToBrand(tagId, userBrandId);
+      if (!belongsToBrand) {
+        return null;
+      }
+    }
 
     const tag = await prisma.tag.findUnique({
       where: { id: tagId },

@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
+import Link from 'next/link';
 import { login, type LoginState } from '@/lib/actions/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +12,9 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from '@/components/ui/card';
+import { Shield } from 'lucide-react';
 
 export default function LoginPage() {
   const [state, formAction, isPending] = useActionState<LoginState, FormData>(
@@ -20,12 +23,23 @@ export default function LoginPage() {
   );
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white p-4">
+      {/* Header */}
+      <div className="mb-8 text-center">
+        <Link href="/" className="mb-4 inline-flex items-center gap-2">
+          <Shield className="h-8 w-8 text-blue-600" />
+          <span className="text-2xl font-bold">Etags</span>
+        </Link>
+        <p className="text-muted-foreground">
+          Lindungi produk Anda dengan teknologi blockchain
+        </p>
+      </div>
+
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Sign in</CardTitle>
+          <CardTitle className="text-2xl font-bold">Masuk</CardTitle>
           <CardDescription>
-            Enter your credentials to access the dashboard
+            Masukkan kredensial Anda untuk mengakses dashboard
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -41,7 +55,7 @@ export default function LoginPage() {
                 id="email"
                 name="email"
                 type="email"
-                placeholder="name@example.com"
+                placeholder="nama@perusahaan.com"
                 required
                 autoComplete="email"
               />
@@ -57,10 +71,18 @@ export default function LoginPage() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? 'Signing in...' : 'Sign in'}
+              {isPending ? 'Masuk...' : 'Masuk'}
             </Button>
           </form>
         </CardContent>
+        <CardFooter className="flex flex-col space-y-4">
+          <div className="text-muted-foreground text-center text-sm">
+            Belum punya akun?{' '}
+            <Link href="/register" className="text-blue-600 hover:underline">
+              Daftar sekarang
+            </Link>
+          </div>
+        </CardFooter>
       </Card>
     </div>
   );

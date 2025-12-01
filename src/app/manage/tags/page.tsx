@@ -8,7 +8,7 @@ import { TagsHeader } from './tags-header';
 export default async function TagsPage() {
   const session = await auth();
 
-  if (!session?.user || session.user.role !== 'admin') {
+  if (!session?.user) {
     redirect('/manage');
   }
 

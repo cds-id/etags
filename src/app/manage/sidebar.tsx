@@ -97,7 +97,7 @@ const navItems = [
         <path d="M12 22V12" />
       </svg>
     ),
-    adminOnly: true,
+    adminOnly: false,
   },
   {
     title: 'Tags',
@@ -118,7 +118,7 @@ const navItems = [
         <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
       </svg>
     ),
-    adminOnly: true,
+    adminOnly: false,
   },
   {
     title: 'Profile',

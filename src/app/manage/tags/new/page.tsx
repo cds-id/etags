@@ -6,7 +6,7 @@ import { TagFormPage } from '../_components/tag-form-page';
 export default async function NewTagPage() {
   const session = await auth();
 
-  if (!session?.user || session.user.role !== 'admin') {
+  if (!session?.user) {
     redirect('/manage');
   }
 

@@ -54,9 +54,14 @@ type Product = {
 type ProductFormPageProps = {
   product?: Product | null;
   brands: Brand[];
+  isAdmin?: boolean;
 };
 
-export function ProductFormPage({ product, brands }: ProductFormPageProps) {
+export function ProductFormPage({
+  product,
+  brands,
+  isAdmin = true,
+}: ProductFormPageProps) {
   const router = useRouter();
   const isEdit = !!product;
 
@@ -449,27 +454,38 @@ export function ProductFormPage({ product, brands }: ProductFormPageProps) {
                 <CardTitle>Organization</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="brand_id">
-                    Brand <span className="text-destructive">*</span>
-                  </Label>
-                  <Select
+                {isAdmin ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="brand_id">
+                      Brand <span className="text-destructive">*</span>
+                    </Label>
+                    <Select
+                      name="brand_id"
+                      defaultValue={product?.brand_id?.toString()}
+                      required
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select brand" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {brands.map((brand) => (
+                          <SelectItem
+                            key={brand.id}
+                            value={brand.id.toString()}
+                          >
+                            {brand.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ) : (
+                  <input
+                    type="hidden"
                     name="brand_id"
-                    defaultValue={product?.brand_id?.toString()}
-                    required
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select brand" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {brands.map((brand) => (
-                        <SelectItem key={brand.id} value={brand.id.toString()}>
-                          {brand.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                    value={brands[0]?.id?.toString() || ''}
+                  />
+                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>

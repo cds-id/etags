@@ -51,9 +51,13 @@ type Product = {
 
 type ProductsTableProps = {
   products: Product[];
+  isAdmin?: boolean;
 };
 
-export function ProductsTable({ products }: ProductsTableProps) {
+export function ProductsTable({
+  products,
+  isAdmin = true,
+}: ProductsTableProps) {
   const [deleteConfirm, setDeleteConfirm] = useState<Product | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -93,12 +97,12 @@ export function ProductsTable({ products }: ProductsTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead className="w-16"></TableHead>
-            <TableHead>Code</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Brand</TableHead>
-            <TableHead>Price</TableHead>
+            <TableHead>Kode</TableHead>
+            <TableHead>Nama</TableHead>
+            {isAdmin && <TableHead>Brand</TableHead>}
+            <TableHead>Harga</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Created</TableHead>
+            <TableHead>Dibuat</TableHead>
             <TableHead className="w-12"></TableHead>
           </TableRow>
         </TableHeader>
@@ -106,10 +110,10 @@ export function ProductsTable({ products }: ProductsTableProps) {
           {products.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={8}
+                colSpan={isAdmin ? 8 : 7}
                 className="text-center text-muted-foreground"
               >
-                No products found
+                Belum ada produk
               </TableCell>
             </TableRow>
           ) : (
@@ -145,7 +149,7 @@ export function ProductsTable({ products }: ProductsTableProps) {
                       {getProductName(metadata)}
                     </Link>
                   </TableCell>
-                  <TableCell>{product.brand.name}</TableCell>
+                  {isAdmin && <TableCell>{product.brand.name}</TableCell>}
                   <TableCell>
                     {metadata.price
                       ? formatPrice(metadata.price as number)
