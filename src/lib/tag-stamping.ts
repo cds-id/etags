@@ -130,12 +130,11 @@ async function buildTagMetadata(tagId: number): Promise<TagStaticMetadata> {
 
 /**
  * Upload QR code image to R2
+ * QR code contains only the tag code (not full URL) for scanner compatibility
  */
-async function uploadQRCode(
-  tagCode: string,
-  verifyUrl: string
-): Promise<string> {
-  const qrBuffer = await generateQRCodeBuffer(verifyUrl, {
+async function uploadQRCode(tagCode: string): Promise<string> {
+  // QR code contains only the tag code - scanner app will look up the tag
+  const qrBuffer = await generateQRCodeBuffer(tagCode, {
     width: 512,
     margin: 2,
   });
@@ -202,9 +201,8 @@ export async function stampTag(tagId: number): Promise<StampingResult> {
       };
     }
 
-    // 2. Generate and upload QR code
-    const verifyUrl = getVerifyUrl(tag.code);
-    const qrCodeUrl = await uploadQRCode(tag.code, verifyUrl);
+    // 2. Generate and upload QR code (contains tag code only, not URL)
+    const qrCodeUrl = await uploadQRCode(tag.code);
 
     // 3. Build initial metadata
     const metadata = await buildTagMetadata(tagId);

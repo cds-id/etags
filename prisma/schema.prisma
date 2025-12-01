@@ -2,69 +2,93 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider        = "prisma-client-js"
-    previewFeatures = ["prismaSchemaFolder"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
 }
 
 datasource db {
-    provider = "mysql"
-    url      = env("DATABASE_URL")
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-    id         Int      @id @default(autoincrement())
-    name       String   @db.VarChar(255)
-    email      String   @unique @db.VarChar(255)
-    password   String   @db.VarChar(255)
-    role       String   @db.VarChar(50) // admin or brand
-    status     Int      @default(1) @db.TinyInt // 1 = active, 0 = inactive
-    avatar_url String?  @db.VarChar(500)
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(255)
+  email      String   @unique @db.VarChar(255)
+  password   String   @db.VarChar(255)
+  role       String   @db.VarChar(50) // admin or brand
+  status     Int      @default(1) @db.TinyInt // 1 = active, 0 = inactive
+  avatar_url String?  @db.VarChar(500)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-    @@map("users")
+  @@map("users")
 }
 
 model Brand {
-    id           Int      @id @default(autoincrement())
-    name         String   @db.VarChar(255)
-    logo_url     String?  @db.VarChar(500)
-    status       Int      @default(1) @db.TinyInt // 1 = active, 0 = inactive
-    descriptions String   @db.Text
-    created_at   DateTime @default(now())
-    updated_at   DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  name         String   @db.VarChar(255)
+  logo_url     String?  @db.VarChar(500)
+  status       Int      @default(1) @db.TinyInt // 1 = active, 0 = inactive
+  descriptions String   @db.Text
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
 
-    products Product[]
+  products Product[]
 
-    @@map("brands")
+  @@map("brands")
 }
 
 model Product {
-    id         Int      @id @default(autoincrement())
-    code       String   @unique @db.VarChar(100)
-    metadata   Json // Dynamic JSON containing all product info including images
-    status     Int      @default(1) @db.TinyInt // 1 = active, 0 = inactive
-    brand_id   Int
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  code       String   @unique @db.VarChar(100)
+  metadata   Json // Dynamic JSON containing all product info including images
+  status     Int      @default(1) @db.TinyInt // 1 = active, 0 = inactive
+  brand_id   Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-    brand Brand @relation(fields: [brand_id], references: [id], onDelete: Cascade)
+  brand Brand @relation(fields: [brand_id], references: [id], onDelete: Cascade)
 
-    @@index([brand_id])
-    @@map("products")
+  @@index([brand_id])
+  @@map("products")
 }
 
 model Tag {
-    id             Int      @id @default(autoincrement())
-    code           String   @unique @db.VarChar(100)
-    product_ids    Json // Array of product IDs stored as JSON
-    metadata       Json // Dynamic JSON metadata
-    is_stamped     Int      @default(0) @db.TinyInt // 0 = not stamped, 1 = stamped to blockchain
-    hash_tx        String?  @db.VarChar(255) // Generated hash from blockchain transaction
-    publish_status Int      @default(0) @db.TinyInt // 0 = draft, 1 = published (internal app state)
-    chain_status   Int?     @db.TinyInt // Blockchain lifecycle status (0-5: CREATED/DISTRIBUTED/CLAIMED/TRANSFERRED/FLAGGED/REVOKED)
-    created_at     DateTime @default(now())
-    updated_at     DateTime @updatedAt
+  id             Int      @id @default(autoincrement())
+  code           String   @unique @db.VarChar(100)
+  product_ids    Json // Array of product IDs stored as JSON
+  metadata       Json // Dynamic JSON metadata
+  is_stamped     Int      @default(0) @db.TinyInt // 0 = not stamped, 1 = stamped to blockchain
+  hash_tx        String?  @db.VarChar(255) // Generated hash from blockchain transaction
+  publish_status Int      @default(0) @db.TinyInt // 0 = draft, 1 = published (internal app state)
+  chain_status   Int?     @db.TinyInt // Blockchain lifecycle status (0-5: CREATED/DISTRIBUTED/CLAIMED/TRANSFERRED/FLAGGED/REVOKED)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
 
-    @@map("tags")
+  scans TagScan[]
+
+  @@map("tags")
+}
+
+model TagScan {
+  id             Int      @id @default(autoincrement())
+  tag_id         Int
+  fingerprint_id String   @db.VarChar(255) // FingerprintJS visitor ID
+  ip_address     String   @db.VarChar(45) // IPv4 or IPv6
+  user_agent     String   @db.Text
+  latitude       Float? // GPS latitude
+  longitude      Float? // GPS longitude
+  location_name  String?  @db.VarChar(500) // Reverse geocoded location name
+  is_claimed     Int      @default(0) @db.TinyInt // 0 = scan only, 1 = claimed
+  is_first_hand  Int?     @db.TinyInt // 1 = first hand, 0 = second hand (null = not answered)
+  source_info    String?  @db.Text // Where did they get it (for second hand)
+  scan_number    Int      @default(1) // Sequential scan number for this tag
+  created_at     DateTime @default(now())
+
+  tag Tag @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+
+  @@index([tag_id])
+  @@index([fingerprint_id])
+  @@map("tag_scans")
 }

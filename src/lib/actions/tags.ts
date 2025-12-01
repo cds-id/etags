@@ -562,3 +562,78 @@ export async function getTagUrls(
     return null;
   }
 }
+
+// Get tag scan history
+export type TagScanInfo = {
+  id: number;
+  fingerprintId: string;
+  ipAddress: string;
+  userAgent: string;
+  latitude: number | null;
+  longitude: number | null;
+  locationName: string | null;
+  isClaimed: boolean;
+  isFirstHand: boolean | null;
+  sourceInfo: string | null;
+  scanNumber: number;
+  createdAt: Date;
+};
+
+export type TagScansResult = {
+  scans: TagScanInfo[];
+  totalScans: number;
+  uniqueScanners: number;
+  claimedCount: number;
+  firstHandCount: number;
+  secondHandCount: number;
+};
+
+export async function getTagScans(
+  tagId: number
+): Promise<TagScansResult | null> {
+  try {
+    await requireAdmin();
+
+    const tag = await prisma.tag.findUnique({
+      where: { id: tagId },
+      select: { id: true },
+    });
+
+    if (!tag) {
+      return null;
+    }
+
+    const scans = await prisma.tagScan.findMany({
+      where: { tag_id: tagId },
+      orderBy: { created_at: 'desc' },
+    });
+
+    const uniqueFingerprints = new Set(scans.map((s) => s.fingerprint_id));
+
+    return {
+      scans: scans.map((s) => ({
+        id: s.id,
+        fingerprintId: s.fingerprint_id,
+        ipAddress: s.ip_address,
+        userAgent: s.user_agent,
+        latitude: s.latitude,
+        longitude: s.longitude,
+        locationName: s.location_name,
+        isClaimed: s.is_claimed === 1,
+        isFirstHand:
+          s.is_first_hand === 1 ? true : s.is_first_hand === 0 ? false : null,
+        sourceInfo: s.source_info,
+        scanNumber: s.scan_number,
+        createdAt: s.created_at,
+      })),
+      totalScans: scans.length,
+      uniqueScanners: uniqueFingerprints.size,
+      claimedCount: scans.filter((s) => s.is_claimed === 1).length,
+      firstHandCount: scans.filter((s) => s.is_first_hand === 1).length,
+      secondHandCount: scans.filter((s) => s.is_first_hand === 0).length,
+    };
+  } catch (error) {
+    console.error('Get tag scans error:', error);
+    return null;
+  }
+}
