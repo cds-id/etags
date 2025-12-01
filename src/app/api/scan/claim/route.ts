@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import {
+  checkRateLimit,
+  getClientIdentifier,
+  getRateLimitHeaders,
+  RATE_LIMITS,
+} from '@/lib/rate-limit';
+import { checkCSRF } from '@/lib/csrf';
 
 export type ClaimRequest = {
   tagCode: string;
@@ -23,6 +30,25 @@ export type ClaimResponse = {
  * Claim a tag and record the user's answer about ownership
  */
 export async function POST(request: NextRequest) {
+  // Get IP address for rate limiting
+  const forwardedFor = request.headers.get('x-forwarded-for');
+  const ipAddress = forwardedFor
+    ? forwardedFor.split(',')[0].trim()
+    : request.headers.get('x-real-ip') || '127.0.0.1';
+
+  // CSRF validation
+  const csrfCheck = await checkCSRF(request);
+  if (!csrfCheck.valid) {
+    return NextResponse.json<ClaimResponse>(
+      {
+        success: false,
+        message: 'Akses tidak valid',
+        error: 'Silakan refresh halaman dan coba lagi.',
+      },
+      { status: 403 }
+    );
+  }
+
   try {
     const body = (await request.json()) as ClaimRequest;
     const {
@@ -34,6 +60,27 @@ export async function POST(request: NextRequest) {
       longitude,
       locationName,
     } = body;
+
+    // Rate limit check (per IP + fingerprint)
+    const clientId = getClientIdentifier(ipAddress, fingerprintId);
+    const rateLimitResult = checkRateLimit(
+      `claim:${clientId}`,
+      RATE_LIMITS.claim
+    );
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json<ClaimResponse>(
+        {
+          success: false,
+          message: 'Terlalu banyak permintaan',
+          error: `Coba lagi dalam ${rateLimitResult.retryAfter} detik.`,
+        },
+        {
+          status: 429,
+          headers: getRateLimitHeaders(rateLimitResult),
+        }
+      );
+    }
 
     if (!tagCode || !fingerprintId) {
       return NextResponse.json<ClaimResponse>(

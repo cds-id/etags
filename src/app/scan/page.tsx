@@ -32,6 +32,9 @@ import {
   RefreshCw,
   ShieldCheck,
   Info,
+  AlertTriangle,
+  ShieldAlert,
+  ShieldX,
 } from 'lucide-react';
 import type { ScanResponse } from '@/app/api/scan/route';
 import type { ClaimResponse } from '@/app/api/scan/claim/route';
@@ -45,6 +48,7 @@ type LocationData = {
 export default function ScanPage() {
   const [scanning, setScanning] = useState(false);
   const [fingerprintId, setFingerprintId] = useState<string | null>(null);
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [scanResult, setScanResult] = useState<ScanResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -55,9 +59,19 @@ export default function ScanPage() {
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const lastScannedRef = useRef<string | null>(null);
 
-  // Initialize fingerprint
+  // Initialize fingerprint and CSRF token
   useEffect(() => {
-    const initFingerprint = async () => {
+    const init = async () => {
+      // Get CSRF token
+      try {
+        const csrfResponse = await fetch('/api/csrf');
+        const csrfData = await csrfResponse.json();
+        setCsrfToken(csrfData.token);
+      } catch (err) {
+        console.error('CSRF token error:', err);
+      }
+
+      // Get fingerprint
       try {
         const fp = await FingerprintJS.load();
         const result = await fp.get();
@@ -70,7 +84,7 @@ export default function ScanPage() {
         );
       }
     };
-    initFingerprint();
+    init();
   }, []);
 
   // Request GPS location
@@ -139,7 +153,10 @@ export default function ScanPage() {
       try {
         const response = await fetch('/api/scan', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-csrf-token': csrfToken || '',
+          },
           body: JSON.stringify({
             tagCode,
             fingerprintId,
@@ -162,7 +179,14 @@ export default function ScanPage() {
         setLoading(false);
       }
     },
-    [fingerprintId, loading, location, locationRequested, requestLocation]
+    [
+      fingerprintId,
+      csrfToken,
+      loading,
+      location,
+      locationRequested,
+      requestLocation,
+    ]
   );
 
   // Start scanner
@@ -229,7 +253,10 @@ export default function ScanPage() {
     try {
       const response = await fetch('/api/scan/claim', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': csrfToken || '',
+        },
         body: JSON.stringify({
           tagCode: scanResult.tag.code,
           fingerprintId,
@@ -439,6 +466,139 @@ export default function ScanPage() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Fraud Detection Warning */}
+            {scanResult.fraudAnalysis &&
+              scanResult.fraudAnalysis.isSuspicious && (
+                <Card
+                  className={`mb-4 ${
+                    scanResult.fraudAnalysis.riskLevel === 'critical'
+                      ? 'border-red-500 bg-red-50'
+                      : scanResult.fraudAnalysis.riskLevel === 'high'
+                        ? 'border-orange-500 bg-orange-50'
+                        : scanResult.fraudAnalysis.riskLevel === 'medium'
+                          ? 'border-yellow-500 bg-yellow-50'
+                          : 'border-gray-300 bg-gray-50'
+                  }`}
+                >
+                  <CardHeader className="pb-2">
+                    <CardTitle
+                      className={`flex items-center gap-2 text-lg ${
+                        scanResult.fraudAnalysis.riskLevel === 'critical'
+                          ? 'text-red-800'
+                          : scanResult.fraudAnalysis.riskLevel === 'high'
+                            ? 'text-orange-800'
+                            : scanResult.fraudAnalysis.riskLevel === 'medium'
+                              ? 'text-yellow-800'
+                              : 'text-gray-800'
+                      }`}
+                    >
+                      {scanResult.fraudAnalysis.riskLevel === 'critical' ? (
+                        <ShieldX className="h-5 w-5" />
+                      ) : scanResult.fraudAnalysis.riskLevel === 'high' ? (
+                        <ShieldAlert className="h-5 w-5" />
+                      ) : (
+                        <AlertTriangle className="h-5 w-5" />
+                      )}
+                      {scanResult.fraudAnalysis.riskLevel === 'critical'
+                        ? 'Peringatan Kritis!'
+                        : scanResult.fraudAnalysis.riskLevel === 'high'
+                          ? 'Risiko Tinggi!'
+                          : 'Perhatian!'}
+                    </CardTitle>
+                    <CardDescription>
+                      Skor Risiko: {scanResult.fraudAnalysis.riskScore}/100
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {/* Risk reasons */}
+                    {scanResult.fraudAnalysis.reasons.length > 0 && (
+                      <div className="mb-3">
+                        <p className="text-sm font-medium mb-1">Alasan:</p>
+                        <ul className="list-disc list-inside text-sm space-y-1">
+                          {scanResult.fraudAnalysis.reasons.map(
+                            (reason, idx) => (
+                              <li key={idx} className="text-gray-700">
+                                {reason}
+                              </li>
+                            )
+                          )}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Recommendation */}
+                    <div className="rounded-lg bg-white/50 p-3 text-sm">
+                      <p className="font-medium">Rekomendasi:</p>
+                      <p className="text-gray-700">
+                        {scanResult.fraudAnalysis.recommendation}
+                      </p>
+                    </div>
+
+                    {/* Distribution info comparison */}
+                    {scanResult.tag?.distribution && (
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <p className="text-xs font-medium text-gray-500 mb-2">
+                          Informasi Distribusi Resmi:
+                        </p>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          {scanResult.tag.distribution.region && (
+                            <div>
+                              <span className="text-gray-500">Wilayah:</span>{' '}
+                              <span className="font-medium">
+                                {scanResult.tag.distribution.region}
+                              </span>
+                            </div>
+                          )}
+                          {scanResult.tag.distribution.country && (
+                            <div>
+                              <span className="text-gray-500">Negara:</span>{' '}
+                              <span className="font-medium">
+                                {scanResult.tag.distribution.country}
+                              </span>
+                            </div>
+                          )}
+                          {scanResult.tag.distribution.channel && (
+                            <div>
+                              <span className="text-gray-500">Channel:</span>{' '}
+                              <span className="font-medium">
+                                {scanResult.tag.distribution.channel}
+                              </span>
+                            </div>
+                          )}
+                          {scanResult.tag.distribution.intendedMarket && (
+                            <div>
+                              <span className="text-gray-500">Pasar:</span>{' '}
+                              <span className="font-medium">
+                                {scanResult.tag.distribution.intendedMarket}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+            {/* Low Risk / Safe Indicator */}
+            {scanResult.fraudAnalysis &&
+              !scanResult.fraudAnalysis.isSuspicious && (
+                <Card className="mb-4 border-green-200 bg-green-50">
+                  <CardContent className="flex items-center gap-3 p-4">
+                    <ShieldCheck className="h-6 w-6 text-green-500" />
+                    <div>
+                      <p className="font-medium text-green-800">
+                        Lokasi Sesuai
+                      </p>
+                      <p className="text-sm text-green-600">
+                        Lokasi scan sesuai dengan wilayah distribusi resmi
+                        produk.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
             {/* Claim Success */}
             {claimSuccess && (
