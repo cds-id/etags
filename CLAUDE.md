@@ -22,6 +22,8 @@ Etags is a Next.js 16 application for product tagging and blockchain stamping. I
 - `npm run db:push` - Push schema to database (no migration)
 - `npm run db:migrate` - Create and apply migrations
 - `npm run db:studio` - Open Prisma Studio GUI
+- `npm run db:create-admin` - Create admin user (default: admin@example.com / admin123)
+- `npm run db:create-admin -- email@example.com password123 "Name"` - Create admin with custom credentials
 
 ## Architecture
 
@@ -41,17 +43,34 @@ Etags is a Next.js 16 application for product tagging and blockchain stamping. I
 
 - `@/lib/db.ts` - Singleton Prisma client
 - `@/lib/auth.ts` - NextAuth v5 configuration with credentials provider
-- `@/lib/actions/auth.ts` - Server actions for login/logout
 - `@/lib/r2.ts` - R2 file upload/download with presigned URLs
 - `@/lib/tag-sync.ts` - Blockchain tag operations (create, update, sync status)
-- `@/lib/constants.ts` - Blockchain config and status enums
+- `@/lib/constants.ts` - Blockchain config and status enums (`CHAIN_STATUS`, `PUBLISH_STATUS`)
 - `@/lib/swagger.ts` - OpenAPI/Swagger spec generation
+- `@/lib/product-templates.ts` - Product metadata templates
+
+### Server Actions
+
+Server actions are organized in `src/lib/actions/`:
+
+- `auth.ts` - Login/logout actions
+- `brands.ts` - Brand CRUD operations
+- `products.ts` - Product CRUD operations
+- `tags.ts` - Tag CRUD and blockchain stamping
+- `users.ts` - User management
+- `profile.ts` - User profile updates
+- `dashboard.ts` - Dashboard statistics
 
 ### Routes
 
 - `/` - Public landing page
 - `/login` - Login page (redirects to /manage if authenticated)
-- `/manage/*` - Protected admin dashboard (requires authentication)
+- `/manage` - Dashboard home with statistics
+- `/manage/brands` - Brand management
+- `/manage/products` - Product management
+- `/manage/tags` - Tag management with blockchain stamping
+- `/manage/users` - User management (admin only)
+- `/manage/profile` - User profile settings
 - `/docs` - Swagger API documentation UI
 - `/api/docs` - OpenAPI JSON spec
 
@@ -59,10 +78,10 @@ Etags is a Next.js 16 application for product tagging and blockchain stamping. I
 
 Core models in `prisma/schema.prisma`:
 
-- **User** - Admin/brand users with role-based access
-- **Brand** - Product brand management
+- **User** - Admin/brand users with role-based access (`role`: admin or brand)
+- **Brand** - Product brand management with logo and descriptions
 - **Product** - Products with JSON metadata, linked to brands
-- **Tag** - Product tags with blockchain stamping
+- **Tag** - Product tags with blockchain stamping (`is_stamped`, `hash_tx`, `chain_status`)
 
 ### Tag Blockchain Lifecycle
 
@@ -85,5 +104,7 @@ Copy `.env.example` to `.env` and configure:
 
 - `DATABASE_URL` - MySQL connection string
 - `AUTH_SECRET` - NextAuth secret (generate with `openssl rand -base64 32`)
-- `R2_*` - Cloudflare R2 credentials for file storage
+- `AUTH_TRUST_HOST` - Set to `true` for production deployments
+- `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` - Cloudflare R2 credentials
+- `R2_PUBLIC_DOMAIN` - Public URL for R2 bucket assets
 - `BLOCKCHAIN_RPC_URL`, `CONTRACT_ADDRESS`, `CHAIN_ID`, `ADMIN_WALLET` - Blockchain config

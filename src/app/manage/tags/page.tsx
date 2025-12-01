@@ -19,9 +19,9 @@ export default async function TagsPage() {
 
   return (
     <div className="space-y-6">
-      <TagsHeader products={products} />
+      <TagsHeader hasProducts={products.length > 0} />
       <div className="rounded-md border">
-        <TagsTable tags={tags} allProducts={products} />
+        <TagsTable tags={tags} />
       </div>
     </div>
   );

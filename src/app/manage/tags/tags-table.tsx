@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -26,10 +27,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { TagForm } from './tag-form';
 import { deleteTag, toggleTagPublishStatus } from '@/lib/actions/tags';
 import { getChainStatusLabel } from '@/lib/constants';
 import type { ProductMetadata } from '@/lib/product-templates';
+import { MoreVertical, Pencil, Eye, Trash2, Send } from 'lucide-react';
 
 type Product = {
   id: number;
@@ -57,11 +58,9 @@ type Tag = {
 
 type TagsTableProps = {
   tags: Tag[];
-  allProducts: Product[];
 };
 
-export function TagsTable({ tags, allProducts }: TagsTableProps) {
-  const [editTag, setEditTag] = useState<Tag | null>(null);
+export function TagsTable({ tags }: TagsTableProps) {
   const [deleteConfirm, setDeleteConfirm] = useState<Tag | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -118,7 +117,14 @@ export function TagsTable({ tags, allProducts }: TagsTableProps) {
           ) : (
             tags.map((tag) => (
               <TableRow key={tag.id}>
-                <TableCell className="font-mono text-sm">{tag.code}</TableCell>
+                <TableCell>
+                  <Link
+                    href={`/manage/tags/${tag.id}/edit`}
+                    className="font-mono text-sm hover:underline"
+                  >
+                    {tag.code}
+                  </Link>
+                </TableCell>
                 <TableCell>
                   <div className="max-w-[200px]">
                     <span className="truncate">
@@ -152,33 +158,32 @@ export function TagsTable({ tags, allProducts }: TagsTableProps) {
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon-sm">
+                      <Button variant="ghost" size="icon">
                         <span className="sr-only">Open menu</span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <circle cx="12" cy="12" r="1" />
-                          <circle cx="12" cy="5" r="1" />
-                          <circle cx="12" cy="19" r="1" />
-                        </svg>
+                        <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => setEditTag(tag)}>
-                        {tag.is_stamped === 1 ? 'View / Edit Status' : 'Edit'}
+                      <DropdownMenuItem asChild>
+                        <Link href={`/manage/tags/${tag.id}/edit`}>
+                          {tag.is_stamped === 1 ? (
+                            <>
+                              <Eye className="mr-2 h-4 w-4" />
+                              View / Edit Status
+                            </>
+                          ) : (
+                            <>
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Edit
+                            </>
+                          )}
+                        </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleTogglePublish(tag)}
                         disabled={isPending}
                       >
+                        <Send className="mr-2 h-4 w-4" />
                         {tag.publish_status === 1 ? 'Unpublish' : 'Publish'}
                       </DropdownMenuItem>
                       {tag.is_stamped !== 1 && (
@@ -188,6 +193,7 @@ export function TagsTable({ tags, allProducts }: TagsTableProps) {
                             className="text-destructive"
                             onClick={() => setDeleteConfirm(tag)}
                           >
+                            <Trash2 className="mr-2 h-4 w-4" />
                             Delete
                           </DropdownMenuItem>
                         </>
@@ -200,13 +206,6 @@ export function TagsTable({ tags, allProducts }: TagsTableProps) {
           )}
         </TableBody>
       </Table>
-
-      <TagForm
-        open={!!editTag}
-        onOpenChange={(open) => !open && setEditTag(null)}
-        tag={editTag}
-        products={allProducts}
-      />
 
       <Dialog
         open={!!deleteConfirm}
