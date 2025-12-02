@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useActionState, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -670,10 +672,21 @@ function TagStep({
 // Step 4: Complete
 function CompleteStep() {
   const [isCompleting, setIsCompleting] = useState(false);
+  const { update } = useSession();
+  const router = useRouter();
 
   const handleComplete = async () => {
     setIsCompleting(true);
-    await completeOnboarding();
+    try {
+      await completeOnboarding();
+      // Force session update to reflect new onboarding status
+      await update();
+      // Redirect to dashboard
+      router.push('/manage');
+    } catch (error) {
+      console.error('Failed to complete onboarding:', error);
+      setIsCompleting(false);
+    }
   };
 
   return (
