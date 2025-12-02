@@ -4,7 +4,6 @@ import { NextResponse } from 'next/server';
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const isOnManage = req.nextUrl.pathname.startsWith('/manage');
-  const isOnOnboarding = req.nextUrl.pathname.startsWith('/manage/onboarding');
   const isOnLogin = req.nextUrl.pathname === '/login';
   const isOnRegister = req.nextUrl.pathname === '/register';
 
@@ -15,36 +14,16 @@ export default auth((req) => {
 
   // Redirect to manage if already logged in and on login page
   if (isOnLogin && isLoggedIn) {
-    // Check if brand user needs onboarding
-    const isBrandUser = req.auth?.user?.role === 'brand';
-    const onboardingComplete = req.auth?.user?.onboardingComplete;
-
-    if (isBrandUser && !onboardingComplete) {
-      return NextResponse.redirect(new URL('/manage/onboarding', req.url));
-    }
     return NextResponse.redirect(new URL('/manage', req.url));
   }
 
   // Redirect to manage if already logged in and on register page
   if (isOnRegister && isLoggedIn) {
-    const isBrandUser = req.auth?.user?.role === 'brand';
-    const onboardingComplete = req.auth?.user?.onboardingComplete;
-
-    if (isBrandUser && !onboardingComplete) {
-      return NextResponse.redirect(new URL('/manage/onboarding', req.url));
-    }
     return NextResponse.redirect(new URL('/manage', req.url));
   }
 
-  // Brand users who haven't completed onboarding should be redirected to onboarding
-  if (isOnManage && !isOnOnboarding && isLoggedIn) {
-    const isBrandUser = req.auth?.user?.role === 'brand';
-    const onboardingComplete = req.auth?.user?.onboardingComplete;
-
-    if (isBrandUser && !onboardingComplete) {
-      return NextResponse.redirect(new URL('/manage/onboarding', req.url));
-    }
-  }
+  // NOTE: Onboarding check is now done in the manage layout (server component)
+  // to ensure fresh database state is always checked
 
   // Add pathname header for server components
   const response = NextResponse.next();

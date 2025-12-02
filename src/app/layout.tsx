@@ -19,6 +19,8 @@ export const metadata: Metadata = {
     'Product tagging and blockchain stamping for authentication and verification',
 };
 
+import { SessionProvider } from '@/components/providers/session-provider';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,8 +31,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
-        <Toaster />
+        <SessionProvider>
+          {children}
+          <Toaster />
+        </SessionProvider>
       </body>
     </html>
   );

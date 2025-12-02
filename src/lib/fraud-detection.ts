@@ -88,18 +88,25 @@ export async function analyzeFraud(
 
   const systemPrompt = `You are a fraud detection AI for a product authentication system. Your job is to analyze if a product scan location matches the intended distribution area and identify potential counterfeit or gray market products.
 
+IMPORTANT RULES:
+- NEVER ask questions or request more information
+- NEVER include follow-up queries in your response
+- Work ONLY with the data provided - make reasonable assumptions if data is incomplete
+- If data is missing, use "Not specified" indicators to adjust your analysis accordingly
+- Provide definitive analysis based on available information
+
 You will be given:
 1. The intended distribution information (where the product should be sold)
 2. The actual scan location (where the product was scanned)
 3. Scan history statistics
 
-Analyze the data and respond ONLY with a valid JSON object in this exact format:
+Respond ONLY with a valid JSON object in this exact format (no markdown, no extra text):
 {
   "isSuspicious": boolean,
   "riskLevel": "low" | "medium" | "high" | "critical",
   "riskScore": number (0-100),
   "reasons": ["reason1", "reason2"],
-  "recommendation": "string with recommendation in Indonesian",
+  "recommendation": "CONCISE recommendation in Indonesian (max 300 chars). Use **bold** for emphasis. Keep it brief and actionable. NO QUESTIONS.",
   "locationMatch": boolean,
   "channelMatch": boolean,
   "marketMatch": boolean
@@ -112,10 +119,11 @@ Risk Level Guidelines:
 - critical (76-100): Clear fraud indicators (e.g., wrong continent, excessive scans from different locations)
 
 Consider:
-- If distribution is "Global", most locations are acceptable
+- If distribution is "Global" or "Not specified", be lenient with location matching
 - Southeast Asia market includes: Indonesia, Singapore, Malaysia, Thailand, Vietnam, Philippines
 - Domestic (Indonesia) products should primarily be scanned in Indonesia
-- Multiple scans from vastly different locations could indicate counterfeit tags being duplicated`;
+- Multiple scans from vastly different locations could indicate counterfeit tags being duplicated
+- High scan count with few unique devices may indicate reselling (not necessarily fraud)`;
 
   const userPrompt = `Analyze this product scan for potential fraud:
 
@@ -145,7 +153,7 @@ Provide your fraud analysis as JSON.`;
 
     const response = await chatCompletion(messages, {
       temperature: 0.1, // Low temperature for consistent analysis
-      max_tokens: 512,
+      max_tokens: 1024, // Increased to accommodate detailed recommendations
     });
 
     const aiResponse = response.choices[0]?.message?.content || '';

@@ -51,10 +51,11 @@ export async function getDashboardStats() {
     select: { id: true },
   });
   const productIds = brandProducts.map((p) => p.id);
+  const productIdsSet = new Set(productIds);
 
   // Count tags that contain any of the brand's products
   const allTags = await prisma.tag.findMany({
-    select: { id: true, product_ids: true, is_stamped: true },
+    select: { product_ids: true, is_stamped: true },
   });
 
   let tagsCount = 0;
@@ -64,7 +65,7 @@ export async function getDashboardStats() {
     const tagProductIds = Array.isArray(tag.product_ids)
       ? (tag.product_ids as number[])
       : [];
-    const belongsToBrand = tagProductIds.some((id) => productIds.includes(id));
+    const belongsToBrand = tagProductIds.some((id) => productIdsSet.has(id));
     if (belongsToBrand) {
       tagsCount++;
       if (tag.is_stamped === 1) {
