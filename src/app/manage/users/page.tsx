@@ -6,6 +6,23 @@ import { UsersHeader } from './users-header';
 import { UserStatsCards } from './user-stats-cards';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Pagination } from '@/components/ui/pagination';
+
+async function UsersTableWrapper({
+  page,
+  currentUserId,
+}: {
+  page: number;
+  currentUserId: string;
+}) {
+  const { users, pagination } = await getUsers(page, 10);
+  return (
+    <>
+      <UsersTable users={users} currentUserId={currentUserId} />
+      <Pagination pagination={pagination} />
+    </>
+  );
+}
 
 async function UserStatsWrapper() {
   const stats = await getUserStats();
@@ -22,14 +39,19 @@ function StatsCardsSkeleton() {
   );
 }
 
-export default async function UsersPage() {
+export default async function UsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const session = await auth();
 
   if (!session?.user || session.user.role !== 'admin') {
     redirect('/manage');
   }
 
-  const { users } = await getUsers(1, 50);
+  const params = await searchParams;
+  const page = parseInt(params.page || '1', 10);
 
   return (
     <div className="space-y-6">
@@ -42,7 +64,9 @@ export default async function UsersPage() {
 
       {/* Users Table */}
       <div className="rounded-md border">
-        <UsersTable users={users} currentUserId={session.user.id} />
+        <Suspense>
+          <UsersTableWrapper page={page} currentUserId={session.user.id} />
+        </Suspense>
       </div>
     </div>
   );

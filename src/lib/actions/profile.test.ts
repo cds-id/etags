@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   getProfile,
   updateProfile,
@@ -129,6 +129,31 @@ describe('profile actions', () => {
       });
       expect(mockRevalidatePath).toHaveBeenCalledWith('/manage/profile');
       expect(mockRevalidatePath).toHaveBeenCalledWith('/manage', 'layout');
+    });
+
+    it('should handle database errors during profile update', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ id: '1' }));
+      mockPrismaClient.user.findFirst.mockResolvedValue(null);
+      mockPrismaClient.user.update.mockRejectedValue(new Error('DB Error'));
+
+      const formData = createMockFormData({
+        name: 'Updated Name',
+        email: 'updated@example.com',
+      });
+
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = await updateProfile({}, formData);
+
+      expect(result).toEqual({ error: 'Failed to update profile' });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Update profile error:',
+        expect.any(Error)
+      );
+
+      consoleSpy.mockRestore();
     });
   });
 
@@ -281,6 +306,34 @@ describe('profile actions', () => {
       expect(result).toEqual({ error: 'File size must be less than 5MB' });
     });
 
+    it('should handle database errors during upload', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ id: '1' }));
+      mockPrismaClient.user.findUnique.mockResolvedValue({
+        avatar_url: null,
+      });
+      mockPrismaClient.user.update.mockRejectedValue(new Error('DB Error'));
+
+      const formData = new FormData();
+      formData.append(
+        'avatar',
+        createMockFile('image data', 'avatar.jpg', 'image/jpeg')
+      );
+
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = await uploadAvatar({}, formData);
+
+      expect(result).toEqual({ error: 'Failed to upload avatar' });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Upload avatar error:',
+        expect.any(Error)
+      );
+
+      consoleSpy.mockRestore();
+    });
+
     // File upload tests are skipped because JSDOM doesn't properly implement File.arrayBuffer()
     // These would be better tested with integration/e2e tests
   });
@@ -321,6 +374,29 @@ describe('profile actions', () => {
         message: 'Avatar removed successfully',
       });
       expect(mockDeleteFile).not.toHaveBeenCalled();
+    });
+
+    it('should handle database errors during removal', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ id: '1' }));
+      mockPrismaClient.user.findUnique.mockResolvedValue({
+        avatar_url: 'https://r2.example.com/avatars/current.jpg',
+      });
+      mockDeleteFile.mockResolvedValue(undefined);
+      mockPrismaClient.user.update.mockRejectedValue(new Error('DB Error'));
+
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = await removeAvatar();
+
+      expect(result).toEqual({ error: 'Failed to remove avatar' });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Remove avatar error:',
+        expect.any(Error)
+      );
+
+      consoleSpy.mockRestore();
     });
   });
 });

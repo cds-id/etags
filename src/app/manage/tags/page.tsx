@@ -9,10 +9,16 @@ import { ScanMapSection } from './scan-map-section';
 import { Suspense } from 'react';
 import { TableSkeleton } from '../table-skeleton';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Pagination } from '@/components/ui/pagination';
 
-async function TagsTableWrapper() {
-  const { tags } = await getTags(1, 50);
-  return <TagsTable tags={tags} />;
+async function TagsTableWrapper({ page }: { page: number }) {
+  const { tags, pagination } = await getTags(page, 10);
+  return (
+    <>
+      <TagsTable tags={tags} />
+      <Pagination pagination={pagination} />
+    </>
+  );
 }
 
 async function ScanStatsWrapper() {
@@ -42,7 +48,11 @@ function MapSkeleton() {
   return <Skeleton className="h-[480px] rounded-xl" />;
 }
 
-export default async function TagsPage() {
+export default async function TagsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const session = await auth();
 
   if (!session?.user) {
@@ -50,6 +60,8 @@ export default async function TagsPage() {
   }
 
   const products = await getAllProducts();
+  const params = await searchParams;
+  const page = parseInt(params.page || '1', 10);
 
   return (
     <div className="space-y-6">
@@ -68,7 +80,7 @@ export default async function TagsPage() {
       {/* Tags Table */}
       <div className="rounded-md border">
         <Suspense fallback={<TableSkeleton />}>
-          <TagsTableWrapper />
+          <TagsTableWrapper page={page} />
         </Suspense>
       </div>
     </div>
