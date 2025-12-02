@@ -2,7 +2,5 @@
 # Code owners will be automatically requested for review when someone opens a PR that modifies code they own.
 
 # API routes
-/src/app/api/* @igun997
-
-# Management dashboard pages
-/src/app/manage/* @igun997
+/src/app/api/** @igun997
+/src/app/manage/** @igun997
