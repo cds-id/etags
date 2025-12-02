@@ -21,8 +21,9 @@ Etags is a Next.js 16 application for product tagging and blockchain stamping. I
 - `npm run test` - Run tests in watch mode
 - `npm run test -- --run` - Run tests once (CI mode)
 - `npm run test -- --coverage` - Run tests with coverage
+- `npm run test -- src/lib/actions/auth.test.ts` - Run a single test file
 
-Test files use `*.test.{ts,tsx}` naming convention and are located throughout `src/`.
+Test files use `*.test.{ts,tsx}` naming convention and are located throughout `src/`. Test setup is in `src/tests/setup.ts`.
 
 ### Database (Prisma with MySQL)
 
@@ -32,6 +33,11 @@ Test files use `*.test.{ts,tsx}` naming convention and are located throughout `s
 - `npm run db:studio` - Open Prisma Studio GUI
 - `npm run db:create-admin` - Create admin user (default: admin@example.com / admin123)
 - `npm run db:create-admin -- email@example.com password123 "Name"` - Create admin with custom credentials
+- `npm run db:seed` - Seed basic sample data
+- `npm run db:seed-fraud` - Add fraud scan patterns to existing tags
+- `npm run db:seed-complete` - Complete seed with brands, users, products, tags, and suspicious scans
+- `npm run db:seed-complete -- --upload-r2` - Same as above but uploads QR codes to R2
+- `npm run db:seed-complete -- --clean` - Clean existing data before seeding
 
 ## Architecture
 
@@ -109,6 +115,7 @@ Server actions are organized in `src/lib/actions/`:
 - `/api/csrf` - CSRF token endpoint
 - `/api/tags/[code]/designed` - Get designed QR code for tag
 - `/api/tags/template-preview` - Preview QR template designs
+- `/api/ai-agent` - AI agent chat endpoint for dashboard
 
 ### Database Schema
 
@@ -153,7 +160,11 @@ Runs `typecheck` and `lint-staged` (which runs Prettier on staged files) before 
 
 ### CI/CD (GitHub Actions)
 
-Runs on push to `master` and PRs to `develop`, `feature/*`, `fix/*`. Pipeline: lint → typecheck → test → build.
+Runs on push to `master` and PRs targeting `develop`, `feature/*`, `fix/*`. Pipeline: lint → typecheck → test → build.
+
+### Smart Contracts
+
+Solidity contracts are in `smartcontracts/` directory with separate Hardhat setup. See `smartcontracts/README.md` for contract development and testing.
 
 ## Environment Variables
 
@@ -168,3 +179,4 @@ Copy `.env.example` to `.env` and configure:
 - `BLOCKCHAIN_EXPLORER_URL` - Block explorer URL (default: Base Sepolia)
 - `KOLOSAL_API_KEY` - Kolosal AI for fraud detection
 - `BASESCAN_API_KEY` - BaseScan API for explorer features
+- `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` - Mapbox token for scan location maps
