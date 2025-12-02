@@ -398,11 +398,13 @@ describe('onboarding actions', () => {
       expect(mockPrismaClient.tag.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           product_ids: [1],
+          is_stamped: 0,
+          publish_status: 0,
           metadata: expect.objectContaining({
-            distributorName: 'Distributor A',
-            distributorLocation: 'Jakarta',
-            batchNumber: 'BATCH-001',
+            distribution_region: 'Jakarta',
+            batch_number: 'BATCH-001',
             notes: 'Test notes',
+            distributor_name: 'Distributor A',
             createdBy: 'Test User',
           }),
         }),

@@ -74,6 +74,9 @@ Server actions are organized in `src/lib/actions/`:
 - `users.ts` - User management
 - `profile.ts` - User profile updates
 - `dashboard.ts` - Dashboard statistics
+- `onboarding.ts` - User onboarding flow
+- `my-brand.ts` - Brand user self-management
+- `ai-agent.ts` - AI agent integration
 
 ### Routes
 
@@ -141,7 +144,7 @@ The blockchain contract (ETagRegistry) supports: `createTag`, `updateStatus`, `r
 
 ### Pre-commit Hook
 
-Runs `typecheck` and `prettier --write` before commits.
+Runs `typecheck` and `lint-staged` (which runs Prettier on staged files) before commits.
 
 ### Docker
 
@@ -150,7 +153,7 @@ Runs `typecheck` and `prettier --write` before commits.
 
 ### CI/CD (GitHub Actions)
 
-Runs on push to `master` and PRs to `develop`. Pipeline: lint → typecheck → test → build.
+Runs on push to `master` and PRs to `develop`, `feature/*`, `fix/*`. Pipeline: lint → typecheck → test → build.
 
 ## Environment Variables
 
