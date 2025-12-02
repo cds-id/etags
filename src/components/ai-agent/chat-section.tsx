@@ -92,14 +92,18 @@ export function ChatSection({ role, className }: ChatSectionProps) {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const presets = role === 'admin' ? ADMIN_PRESETS : BRAND_PRESETS;
 
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop =
+        messagesContainerRef.current.scrollHeight;
+    }
   }, [messages, isLoading]);
 
   const handleSend = async (messageText?: string) => {
@@ -174,57 +178,59 @@ export function ChatSection({ role, className }: ChatSectionProps) {
   };
 
   return (
-    <Card className={cn('flex flex-col', className)}>
-      <CardHeader className="pb-3 border-b bg-gradient-to-r from-primary/5 to-primary/10">
+    <Card className={cn('flex flex-col gap-0 py-0 h-full', className)}>
+      <CardHeader className="py-3 px-4 border-b bg-linear-to-r from-violet-500/10 via-purple-500/10 to-fuchsia-500/10 rounded-t-xl shrink-0">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
-            <Bot className="h-5 w-5 text-primary-foreground" />
+          <div className="relative">
+            <div className="h-10 w-10 rounded-xl bg-linear-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
+              <Bot className="h-5 w-5 text-white" />
+            </div>
+            <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-green-500 border-2 border-background" />
           </div>
-          <div className="flex-1">
-            <CardTitle className="text-lg flex items-center gap-2">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
               AI Assistant
-              <Sparkles className="h-4 w-4 text-yellow-500" />
+              <Sparkles className="h-4 w-4 text-amber-500" />
             </CardTitle>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {role === 'admin'
-                ? 'Analisis platform dan insights'
-                : 'Analisis produk dan performa brand'}
+                ? 'Platform analytics & insights'
+                : 'Brand performance assistant'}
             </p>
-          </div>
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-            Online
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1 flex flex-col p-0 min-h-[400px] max-h-[500px]">
+      <CardContent className="flex-1 flex flex-col p-0 min-h-0">
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/30">
+        <div
+          ref={messagesContainerRef}
+          className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/30 min-h-[200px] max-h-[400px]"
+        >
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full py-8">
-              <div className="text-center mb-6">
-                <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <Bot className="h-8 w-8 text-primary" />
+            <div className="flex flex-col items-center justify-center h-full py-4">
+              <div className="text-center mb-4">
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
+                  <Bot className="h-6 w-6 text-primary" />
                 </div>
-                <p className="text-lg font-medium mb-1">
+                <p className="text-base font-medium mb-0.5">
                   Hai! Saya AI Assistant
                 </p>
-                <p className="text-sm text-muted-foreground">
-                  Pilih pertanyaan di bawah atau ketik sendiri
+                <p className="text-xs text-muted-foreground">
+                  Pilih pertanyaan atau ketik sendiri
                 </p>
               </div>
 
               {/* Preset Questions Grid */}
-              <div className="grid grid-cols-2 gap-2 w-full max-w-md px-4">
-                {presets.map((preset, index) => (
+              <div className="grid grid-cols-2 gap-1.5 w-full max-w-sm px-3">
+                {presets.slice(0, 4).map((preset, index) => (
                   <button
                     key={index}
                     onClick={() => handlePresetClick(preset.question)}
-                    className="flex items-center gap-2 p-3 rounded-lg border bg-background hover:bg-primary/5 hover:border-primary/30 transition-colors text-left text-sm"
+                    className="flex items-center gap-1.5 p-2 rounded-lg border bg-background hover:bg-primary/5 hover:border-primary/30 transition-colors text-left text-xs"
                   >
-                    <span className="text-lg">{preset.icon}</span>
-                    <span className="font-medium">{preset.label}</span>
+                    <span>{preset.icon}</span>
+                    <span className="font-medium truncate">{preset.label}</span>
                   </button>
                 ))}
               </div>
@@ -251,15 +257,13 @@ export function ChatSection({ role, className }: ChatSectionProps) {
                   </Button>
                 </div>
               )}
-
-              <div ref={messagesEndRef} />
             </>
           )}
         </div>
 
         {/* Quick Presets (shown when there are messages) */}
         {messages.length > 0 && (
-          <div className="px-4 py-2 border-t bg-background/50 overflow-x-auto">
+          <div className="px-4 py-2 border-t bg-background/50 overflow-x-auto shrink-0">
             <div className="flex gap-2">
               {presets.slice(0, 4).map((preset, index) => (
                 <button
@@ -277,7 +281,7 @@ export function ChatSection({ role, className }: ChatSectionProps) {
         )}
 
         {/* Input Area */}
-        <div className="border-t bg-background p-4">
+        <div className="border-t bg-background p-3 shrink-0">
           <div className="flex gap-2">
             <textarea
               ref={inputRef}
@@ -285,7 +289,7 @@ export function ChatSection({ role, className }: ChatSectionProps) {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ketik pesan..."
-              className="flex-1 resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px] max-h-[100px]"
+              className="flex-1 resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[40px] max-h-[80px]"
               disabled={isLoading}
               rows={1}
             />
@@ -293,12 +297,12 @@ export function ChatSection({ role, className }: ChatSectionProps) {
               onClick={() => handleSend()}
               disabled={!input.trim() || isLoading}
               size="icon"
-              className="h-11 w-11 rounded-lg"
+              className="h-10 w-10 rounded-lg"
             >
               {isLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <Send className="h-5 w-5" />
+                <Send className="h-4 w-4" />
               )}
             </Button>
           </div>

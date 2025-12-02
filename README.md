@@ -236,6 +236,8 @@ docker run -p 3000:3000 -e DATABASE_URL="your_db_url" -e AUTH_SECRET="your_secre
 
 ## Testing
 
+### App Tests (Vitest)
+
 ```bash
 # Run tests in watch mode
 npm run test
@@ -246,6 +248,26 @@ npm run test -- --run
 # Run tests dengan coverage
 npm run test -- --coverage
 ```
+
+### Smart Contract Tests (Hardhat)
+
+```bash
+cd smartcontracts
+
+# Install dependencies
+npm install
+
+# Run tests
+npm run test
+
+# Run with gas reporting
+npm run test:gas
+
+# Run with coverage
+npm run test:coverage
+```
+
+📖 Lihat [smartcontracts/README.md](./smartcontracts/README.md) untuk dokumentasi lengkap smart contract.
 
 ### Test Coverage
 

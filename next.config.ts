@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'etags.cylink.site',
       },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      },
     ],
   },
 };

@@ -9,6 +9,27 @@ export type Message = {
   id?: string;
 };
 
+export type FraudAnalytics = {
+  totalScans: number;
+  uniqueDevices: number;
+  flaggedTags: number;
+  claimedTags: number;
+  suspiciousPatterns: {
+    impossibleTravel: number;
+    highVolumeDevice: number;
+    vpnUsage: number;
+    multipleClaims: number;
+    locationMismatch: number;
+  };
+  topScanLocations: Array<{ location: string; count: number }>;
+  recentSuspiciousScans: Array<{
+    tagCode: string;
+    location: string | null;
+    reason: string;
+    timestamp: Date;
+  }>;
+};
+
 export type AgentContext = {
   userId: number;
   role: 'admin' | 'brand';
@@ -34,6 +55,7 @@ export type AgentContext = {
       isStamped: number;
     }>;
   };
+  fraudAnalytics?: FraudAnalytics;
 };
 
 export type AgentResponse = {
