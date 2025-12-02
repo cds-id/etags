@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -6,7 +6,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from '@/components/ui/table';
 
 export function TableSkeleton() {
   return (
@@ -34,5 +34,5 @@ export function TableSkeleton() {
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

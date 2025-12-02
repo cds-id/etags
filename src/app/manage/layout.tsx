@@ -47,7 +47,7 @@ export default async function ManageLayout({
               <span className="text-xl font-semibold">Etags</span>
             </Link>
           </div>
-          <Suspense 
+          <Suspense
             fallback={
               <div className="flex items-center gap-4">
                 <Skeleton className="h-4 w-24" />
