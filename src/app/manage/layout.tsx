@@ -1,9 +1,10 @@
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/db';
 import { Sidebar } from './sidebar';
-import { UserMenu } from './user-menu';
 import Link from 'next/link';
+import { Suspense } from 'react';
+import { UserProfileHeader } from './user-profile-header';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default async function ManageLayout({
   children,
@@ -16,22 +17,7 @@ export default async function ManageLayout({
     redirect('/login');
   }
 
-  // Fetch fresh user data from database to get latest avatar
-  const user = await prisma.user.findUnique({
-    where: { id: parseInt(session.user.id) },
-    select: {
-      name: true,
-      email: true,
-      role: true,
-      avatar_url: true,
-    },
-  });
-
-  if (!user) {
-    redirect('/login');
-  }
-
-  const isAdmin = user.role === 'admin';
+  const isAdmin = session.user.role === 'admin';
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -61,17 +47,16 @@ export default async function ManageLayout({
               <span className="text-xl font-semibold">Etags</span>
             </Link>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">{user.name}</span>
-            <UserMenu
-              user={{
-                name: user.name,
-                email: user.email,
-                image: user.avatar_url,
-                role: user.role,
-              }}
-            />
-          </div>
+          <Suspense 
+            fallback={
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-8 w-8 rounded-full" />
+              </div>
+            }
+          >
+            <UserProfileHeader userId={session.user.id} />
+          </Suspense>
         </div>
       </header>
       <div className="flex flex-1">
