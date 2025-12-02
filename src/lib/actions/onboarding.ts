@@ -330,16 +330,18 @@ export async function createOnboardingTag(
     // Generate tag code
     const code = `TAG-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
-    // Create tag
+    // Create tag with metadata keys matching the tag form
     const tag = await prisma.tag.create({
       data: {
         code,
         product_ids: [productId],
         metadata: {
-          distributorName: distributorName || null,
-          distributorLocation: distributorLocation || null,
-          batchNumber: batchNumber || null,
+          // Use the same field names as tag-form-page.tsx
+          distribution_region: distributorLocation || null,
+          batch_number: batchNumber || null,
           notes: notes || null,
+          // Store distributor name in a custom field for reference
+          distributor_name: distributorName || null,
           createdBy: session.user.name,
         },
         is_stamped: 0,

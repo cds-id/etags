@@ -1,8 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Menu } from 'lucide-react';
 
 type SidebarProps = {
   isAdmin: boolean;
@@ -174,8 +178,47 @@ const navItems: NavItem[] = [
   },
 ];
 
+function NavLinks({
+  items,
+  pathname,
+  onItemClick,
+}: {
+  items: NavItem[];
+  pathname: string;
+  onItemClick?: () => void;
+}) {
+  return (
+    <nav className="flex flex-col gap-1 p-4">
+      {items.map((item) => {
+        const isActive =
+          item.href === '/manage'
+            ? pathname === '/manage'
+            : pathname.startsWith(item.href);
+
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={onItemClick}
+            className={cn(
+              'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+              isActive
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+            )}
+          >
+            {item.icon}
+            {item.title}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+
 export function Sidebar({ isAdmin }: SidebarProps) {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
 
   const filteredItems = navItems.filter((item) => {
     // Admin-only items: only show for admin
@@ -191,31 +234,33 @@ export function Sidebar({ isAdmin }: SidebarProps) {
   });
 
   return (
-    <aside className="w-64 border-r bg-muted/30">
-      <nav className="flex flex-col gap-1 p-4">
-        {filteredItems.map((item) => {
-          const isActive =
-            item.href === '/manage'
-              ? pathname === '/manage'
-              : pathname.startsWith(item.href);
+    <>
+      {/* Mobile menu button - shown in header on mobile */}
+      <div className="fixed bottom-4 right-4 z-50 md:hidden">
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild>
+            <Button size="icon" className="h-12 w-12 rounded-full shadow-lg">
+              <Menu className="h-6 w-6" />
+              <span className="sr-only">Toggle menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-64 p-0">
+            <div className="border-b px-4 py-3">
+              <span className="text-lg font-semibold">Menu</span>
+            </div>
+            <NavLinks
+              items={filteredItems}
+              pathname={pathname}
+              onItemClick={() => setOpen(false)}
+            />
+          </SheetContent>
+        </Sheet>
+      </div>
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-              )}
-            >
-              {item.icon}
-              {item.title}
-            </Link>
-          );
-        })}
-      </nav>
-    </aside>
+      {/* Desktop sidebar */}
+      <aside className="hidden w-64 shrink-0 border-r bg-muted/30 md:block">
+        <NavLinks items={filteredItems} pathname={pathname} />
+      </aside>
+    </>
   );
 }
