@@ -7,6 +7,11 @@ import { prisma } from './db';
 import { chatCompletion, type ChatMessage } from './kolosal-ai';
 import type { AgentContext } from '@/types/ai-agent';
 
+interface ProductMetadata {
+  name?: string;
+  [key: string]: unknown;
+}
+
 /**
  * Get AI agent context with role-based data filtering
  */
@@ -122,7 +127,8 @@ export async function getAIAgentContext(
       products: recentProducts.map((p) => ({
         id: p.id,
         code: p.code,
-        name: (p.metadata as any)?.name || 'Unnamed Product',
+        name:
+          (p.metadata as unknown as ProductMetadata)?.name || 'Unnamed Product',
         status: p.status,
       })),
       tags: recentTags.map((t) => ({
@@ -181,7 +187,8 @@ export async function getAIAgentContext(
       products: recentProducts.map((p) => ({
         id: p.id,
         code: p.code,
-        name: (p.metadata as any)?.name || 'Unnamed Product',
+        name:
+          (p.metadata as unknown as ProductMetadata)?.name || 'Unnamed Product',
         status: p.status,
       })),
       tags: brandTags.map((t) => ({
