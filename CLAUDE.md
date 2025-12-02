@@ -16,6 +16,14 @@ Etags is a Next.js 16 application for product tagging and blockchain stamping. I
 - `npm run format:check` - Check formatting without writing
 - `npm run commit` - Commitizen conventional commit
 
+### Testing (Vitest)
+
+- `npm run test` - Run tests in watch mode
+- `npm run test -- --run` - Run tests once (CI mode)
+- `npm run test -- --coverage` - Run tests with coverage
+
+Test files use `*.test.{ts,tsx}` naming convention and are located throughout `src/`.
+
 ### Database (Prisma with MySQL)
 
 - `npm run db:generate` - Generate Prisma client
@@ -134,6 +142,15 @@ The blockchain contract (ETagRegistry) supports: `createTag`, `updateStatus`, `r
 ### Pre-commit Hook
 
 Runs `typecheck` and `prettier --write` before commits.
+
+### Docker
+
+- `docker build -t etags .` - Build production image (multi-stage, uses standalone output)
+- `docker run -p 3000:3000 -e DATABASE_URL="..." -e AUTH_SECRET="..." etags` - Run container
+
+### CI/CD (GitHub Actions)
+
+Runs on push to `master` and PRs to `develop`. Pipeline: lint → typecheck → test → build.
 
 ## Environment Variables
 

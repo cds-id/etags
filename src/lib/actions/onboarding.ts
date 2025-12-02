@@ -3,7 +3,6 @@
 import { prisma } from '@/lib/db';
 import { auth } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import { uploadFile } from '@/lib/r2';
 
 export type OnboardingState = {
@@ -367,7 +366,7 @@ export async function completeOnboarding(): Promise<void> {
   });
 
   revalidatePath('/manage');
-  redirect('/manage');
+  // redirect('/manage'); // Removed to allow client-side session update first
 }
 
 // Get user's brand products for tag creation
