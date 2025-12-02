@@ -33,6 +33,7 @@ https://tags.cylink.site/
 - **Authentication:** NextAuth v5
 - **Blockchain:** ethers.js
 - **Storage:** Cloudflare R2
+- **AI:** Kolosal AI (Analytics & Fraud Detection)
 - **Styling:** Tailwind CSS v4
 
 ## Fitur Utama
@@ -42,8 +43,38 @@ https://tags.cylink.site/
 - **Manajemen Tag** - Buat dan kelola tag untuk produk
 - **Blockchain Stamping** - Catat tag ke blockchain untuk verifikasi keaslian
 - **Pelacakan Status** - Lacak siklus hidup tag (Created → Distributed → Claimed → Transferred)
+- **AI Agent Dashboard** - Asisten AI untuk analisis data dan insights (Admin & Brand)
+- **Fraud Detection** - Deteksi kecurangan menggunakan AI pada scan tag
 - **Upload File** - Simpan gambar dan file ke Cloudflare R2
 - **API Documentation** - Swagger UI untuk dokumentasi API
+
+## AI Agent
+
+Etags dilengkapi dengan **AI Agent** yang tersedia di dashboard untuk membantu admin dan brand user menganalisis data:
+
+### Untuk Admin
+
+- 📊 Analisis statistik keseluruhan platform
+- 🔍 Identifikasi tren dan pola penggunaan
+- ⚠️ Deteksi anomali dan potensi fraud
+- 📈 Rekomendasi optimasi bisnis
+
+### Untuk Brand User
+
+- 📦 Analisis performa produk dan tag
+- 🗺️ Insight distribusi geografis
+- 👥 Pemahaman perilaku konsumen
+- 🚨 Alert untuk aktivitas mencurigakan
+
+### Contoh Pertanyaan ke AI Agent
+
+```
+"Berapa total tag yang sudah di-claim bulan ini?"
+"Produk mana yang paling banyak di-scan?"
+"Apakah ada pola scan yang mencurigakan?"
+"Bagaimana distribusi geografis produk saya?"
+"Rekomendasikan strategi untuk meningkatkan engagement"
+```
 
 ## Cara Penggunaan
 
@@ -245,6 +276,39 @@ Unit tests tersedia untuk semua server actions di `src/lib/actions/`:
 | `npm run db:push`         | Push schema ke database     |
 | `npm run db:studio`       | Buka Prisma Studio GUI      |
 | `npm run db:create-admin` | Buat akun admin             |
+
+## Roadmap
+
+### ✅ MVP (Current)
+
+- Manajemen Brand, Produk, dan Tag
+- Blockchain Stamping untuk verifikasi keaslian
+- QR Code scanning dan verifikasi
+- AI Agent Dashboard untuk analisis data (Admin & Brand)
+- AI-powered fraud detection
+- Tag lifecycle tracking (Created → Distributed → Claimed → Transferred)
+
+### 🚀 Phase 2: Wallet Authentication
+
+- **Wallet Login untuk Brand** - Brand user dapat login menggunakan crypto wallet (MetaMask, WalletConnect)
+- **Multi-signature Stamping** - Tag stamping memerlukan approval dari platform dan brand user
+- Hybrid authentication (wallet + credentials)
+
+### 📦 Phase 3: Distribution Tracking
+
+- **Post-sales Tracking** - Brand dapat melacak distribusi produk setelah penjualan
+- Real-time supply chain visibility
+- Geolocation tracking untuk pergerakan produk
+- Analytics dashboard untuk distribusi
+
+### 🛡️ Phase 4: Blockchain Warranty
+
+- **Claim-based Warranty** - User harus claim produk sebelum mendapatkan garansi
+- **On-chain Warranty** - Data garansi terintegrasi dengan blockchain
+- Warranty transfer saat produk dijual kembali
+- Automated warranty validation
+
+📖 Lihat [ROADMAP.md](./ROADMAP.md) untuk detail lengkap.
 
 ## Lisensi
 

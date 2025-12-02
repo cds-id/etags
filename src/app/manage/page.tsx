@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import Link from 'next/link';
-import { ChatWidget } from '@/components/ai-agent/chat-widget';
+import { ChatSection } from '@/components/ai-agent/chat-section';
 
 export default async function ManageDashboard() {
   const session = await auth();
@@ -253,39 +253,6 @@ export default async function ManageDashboard() {
                 </p>
               </div>
             </Link>
-            <div className="flex items-center gap-2 rounded-md border p-3 bg-linear-to-r from-primary/5 to-primary/10 border-primary/20">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-primary"
-              >
-                <path d="M12 8V4H8" />
-                <rect width="16" height="12" x="4" y="8" rx="2" />
-                <path d="M2 14h2" />
-                <path d="M20 14h2" />
-                <path d="M15 13v2" />
-                <path d="M9 13v2" />
-              </svg>
-              <div className="flex-1">
-                <p className="font-medium text-primary">AI Assistant</p>
-                <p className="text-sm text-muted-foreground">
-                  Tanyakan tentang produk dan statistik Anda
-                </p>
-              </div>
-              <div className="flex flex-col gap-1 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-                  Online
-                </span>
-              </div>
-            </div>
           </CardContent>
         </Card>
 
@@ -318,8 +285,8 @@ export default async function ManageDashboard() {
         </Card>
       </div>
 
-      {/* AI Chat Widget */}
-      <ChatWidget />
+      {/* AI Chat Section */}
+      <ChatSection role={isAdmin ? 'admin' : 'brand'} />
     </div>
   );
 }
