@@ -263,7 +263,7 @@ export async function POST(request: NextRequest) {
       include: { brand: true },
     });
 
-    const productInfo = products.map((p) => {
+    const productInfo = products.map((p: (typeof products)[number]) => {
       const metadata = p.metadata as ProductMetadata;
       return {
         code: p.code,
@@ -275,15 +275,18 @@ export async function POST(request: NextRequest) {
     });
 
     // Calculate scan statistics
+    type TagScan = (typeof tag.scans)[number];
     const totalScans = tag.scans.length;
     const scansFromFingerprint = tag.scans.filter(
-      (s) => s.fingerprint_id === fingerprintId
+      (s: TagScan) => s.fingerprint_id === fingerprintId
     );
     const previousScansFromFingerprint = scansFromFingerprint.length;
     const isNewFingerprint = previousScansFromFingerprint === 0;
 
     // Count unique fingerprints that have scanned this tag
-    const uniqueFingerprints = new Set(tag.scans.map((s) => s.fingerprint_id));
+    const uniqueFingerprints = new Set(
+      tag.scans.map((s: TagScan) => s.fingerprint_id)
+    );
     const uniqueScannerCount = uniqueFingerprints.size;
 
     // Determine what question to ask (based on unique scanners, not total scans)
@@ -358,23 +361,28 @@ export async function POST(request: NextRequest) {
     });
 
     // Build history for display (only if more than 3 unique scanners)
-    let history: ScanResponse['history'] = undefined;
-    if (uniqueScannerCount >= 3 || question?.type === 'no_question') {
-      history = tag.scans.map((s) => ({
-        scanNumber: s.scan_number,
-        createdAt: s.created_at.toISOString(),
-        isFirstHand:
-          s.is_first_hand === 1 ? true : s.is_first_hand === 0 ? false : null,
-        sourceInfo: s.source_info,
-      }));
-      // Add current scan to history
-      history.unshift({
-        scanNumber: totalScans + 1,
-        createdAt: newScan.created_at.toISOString(),
-        isFirstHand: null,
-        sourceInfo: null,
-      });
-    }
+    const history: ScanResponse['history'] =
+      uniqueScannerCount >= 3 || question?.type === 'no_question'
+        ? [
+            {
+              scanNumber: totalScans + 1,
+              createdAt: newScan.created_at.toISOString(),
+              isFirstHand: null,
+              sourceInfo: null,
+            },
+            ...tag.scans.map((s: TagScan) => ({
+              scanNumber: s.scan_number,
+              createdAt: s.created_at.toISOString(),
+              isFirstHand:
+                s.is_first_hand === 1
+                  ? true
+                  : s.is_first_hand === 0
+                    ? false
+                    : null,
+              sourceInfo: s.source_info,
+            })),
+          ]
+        : undefined;
 
     // Perform fraud detection if location is available and tag has distribution info
     let fraudAnalysis: ScanResponse['fraudAnalysis'] = undefined;
@@ -385,9 +393,9 @@ export async function POST(request: NextRequest) {
     ) {
       // Get recent scan locations for context
       const recentLocations = tag.scans
-        .filter((s) => s.location_name)
+        .filter((s: TagScan) => s.location_name)
         .slice(0, 5)
-        .map((s) => s.location_name as string);
+        .map((s: TagScan) => s.location_name as string);
 
       try {
         // Use AI-powered fraud detection
