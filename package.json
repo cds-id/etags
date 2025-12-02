@@ -20,7 +20,8 @@
     "db:studio": "prisma studio",
     "db:create-admin": "tsx scripts/create-admin.ts",
     "db:seed": "tsx scripts/seed-data.ts",
-    "db:seed-fraud": "tsx scripts/seed-fraud-scans.ts"
+    "db:seed-fraud": "tsx scripts/seed-fraud-scans.ts",
+    "db:seed-complete": "tsx scripts/seed-complete.ts"
   },
   "config": {
     "commitizen": {
