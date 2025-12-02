@@ -142,12 +142,103 @@ FLAGGED (4)      → Tag ditandai untuk review
 REVOKED (5)      → Tag dicabut/dibatalkan
 ```
 
+## Arsitektur Teknis
+
+### Struktur Aplikasi
+
+**Etags** dibangun menggunakan arsitektur modern dengan pemisahan yang jelas antara UI, Business Logic, dan Data Layer:
+
+```
+src/
+├── app/              # Next.js App Router (UI Layer)
+│   ├── api/          # API Routes
+│   ├── manage/       # Admin Dashboard
+│   └── login/        # Authentication
+├── lib/              # Business Logic Layer
+│   ├── actions/      # Server Actions
+│   ├── services/     # Service Layer
+│   └── utils/        # Utility Functions
+├── components/       # React Components
+│   ├── ui/           # Reusable UI Components (shadcn/ui)
+│   └── shared/       # Shared Components
+└── types/            # TypeScript Type Definitions
+```
+
+### Tech Stack Details
+
+- **Frontend**: Next.js 16 with React 19, TypeScript, Tailwind CSS v4
+- **Backend**: Next.js API Routes, Server Actions
+- **Database**: MySQL with Prisma ORM (Type-safe queries)
+- **Auth**: NextAuth v5 (Credentials Provider)
+- **Blockchain**: ethers.js untuk interaksi dengan smart contract
+- **Storage**: Cloudflare R2 (S3-compatible)
+- **Testing**: Vitest + React Testing Library
+- **CI/CD**: GitHub Actions
+- **DevOps**: Docker (Multi-stage build untuk production)
+
+### Data Flow
+
+1. **User Interaction** → React Components
+2. **Server Actions** → Business Logic di `lib/actions/`
+3. **Service Layer** → Database via Prisma atau Blockchain via ethers.js
+4. **Response** → UI Update
+
+### Security Features
+
+- ✅ Password hashing dengan bcryptjs
+- ✅ Session-based authentication (NextAuth)
+- ✅ Environment variables untuk credentials
+- ✅ No hardcoded API keys
+- ✅ Type-safe database queries (Prisma)
+
+## Docker Deployment
+
+### Build dan Run dengan Docker
+
+```bash
+# Build image
+docker build -t etags .
+
+# Run container
+docker run -p 3000:3000 -e DATABASE_URL="your_db_url" -e AUTH_SECRET="your_secret" etags
+```
+
+## Testing
+
+```bash
+# Run tests in watch mode
+npm run test
+
+# Run tests once (CI mode)
+npm run test -- --run
+
+# Run tests dengan coverage
+npm run test -- --coverage
+```
+
+### Test Coverage
+
+Unit tests tersedia untuk semua server actions di `src/lib/actions/`:
+
+| File          | Coverage |
+| ------------- | -------- |
+| dashboard.ts  | 100%     |
+| auth.ts       | ~95%     |
+| onboarding.ts | ~82%     |
+| products.ts   | ~81%     |
+| users.ts      | ~80%     |
+| profile.ts    | ~79%     |
+| tags.ts       | ~76%     |
+| brands.ts     | ~74%     |
+| my-brand.ts   | ~74%     |
+
 ## Scripts
 
 | Command                   | Keterangan                  |
 | ------------------------- | --------------------------- |
 | `npm run dev`             | Jalankan development server |
 | `npm run build`           | Build untuk production      |
+| `npm run test`            | Run unit tests              |
 | `npm run lint`            | Jalankan ESLint             |
 | `npm run typecheck`       | Cek TypeScript types        |
 | `npm run format`          | Format kode dengan Prettier |
