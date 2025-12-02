@@ -216,7 +216,7 @@ export async function GET(request: NextRequest) {
       include: { brand: true },
     });
 
-    const productInfo = products.map((p) => {
+    const productInfo = products.map((p: (typeof products)[number]) => {
       const metadata = p.metadata as ProductMetadata;
       return {
         code: p.code,
