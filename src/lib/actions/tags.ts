@@ -809,3 +809,121 @@ export async function getTagScans(
     return null;
   }
 }
+
+// ============================================
+// Tag Scan Map & Statistics
+// ============================================
+
+export type ScanLocationPoint = {
+  id: number;
+  tagId: number;
+  tagCode: string;
+  latitude: number;
+  longitude: number;
+  locationName: string | null;
+  isClaimed: boolean;
+  createdAt: Date;
+};
+
+export type TagScanMapStats = {
+  totalScans: number;
+  scansWithLocation: number;
+  uniqueScanners: number;
+  claimedCount: number;
+  firstHandCount: number;
+  secondHandCount: number;
+  locations: ScanLocationPoint[];
+};
+
+// Get all tag scan locations for map display (with stats)
+export async function getAllTagScanLocations(): Promise<TagScanMapStats> {
+  try {
+    const { isAdmin, brandId: userBrandId } = await requireAuth();
+
+    // Get tag IDs the user has access to
+    let accessibleTagIds: number[] = [];
+
+    if (isAdmin) {
+      // Admin can see all tags
+      const allTags = await prisma.tag.findMany({
+        select: { id: true },
+      });
+      accessibleTagIds = allTags.map((t) => t.id);
+    } else if (userBrandId) {
+      // Brand users can only see their brand's tags
+      const brandProductIds = await getBrandProductIds(userBrandId);
+      const allTags = await prisma.tag.findMany({
+        select: { id: true, product_ids: true },
+      });
+
+      accessibleTagIds = allTags
+        .filter((tag) => {
+          const productIds = tag.product_ids as number[];
+          return productIds.some((id) => brandProductIds.includes(id));
+        })
+        .map((t) => t.id);
+    }
+
+    if (accessibleTagIds.length === 0) {
+      return {
+        totalScans: 0,
+        scansWithLocation: 0,
+        uniqueScanners: 0,
+        claimedCount: 0,
+        firstHandCount: 0,
+        secondHandCount: 0,
+        locations: [],
+      };
+    }
+
+    // Get all scans for accessible tags
+    const scans = await prisma.tagScan.findMany({
+      where: {
+        tag_id: { in: accessibleTagIds },
+      },
+      include: {
+        tag: {
+          select: { code: true },
+        },
+      },
+      orderBy: { created_at: 'desc' },
+    });
+
+    const uniqueFingerprints = new Set(scans.map((s) => s.fingerprint_id));
+
+    // Filter scans with valid location data
+    const locationsWithCoords = scans
+      .filter((s) => s.latitude !== null && s.longitude !== null)
+      .map((s) => ({
+        id: s.id,
+        tagId: s.tag_id,
+        tagCode: s.tag.code,
+        latitude: s.latitude!,
+        longitude: s.longitude!,
+        locationName: s.location_name,
+        isClaimed: s.is_claimed === 1,
+        createdAt: s.created_at,
+      }));
+
+    return {
+      totalScans: scans.length,
+      scansWithLocation: locationsWithCoords.length,
+      uniqueScanners: uniqueFingerprints.size,
+      claimedCount: scans.filter((s) => s.is_claimed === 1).length,
+      firstHandCount: scans.filter((s) => s.is_first_hand === 1).length,
+      secondHandCount: scans.filter((s) => s.is_first_hand === 0).length,
+      locations: locationsWithCoords,
+    };
+  } catch (error) {
+    console.error('Get all tag scan locations error:', error);
+    return {
+      totalScans: 0,
+      scansWithLocation: 0,
+      uniqueScanners: 0,
+      claimedCount: 0,
+      firstHandCount: 0,
+      secondHandCount: 0,
+      locations: [],
+    };
+  }
+}
