@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   getBrands,
   getAllBrands,
@@ -7,6 +7,7 @@ import {
   updateBrand,
   deleteBrand,
   toggleBrandStatus,
+  getBrandStats,
 } from './brands';
 import {
   mockPrismaClient,
@@ -222,6 +223,31 @@ describe('brands actions', () => {
 
       expect(result).toEqual({ error: 'File size must be less than 5MB' });
     });
+
+    it('should handle database errors', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'admin' }));
+      mockPrismaClient.brand.create.mockRejectedValue(new Error('DB Error'));
+
+      const formData = createMockFormData({
+        name: 'New Brand',
+        descriptions: 'Brand description',
+        status: '1',
+      });
+
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = await createBrand({}, formData);
+
+      expect(result).toEqual({ error: 'Failed to create brand' });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Create brand error:',
+        expect.any(Error)
+      );
+
+      consoleSpy.mockRestore();
+    });
   });
 
   describe('updateBrand', () => {
@@ -345,6 +371,30 @@ describe('brands actions', () => {
       });
       expect(mockDeleteFile).toHaveBeenCalledWith('brands/logo.png');
     });
+
+    it('should handle database errors during deletion', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'admin' }));
+      mockPrismaClient.brand.findUnique.mockResolvedValue({
+        id: 1,
+        logo_url: null,
+        _count: { products: 0 },
+      });
+      mockPrismaClient.brand.delete.mockRejectedValue(new Error('DB Error'));
+
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = await deleteBrand(1);
+
+      expect(result).toEqual({ error: 'Failed to delete brand' });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Delete brand error:',
+        expect.any(Error)
+      );
+
+      consoleSpy.mockRestore();
+    });
   });
 
   describe('toggleBrandStatus', () => {
@@ -394,6 +444,50 @@ describe('brands actions', () => {
       expect(mockPrismaClient.brand.update).toHaveBeenCalledWith({
         where: { id: 1 },
         data: { status: 1 },
+      });
+    });
+
+    it('should handle database errors during toggle', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'admin' }));
+      mockPrismaClient.brand.findUnique.mockResolvedValue({
+        id: 1,
+        status: 1,
+      });
+      mockPrismaClient.brand.update.mockRejectedValue(new Error('DB Error'));
+
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = await toggleBrandStatus(1);
+
+      expect(result).toEqual({ error: 'Failed to update brand status' });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Toggle brand status error:',
+        expect.any(Error)
+      );
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('getBrandStats', () => {
+    it('should return brand statistics', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'admin' }));
+      mockPrismaClient.brand.count.mockResolvedValueOnce(10); // totalBrands
+      mockPrismaClient.brand.count.mockResolvedValueOnce(8); // activeBrands
+      mockPrismaClient.product.count.mockResolvedValue(50); // totalProducts
+      mockPrismaClient.brand.count.mockResolvedValueOnce(7); // brandsWithProducts
+
+      const result = await getBrandStats();
+
+      expect(result).toEqual({
+        totalBrands: 10,
+        activeBrands: 8,
+        inactiveBrands: 2,
+        totalProducts: 50,
+        brandsWithProducts: 7,
+        brandsWithoutProducts: 3,
       });
     });
   });

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   getProducts,
   getAllProducts,
@@ -7,6 +7,7 @@ import {
   updateProduct,
   deleteProduct,
   toggleProductStatus,
+  getProductStats,
 } from './products';
 import {
   mockPrismaClient,
@@ -455,6 +456,78 @@ describe('products actions', () => {
       expect(mockPrismaClient.product.update).toHaveBeenCalledWith({
         where: { id: 1 },
         data: { status: 0 },
+      });
+    });
+  });
+
+  describe('deleteProduct', () => {
+    it('should handle database errors during deletion', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'admin' }));
+      mockPrismaClient.product.findUnique.mockResolvedValue({
+        id: 1,
+        name: 'Product',
+      });
+      mockPrismaClient.product.delete.mockRejectedValue(new Error('DB Error'));
+
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = await deleteProduct(1);
+
+      expect(result).toEqual({ error: 'Failed to delete product' });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Delete product error:',
+        expect.any(Error)
+      );
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('getProductStats', () => {
+    it('should return product statistics for admin', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'admin' }));
+      mockPrismaClient.product.count.mockResolvedValueOnce(50); // totalProducts
+      mockPrismaClient.product.count.mockResolvedValueOnce(45); // activeProducts
+      mockPrismaClient.tag.findMany.mockResolvedValue([
+        { product_ids: [1, 2, 3] },
+        { product_ids: [2, 4, 5] },
+      ]);
+
+      const result = await getProductStats();
+
+      expect(result).toEqual({
+        totalProducts: 50,
+        activeProducts: 45,
+        inactiveProducts: 5,
+        productsWithTags: 5,
+        productsWithoutTags: 45,
+      });
+    });
+
+    it('should return product statistics for brand user', async () => {
+      mockAuth.mockResolvedValue(
+        createMockSession({ role: 'brand', brandId: '5' })
+      );
+      mockPrismaClient.product.count.mockResolvedValueOnce(10); // totalProducts
+      mockPrismaClient.product.count.mockResolvedValueOnce(8); // activeProducts
+      mockPrismaClient.tag.findMany.mockResolvedValue([
+        { product_ids: [1, 2, 3] },
+      ]);
+      mockPrismaClient.product.findMany.mockResolvedValue([
+        { id: 1 },
+        { id: 2 },
+      ]);
+
+      const result = await getProductStats();
+
+      expect(result).toEqual({
+        totalProducts: 10,
+        activeProducts: 8,
+        inactiveProducts: 2,
+        productsWithTags: 2,
+        productsWithoutTags: 8,
       });
     });
   });

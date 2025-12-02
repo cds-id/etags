@@ -7,10 +7,16 @@ import { BrandStatsCards } from './brand-stats-cards';
 import { Suspense } from 'react';
 import { TableSkeleton } from '../table-skeleton';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Pagination } from '@/components/ui/pagination';
 
-async function BrandsTableWrapper() {
-  const { brands } = await getBrands(1, 50);
-  return <BrandsTable brands={brands} />;
+async function BrandsTableWrapper({ page }: { page: number }) {
+  const { brands, pagination } = await getBrands(page, 10);
+  return (
+    <>
+      <BrandsTable brands={brands} />
+      <Pagination pagination={pagination} />
+    </>
+  );
 }
 
 async function BrandStatsWrapper() {
@@ -28,12 +34,19 @@ function StatsCardsSkeleton() {
   );
 }
 
-export default async function BrandsPage() {
+export default async function BrandsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const session = await auth();
 
   if (!session?.user || session.user.role !== 'admin') {
     redirect('/manage');
   }
+
+  const params = await searchParams;
+  const page = parseInt(params.page || '1', 10);
 
   return (
     <div className="space-y-6">
@@ -47,7 +60,7 @@ export default async function BrandsPage() {
       {/* Brands Table */}
       <div className="rounded-md border">
         <Suspense fallback={<TableSkeleton />}>
-          <BrandsTableWrapper />
+          <BrandsTableWrapper page={page} />
         </Suspense>
       </div>
     </div>

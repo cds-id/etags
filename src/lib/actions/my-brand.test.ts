@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   getMyBrand,
   updateMyBrand,
@@ -129,6 +129,34 @@ describe('my-brand actions', () => {
       expect(mockRevalidatePath).toHaveBeenCalledWith('/manage/my-brand');
       expect(mockRevalidatePath).toHaveBeenCalledWith('/manage');
     });
+
+    it('should handle database errors', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'brand' }));
+      mockPrismaClient.user.findUnique.mockResolvedValue({
+        id: 1,
+        brand: { id: 5, name: 'Test Brand' },
+      });
+      mockPrismaClient.brand.update.mockRejectedValue(new Error('DB Error'));
+
+      const formData = createMockFormData({
+        name: 'Updated Brand',
+        descriptions: 'Updated description',
+      });
+
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = await updateMyBrand({}, formData);
+
+      expect(result).toEqual({ error: 'Gagal memperbarui brand' });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Update brand error:',
+        expect.any(Error)
+      );
+
+      consoleSpy.mockRestore();
+    });
   });
 
   describe('uploadMyBrandLogo', () => {
@@ -188,6 +216,35 @@ describe('my-brand actions', () => {
       });
     });
 
+    it('should handle database errors during upload', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'brand' }));
+      mockPrismaClient.user.findUnique.mockResolvedValue({
+        id: 1,
+        brand: { id: 5, logo_url: null },
+      });
+      mockPrismaClient.brand.update.mockRejectedValue(new Error('DB Error'));
+
+      const formData = new FormData();
+      formData.append(
+        'logo',
+        createMockFile('image data', 'logo.png', 'image/png')
+      );
+
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = await uploadMyBrandLogo({}, formData);
+
+      expect(result).toEqual({ error: 'Gagal mengunggah logo' });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Upload brand logo error:',
+        expect.any(Error)
+      );
+
+      consoleSpy.mockRestore();
+    });
+
     // File upload tests are skipped because JSDOM doesn't properly implement File.arrayBuffer()
     // These would be better tested with integration/e2e tests
   });
@@ -230,6 +287,33 @@ describe('my-brand actions', () => {
       });
       expect(mockRevalidatePath).toHaveBeenCalledWith('/manage/my-brand');
       expect(mockRevalidatePath).toHaveBeenCalledWith('/manage');
+    });
+
+    it('should handle database errors during removal', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'brand' }));
+      mockPrismaClient.user.findUnique.mockResolvedValue({
+        id: 1,
+        brand: {
+          id: 5,
+          logo_url: 'https://r2.example.com/brands/logo.png',
+        },
+      });
+      mockDeleteFile.mockResolvedValue(undefined);
+      mockPrismaClient.brand.update.mockRejectedValue(new Error('DB Error'));
+
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = await removeMyBrandLogo();
+
+      expect(result).toEqual({ error: 'Gagal menghapus logo' });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Remove brand logo error:',
+        expect.any(Error)
+      );
+
+      consoleSpy.mockRestore();
     });
   });
 });

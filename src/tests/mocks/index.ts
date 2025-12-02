@@ -73,6 +73,7 @@ export function createMockSession(
     email?: string;
     name?: string;
     role?: string;
+    brandId?: string;
   } = {}
 ) {
   return {
@@ -81,6 +82,7 @@ export function createMockSession(
       email: overrides.email ?? 'admin@example.com',
       name: overrides.name ?? 'Admin User',
       role: overrides.role ?? 'admin',
+      ...(overrides.brandId && { brandId: overrides.brandId }),
     },
     expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
   };
