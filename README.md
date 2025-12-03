@@ -1,5 +1,9 @@
 # Etags
 
+[![Tests](https://github.com/cds-id/etags/actions/workflows/ci.yml/badge.svg)](https://github.com/cds-id/etags/actions/workflows/ci.yml)
+[![Deploy - Develop](https://github.com/cds-id/etags/actions/workflows/deploy.yml/badge.svg?branch=develop)](https://github.com/cds-id/etags/actions/workflows/deploy.yml)
+[![Deploy - Master](https://github.com/cds-id/etags/actions/workflows/deploy.yml/badge.svg?branch=master)](https://github.com/cds-id/etags/actions/workflows/deploy.yml)
+
 **Platform Penandaan Produk & Stamping Blockchain**
 
 Aplikasi untuk mengelola brand, produk, dan tag dengan pelacakan transaksi blockchain untuk tujuan autentikasi dan verifikasi keaslian produk.
