@@ -277,23 +277,9 @@ export async function GET(request: NextRequest) {
       riskScore += 40;
     }
 
-    // Check location mismatch
-    let locationMismatch = false;
-    if (distributionInfo.country && scanLocations.length > 0) {
-      const distributionCountry = distributionInfo.country.toLowerCase();
-      const hasLocationOutsideDistribution = scanLocations.some(
-        (loc) => !loc.toLowerCase().includes(distributionCountry)
-      );
-      if (hasLocationOutsideDistribution) {
-        locationMismatch = true;
-        fraudFlags.push({
-          type: 'location_mismatch',
-          severity: 'warning',
-          message: `Tag dipindai di luar wilayah distribusi resmi (${distributionInfo.country})`,
-        });
-        riskScore += 20;
-      }
-    }
+    // Location mismatch detection is handled by AI analysis for better accuracy
+    // AI understands geographic context better than simple string matching
+    const locationMismatch = false;
 
     // Check suspicious scan pattern (too many unique scanners)
     let suspiciousScanPattern = false;
