@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ['master']
+    branches: ['master', 'develop']
   pull_request:
     branches: ['develop', 'feature/*', 'fix/*']
 
@@ -35,3 +35,13 @@ jobs:
         run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+
+    steps:
+      - name: Trigger Deployment
+        run: |
+          curl -f -X POST "${{ secrets.DEPLOY_WEBHOOK_URL }}" || exit 1
