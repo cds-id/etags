@@ -23,7 +23,7 @@ Etags is a Next.js 16 application for product tagging and blockchain stamping. I
 - `npm run test -- --coverage` - Run tests with coverage
 - `npm run test -- src/lib/actions/auth.test.ts` - Run a single test file
 
-Test files use `*.test.{ts,tsx}` naming convention and are located throughout `src/`. Test setup is in `src/tests/setup.ts`.
+Test files use `*.test.{ts,tsx}` naming convention and are located throughout `src/`. Test setup is in `src/tests/setup.ts` with mocks in `src/tests/mocks.ts`. Coverage is configured only for `src/lib/actions/**/*.ts`.
 
 ### Database (Prisma with MySQL)
 
@@ -175,7 +175,7 @@ Copy `.env.example` to `.env` and configure:
 - `AUTH_TRUST_HOST` - Set to `true` for production deployments
 - `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` - Cloudflare R2 credentials
 - `R2_PUBLIC_DOMAIN` - Public URL for R2 bucket assets
-- `BLOCKCHAIN_RPC_URL`, `CONTRACT_ADDRESS`, `CHAIN_ID`, `ADMIN_WALLET` - Blockchain config
+- `BLOCKCHAIN_RPC_URL`, `CONTRACT_ADDRESS`, `CHAIN_ID`, `ADMIN_WALLET`, `BLOCKCHAIN_NETWORK` - Blockchain config
 - `BLOCKCHAIN_EXPLORER_URL` - Block explorer URL (default: Base Sepolia)
 - `KOLOSAL_API_KEY` - Kolosal AI for fraud detection
 - `BASESCAN_API_KEY` - BaseScan API for explorer features

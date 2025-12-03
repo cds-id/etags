@@ -5,6 +5,8 @@ import { Html5Qrcode } from 'html5-qrcode';
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
+import { Navbar } from '@/components/landing/Navbar';
+import { Footer } from '@/components/landing/Footer';
 import type { ScanResponse } from '@/app/api/scan/route';
 import type { ClaimResponse } from '@/app/api/scan/claim/route';
 
@@ -282,110 +284,117 @@ export default function ScanPage() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-violet-50/30 dark:from-slate-900 dark:via-blue-900/20 dark:to-violet-900/20 p-4 overflow-x-hidden">
-      <div className="mx-auto max-w-md py-4 sm:py-6">
-        <ScanHeader />
-
-        {/* Scanner Card */}
-        {!scanResult && (
-          <ScannerCard
-            scanning={scanning}
-            fingerprintId={fingerprintId}
-            onStartScanner={startScanner}
-            onStopScanner={stopScanner}
-          />
-        )}
-
-        {/* Loading */}
-        {loading && <LoadingCard />}
-
-        {/* Error */}
-        {error && <ErrorCard error={error} />}
-
-        {/* Scan Result */}
-        {scanResult && (
-          <>
-            {/* Revoked Warning Card */}
-            <RevokedWarningCard scanResult={scanResult} />
-
-            {/* Validity Card */}
-            <ValidityCard scanResult={scanResult} />
-
-            {/* Blockchain Metadata */}
-            {scanResult.blockchainMetadata && (
-              <BlockchainMetadataCard
-                blockchainMetadata={scanResult.blockchainMetadata}
-              />
-            )}
-
-            {/* Product Info */}
-            {scanResult.tag?.products && scanResult.tag.products.length > 0 && (
-              <ProductInfoCard products={scanResult.tag.products} />
-            )}
-
-            {/* Scan Info */}
-            <ScanInfoCard
-              totalScans={scanResult.scanInfo.totalScans}
-              scanNumber={scanResult.scanInfo.scanNumber}
-              location={location}
-            />
-
-            {/* Fraud Detection */}
-            {scanResult.fraudAnalysis && (
-              <FraudWarningCard
-                fraudAnalysis={scanResult.fraudAnalysis}
-                distribution={scanResult.tag?.distribution}
-              />
-            )}
-
-            {/* Warning when location is denied */}
-            {locationDenied && !location && (
-              <LocationDeniedCard onRequestLocation={handleRequestLocation} />
-            )}
-
-            {/* Claim Success */}
-            {claimSuccess && <ClaimSuccessCard message={claimSuccess} />}
-
-            {/* Question Card */}
-            {scanResult.question &&
-              scanResult.question.type !== 'no_question' &&
-              !claimSuccess && (
-                <QuestionCard
-                  question={scanResult.question}
-                  location={location}
-                  claimLoading={claimLoading}
-                  onClaim={handleClaim}
-                  onRequestLocation={() => setShowLocationDialog(true)}
-                />
-              )}
-
-            {/* History Timeline */}
-            {scanResult.history && (
-              <ScanHistoryCard history={scanResult.history} />
-            )}
-
-            {/* Scan Again Button */}
-            <Button
-              onClick={resetScan}
-              variant="outline"
-              className="w-full gap-2 border-blue-200 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 shadow-sm"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Scan Tag Lain
-            </Button>
-          </>
-        )}
-
-        {/* Footer */}
-        <div className="mt-8 text-center">
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Powered by{' '}
-            <span className="font-semibold bg-linear-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
-              Etags Blockchain
-            </span>
-          </p>
-        </div>
+    <div className="relative min-h-screen bg-white font-sans overflow-hidden">
+      {/* Background Effects */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-5%] w-[50vw] h-[50vw] rounded-full bg-[#2B4C7E]/10 blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-[#A8A8A8]/20 blur-[120px]" />
       </div>
+
+      <Navbar />
+
+      <main className="relative z-10 pt-28 pb-16">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="mx-auto max-w-md">
+            <ScanHeader />
+
+            {/* Scanner Card */}
+            {!scanResult && (
+              <ScannerCard
+                scanning={scanning}
+                fingerprintId={fingerprintId}
+                onStartScanner={startScanner}
+                onStopScanner={stopScanner}
+              />
+            )}
+
+            {/* Loading */}
+            {loading && <LoadingCard />}
+
+            {/* Error */}
+            {error && <ErrorCard error={error} />}
+
+            {/* Scan Result */}
+            {scanResult && (
+              <>
+                {/* Revoked Warning Card */}
+                <RevokedWarningCard scanResult={scanResult} />
+
+                {/* Validity Card */}
+                <ValidityCard scanResult={scanResult} />
+
+                {/* Blockchain Metadata */}
+                {scanResult.blockchainMetadata && (
+                  <BlockchainMetadataCard
+                    blockchainMetadata={scanResult.blockchainMetadata}
+                  />
+                )}
+
+                {/* Product Info */}
+                {scanResult.tag?.products &&
+                  scanResult.tag.products.length > 0 && (
+                    <ProductInfoCard products={scanResult.tag.products} />
+                  )}
+
+                {/* Scan Info */}
+                <ScanInfoCard
+                  totalScans={scanResult.scanInfo.totalScans}
+                  scanNumber={scanResult.scanInfo.scanNumber}
+                  location={location}
+                />
+
+                {/* Fraud Detection */}
+                {scanResult.fraudAnalysis && (
+                  <FraudWarningCard
+                    fraudAnalysis={scanResult.fraudAnalysis}
+                    distribution={scanResult.tag?.distribution}
+                  />
+                )}
+
+                {/* Warning when location is denied */}
+                {locationDenied && !location && (
+                  <LocationDeniedCard
+                    onRequestLocation={handleRequestLocation}
+                  />
+                )}
+
+                {/* Claim Success */}
+                {claimSuccess && <ClaimSuccessCard message={claimSuccess} />}
+
+                {/* Question Card */}
+                {scanResult.question &&
+                  scanResult.question.type !== 'no_question' &&
+                  !claimSuccess && (
+                    <QuestionCard
+                      question={scanResult.question}
+                      location={location}
+                      claimLoading={claimLoading}
+                      onClaim={handleClaim}
+                      onRequestLocation={() => setShowLocationDialog(true)}
+                    />
+                  )}
+
+                {/* History Timeline */}
+                {scanResult.history && (
+                  <ScanHistoryCard history={scanResult.history} />
+                )}
+
+                {/* Scan Again Button */}
+                <Button
+                  onClick={resetScan}
+                  variant="outline"
+                  className="w-full gap-2 border-[#2B4C7E]/30 hover:bg-[#2B4C7E]/5 hover:border-[#2B4C7E]/50 text-[#0C2340] shadow-sm"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Scan Tag Lain
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      </main>
+
+      <Footer />
 
       {/* Location Permission Dialog */}
       <LocationPermissionDialog
