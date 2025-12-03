@@ -35,9 +35,9 @@ https://tags.cylink.site/
 - **Framework:** Next.js 16 (App Router)
 - **Database:** MySQL + Prisma ORM
 - **Authentication:** NextAuth v5
-- **Blockchain:** ethers.js
+- **Blockchain:** ethers.js + ERC721 NFT
 - **Storage:** Cloudflare R2
-- **AI:** Kolosal AI (Analytics & Fraud Detection)
+- **AI:** Kolosal AI (Fraud Detection) + Gemini AI (NFT Art Generation)
 - **Styling:** Tailwind CSS v4
 
 ## Fitur Utama
@@ -46,6 +46,7 @@ https://tags.cylink.site/
 - **Manajemen Produk** - Katalog produk dengan metadata dinamis (JSON)
 - **Manajemen Tag** - Buat dan kelola tag untuk produk
 - **Blockchain Stamping** - Catat tag ke blockchain untuk verifikasi keaslian
+- **NFT Collectible** - Mint NFT eksklusif untuk first-hand owner dengan AI-generated artwork
 - **Pelacakan Status** - Lacak siklus hidup tag (Created → Distributed → Claimed → Transferred)
 - **AI Agent Dashboard** - Asisten AI untuk analisis data dan insights (Admin & Brand)
 - **Fraud Detection** - Deteksi kecurangan menggunakan AI pada scan tag
@@ -79,6 +80,48 @@ Etags dilengkapi dengan **AI Agent** yang tersedia di dashboard untuk membantu a
 "Bagaimana distribusi geografis produk saya?"
 "Rekomendasikan strategi untuk meningkatkan engagement"
 ```
+
+## NFT Collectible
+
+Etags memberikan **NFT Collectible eksklusif** kepada pemilik pertama (first-hand owner) produk asli sebagai bukti kepemilikan digital di blockchain.
+
+### Cara Kerja
+
+```
+1. 📱 User scan QR code tag → Verifikasi produk
+2. ✅ User claim sebagai first-hand owner
+3. 🔗 Connect wallet (MetaMask/Web3)
+4. 🎨 AI generate artwork unik (Gemini)
+5. ⛏️ NFT di-mint ke blockchain (gas-free)
+6. 🎁 NFT dikirim ke wallet user
+```
+
+### Fitur NFT
+
+- **AI-Generated Artwork** - Setiap NFT memiliki artwork unik yang di-generate oleh Gemini AI berdasarkan informasi produk
+- **Gas-Free Minting** - User tidak perlu membayar gas fee, platform yang menanggung biaya
+- **On-Chain Proof** - NFT disimpan di Base Sepolia blockchain sebagai bukti kepemilikan
+- **One-Per-Tag** - Setiap tag hanya bisa mint satu NFT (enforced by smart contract)
+- **Admin Monitoring** - Dashboard untuk monitoring semua NFT yang sudah di-mint
+
+### Smart Contract
+
+NFT menggunakan kontrak **ETagCollectible** (ERC721) dengan fitur:
+
+- `mintTo()` - Mint NFT ke wallet address
+- `isTagMinted()` - Cek apakah tag sudah di-mint
+- `getTokenByTag()` - Get token ID berdasarkan tag code
+- `grantMinter()` - Grant minting permission
+- `pause()` - Emergency pause
+
+### Monitoring NFT
+
+Admin dapat memonitor NFT yang sudah di-mint melalui dashboard:
+
+| Halaman    | URL              | Keterangan            |
+| ---------- | ---------------- | --------------------- |
+| NFT List   | `/manage/nfts`   | Daftar semua NFT      |
+| NFT Detail | `/manage/nfts/1` | Detail NFT individual |
 
 ## Cara Penggunaan
 
@@ -119,6 +162,11 @@ BLOCKCHAIN_RPC_URL="https://rpc.example.com"
 CONTRACT_ADDRESS="0x..."
 CHAIN_ID="1"
 ADMIN_WALLET="your_private_key"
+
+# NFT Collectible (opsional)
+NFT_CONTRACT_ADDRESS="0x..."
+NEXT_PUBLIC_NFT_CONTRACT_ADDRESS="0x..."
+GEMINI_API_KEY="your_gemini_api_key"
 ```
 
 ### 3. Setup Database
@@ -147,12 +195,13 @@ npm start
 
 ### 5. Akses Aplikasi
 
-| Halaman      | URL       | Keterangan                    |
-| ------------ | --------- | ----------------------------- |
-| Landing Page | `/`       | Halaman utama publik          |
-| Login        | `/login`  | Halaman login admin           |
-| Dashboard    | `/manage` | Dashboard admin (perlu login) |
-| API Docs     | `/docs`   | Dokumentasi Swagger UI        |
+| Halaman      | URL            | Keterangan                    |
+| ------------ | -------------- | ----------------------------- |
+| Landing Page | `/`            | Halaman utama publik          |
+| Login        | `/login`       | Halaman login admin           |
+| Dashboard    | `/manage`      | Dashboard admin (perlu login) |
+| NFT Monitor  | `/manage/nfts` | Monitoring NFT Collectibles   |
+| API Docs     | `/docs`        | Dokumentasi Swagger UI        |
 
 ### 6. Login Default
 
@@ -280,6 +329,7 @@ Unit tests tersedia untuk semua server actions di `src/lib/actions/`:
 | File          | Coverage |
 | ------------- | -------- |
 | dashboard.ts  | 100%     |
+| nfts.ts       | 100%     |
 | auth.ts       | ~95%     |
 | onboarding.ts | ~82%     |
 | products.ts   | ~81%     |
@@ -313,6 +363,7 @@ Unit tests tersedia untuk semua server actions di `src/lib/actions/`:
 - AI Agent Dashboard untuk analisis data (Admin & Brand)
 - AI-powered fraud detection
 - Tag lifecycle tracking (Created → Distributed → Claimed → Transferred)
+- NFT Collectible untuk first-hand owner dengan AI-generated artwork
 
 ### 🚀 Phase 2: Wallet Authentication
 
