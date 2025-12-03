@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileCode, Activity } from 'lucide-react';
+import { FileCode, Activity, Gem } from 'lucide-react';
 import { Navbar } from '@/components/landing/Navbar';
 import { Footer } from '@/components/landing/Footer';
 import { ExplorerHeader } from './components/explorer-header';
@@ -10,7 +10,8 @@ import { SearchCard } from './components/search-card';
 import { StatsCards } from './components/stats-cards';
 import { TransactionsTable } from './components/transactions-table';
 import { EventsTable } from './components/events-table';
-import type { ExplorerResponse } from '@/app/api/explorer/route';
+import { NFTsGrid } from './components/nfts-grid';
+import type { ExplorerResponse, PublicNFT } from '@/app/api/explorer/route';
 
 type ContractStats = NonNullable<ExplorerResponse['stats']>;
 type Transaction = NonNullable<ExplorerResponse['transactions']>[0];
@@ -21,11 +22,16 @@ export default function ExplorerPage() {
   const [stats, setStats] = useState<ContractStats | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [events, setEvents] = useState<ContractEvent[]>([]);
+  const [nfts, setNfts] = useState<PublicNFT[]>([]);
   const [loading, setLoading] = useState(true);
   const [txLoading, setTxLoading] = useState(false);
   const [eventsLoading, setEventsLoading] = useState(false);
+  const [nftsLoading, setNftsLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  const [nftPage, setNftPage] = useState(1);
+  const [nftHasMore, setNftHasMore] = useState(false);
+  const [nftTotal, setNftTotal] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResult, setSearchResult] = useState<
     TagDetails | Transaction | null
@@ -82,15 +88,40 @@ export default function ExplorerPage() {
     }
   }, []);
 
+  // Fetch NFTs
+  const fetchNfts = useCallback(async (pageNum: number = 1) => {
+    setNftsLoading(true);
+    try {
+      const response = await fetch(
+        `/api/explorer?action=nfts&page=${pageNum}&pageSize=12`
+      );
+      const data: ExplorerResponse = await response.json();
+      if (data.success && data.nfts) {
+        setNfts(data.nfts);
+        setNftHasMore(data.pagination?.hasMore || false);
+        setNftTotal(data.pagination?.total || 0);
+      }
+    } catch (error) {
+      console.error('Failed to fetch NFTs:', error);
+    } finally {
+      setNftsLoading(false);
+    }
+  }, []);
+
   // Initial load
   useEffect(() => {
     const init = async () => {
       setLoading(true);
-      await Promise.all([fetchStats(), fetchTransactions(1), fetchEvents()]);
+      await Promise.all([
+        fetchStats(),
+        fetchTransactions(1),
+        fetchEvents(),
+        fetchNfts(1),
+      ]);
       setLoading(false);
     };
     init();
-  }, [fetchStats, fetchTransactions, fetchEvents]);
+  }, [fetchStats, fetchTransactions, fetchEvents, fetchNfts]);
 
   // Handle search
   const handleSearch = async () => {
@@ -145,11 +176,18 @@ export default function ExplorerPage() {
     fetchTransactions(newPage);
   };
 
+  // Handle NFT page change
+  const handleNftPageChange = (newPage: number) => {
+    setNftPage(newPage);
+    fetchNfts(newPage);
+  };
+
   // Handle refresh
   const handleRefresh = () => {
     fetchStats();
     fetchTransactions(page);
     fetchEvents();
+    fetchNfts(nftPage);
   };
 
   return (
@@ -186,7 +224,7 @@ export default function ExplorerPage() {
             />
           )}
 
-          {/* Tabs for Transactions and Events */}
+          {/* Tabs for Transactions, Events, and NFTs */}
           <Tabs defaultValue="transactions" className="space-y-4">
             <TabsList className="bg-[#2B4C7E]/10 border border-[#2B4C7E]/20">
               <TabsTrigger
@@ -202,6 +240,13 @@ export default function ExplorerPage() {
               >
                 <Activity className="h-4 w-4" />
                 Events
+              </TabsTrigger>
+              <TabsTrigger
+                value="nfts"
+                className="gap-2 data-[state=active]:bg-white data-[state=active]:text-purple-600"
+              >
+                <Gem className="h-4 w-4" />
+                NFT Collectibles
               </TabsTrigger>
             </TabsList>
 
@@ -221,6 +266,20 @@ export default function ExplorerPage() {
             {/* Events Tab */}
             <TabsContent value="events">
               <EventsTable events={events} loading={eventsLoading} />
+            </TabsContent>
+
+            {/* NFTs Tab */}
+            <TabsContent value="nfts">
+              <NFTsGrid
+                nfts={nfts}
+                loading={nftsLoading}
+                page={nftPage}
+                hasMore={nftHasMore}
+                total={nftTotal}
+                copiedText={copiedText}
+                onCopy={copyToClipboard}
+                onPageChange={handleNftPageChange}
+              />
             </TabsContent>
           </Tabs>
         </div>

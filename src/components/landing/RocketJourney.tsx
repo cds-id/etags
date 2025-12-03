@@ -10,6 +10,7 @@ import {
   Truck,
   Scan,
   ShieldCheck,
+  Gem,
   Rocket,
   Moon,
   Star,
@@ -64,6 +65,13 @@ const steps = [
     description: 'Sistem memverifikasi keaslian produk dari blockchain',
     icon: ShieldCheck,
     detail: 'Status: ✓ Produk Asli & Terjamin',
+  },
+  {
+    id: 5,
+    title: 'Klaim NFT Collectible',
+    description: 'Pemilik pertama mendapatkan NFT unik dari AI',
+    icon: Gem,
+    detail: 'Artwork eksklusif di-mint ke wallet Anda',
   },
 ];
 
@@ -554,7 +562,7 @@ export function RocketJourney() {
               <div className="text-xs text-[#808080]">Aman</div>
             </div>
             <div className="bg-white rounded-xl p-4 border border-[#2B4C7E]/20 shadow-lg">
-              <div className="text-2xl font-bold text-[#2B4C7E]">5</div>
+              <div className="text-2xl font-bold text-[#2B4C7E]">6</div>
               <div className="text-xs text-[#808080]">Langkah</div>
             </div>
             <div className="bg-white rounded-xl p-4 border border-[#2B4C7E]/20 shadow-lg">
