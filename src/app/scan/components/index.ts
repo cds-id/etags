@@ -14,3 +14,5 @@ export { QuestionCard } from './question-card';
 export { ScanHistoryCard } from './scan-history-card';
 export { LocationPermissionDialog } from './location-permission-dialog';
 export { type LocationData } from './constants';
+// Re-export NFTClaimCard from verify components
+export { NFTClaimCard } from '@/app/verify/[code]/components/nft-claim-card';

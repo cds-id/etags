@@ -26,6 +26,7 @@ import {
   QuestionCard,
   ScanHistoryCard,
   LocationPermissionDialog,
+  NFTClaimCard,
   type LocationData,
 } from './components';
 
@@ -37,6 +38,7 @@ export default function ScanPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [claimLoading, setClaimLoading] = useState(false);
+  const [isFirstHandClaim, setIsFirstHandClaim] = useState(false);
   const [location, setLocation] = useState<LocationData | null>(null);
   const [locationRequested, setLocationRequested] = useState(false);
   const [locationDenied, setLocationDenied] = useState(false);
@@ -253,6 +255,10 @@ export default function ScanPage() {
       const data: ClaimResponse = await response.json();
       if (data.success) {
         setClaimSuccess(data.message);
+        // Track if user claimed as first-hand owner
+        if (isFirstHand) {
+          setIsFirstHandClaim(true);
+        }
         // Update scan result to hide question
         setScanResult((prev) =>
           prev
@@ -275,6 +281,7 @@ export default function ScanPage() {
     setScanResult(null);
     setError(null);
     setClaimSuccess(null);
+    setIsFirstHandClaim(false);
     lastScannedRef.current = null;
   };
 
@@ -360,6 +367,21 @@ export default function ScanPage() {
 
                 {/* Claim Success */}
                 {claimSuccess && <ClaimSuccessCard message={claimSuccess} />}
+
+                {/* NFT Claim Card - Show after first-hand claim */}
+                {claimSuccess &&
+                  isFirstHandClaim &&
+                  scanResult.tag?.isStamped &&
+                  fingerprintId &&
+                  csrfToken && (
+                    <NFTClaimCard
+                      tagCode={scanResult.tag.code}
+                      fingerprintId={fingerprintId}
+                      isFirstHand={true}
+                      isStamped={true}
+                      csrfToken={csrfToken}
+                    />
+                  )}
 
                 {/* Question Card */}
                 {scanResult.question &&
