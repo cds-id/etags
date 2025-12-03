@@ -44,6 +44,9 @@ const config: HardhatUserConfig = {
     currency: 'USD',
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
   },
+  sourcify: {
+    enabled: true,
+  },
   etherscan: {
     apiKey: {
       baseSepolia: BASESCAN_API_KEY,

@@ -8,6 +8,7 @@ import {
   Lock,
   Smartphone,
   Zap,
+  Gem,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -195,6 +196,76 @@ export function Features() {
                   Waktu Verifikasi
                 </div>
               </MotionDiv>
+            </div>
+          </MotionDiv>
+        </div>
+      </div>
+
+      {/* Feature 4 - NFT Collectible */}
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          <MotionDiv
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="inline-flex items-center rounded-full bg-linear-to-r from-purple-500/10 to-pink-500/10 px-4 py-1.5 text-sm font-semibold text-purple-700 mb-6 border border-purple-500/20">
+              <Gem className="mr-2 h-4 w-4 text-purple-500" />
+              NFT Collectible
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#0C2340] mb-6">
+              Koleksi digital eksklusif untuk pemilik pertama.
+            </h2>
+            <p className="text-lg text-[#808080] mb-8 leading-relaxed">
+              Pemilik pertama produk otentik mendapatkan NFT Collectible unik
+              yang di-generate khusus untuk Anda. Bukti kepemilikan digital yang
+              dapat dipamerkan dan diperdagangkan di blockchain.
+            </p>
+            <ul className="space-y-4">
+              {[
+                'Artwork unik dari bukti kepemilikan digital Anda',
+                'Mint gratis untuk pemilik pertama',
+                'Tercatat permanen di Base blockchain',
+              ].map((item, i) => (
+                <motion.li
+                  key={i}
+                  className="flex items-center text-[#0C2340]"
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                >
+                  <CheckCircle2 className="h-5 w-5 text-purple-500 mr-3 shrink-0" />
+                  <span className="font-medium">{item}</span>
+                </motion.li>
+              ))}
+            </ul>
+            <Button
+              variant="link"
+              className="p-0 h-auto text-purple-600 font-semibold text-lg hover:text-purple-700 mt-6"
+            >
+              Pelajari lebih lanjut <ChevronRight className="ml-1 h-4 w-4" />
+            </Button>
+          </MotionDiv>
+          <MotionDiv
+            className="relative"
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="absolute inset-0 bg-linear-to-br from-purple-500/30 via-pink-500/20 to-transparent rounded-3xl transform -rotate-3 scale-95 blur-2xl" />
+            <div className="relative bg-white border-2 border-purple-500/20 rounded-2xl shadow-2xl shadow-purple-500/20 overflow-hidden p-2">
+              <div className="bg-linear-to-br from-purple-500/5 via-pink-500/5 to-white rounded-xl p-6 h-[300px] sm:h-[400px] flex items-center justify-center border border-purple-500/10">
+                <Image
+                  src="/feature-nft.png"
+                  alt="NFT Collectible"
+                  width={400}
+                  height={400}
+                  className="w-full h-auto object-contain"
+                />
+              </div>
             </div>
           </MotionDiv>
         </div>

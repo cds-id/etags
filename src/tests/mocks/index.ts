@@ -42,6 +42,15 @@ export const mockPrismaClient = {
     findMany: vi.fn(),
     create: vi.fn(),
   },
+  tagNFT: {
+    findUnique: vi.fn(),
+    findFirst: vi.fn(),
+    findMany: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    count: vi.fn(),
+  },
 };
 
 // Mock auth function

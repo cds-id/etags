@@ -36,7 +36,23 @@ export async function login(
 }
 
 export async function logout() {
-  await signOut({ redirectTo: '/login' });
+  try {
+    await signOut({ redirectTo: '/login' });
+  } catch (error) {
+    // signOut throws NEXT_REDIRECT on success, we need to re-throw it
+    if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+      throw error;
+    }
+    if (
+      error instanceof Error &&
+      'digest' in error &&
+      typeof error.digest === 'string' &&
+      error.digest.startsWith('NEXT_REDIRECT')
+    ) {
+      throw error;
+    }
+    throw error;
+  }
 }
 
 export type RegisterState = {

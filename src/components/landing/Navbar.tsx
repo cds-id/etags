@@ -22,7 +22,6 @@ export function Navbar() {
   const navLinks = [
     { href: '/explorer', label: 'Explorer' },
     { href: '/scan', label: 'Scanner' },
-    { href: '/docs', label: 'Developer' },
   ];
 
   return (

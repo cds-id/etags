@@ -7,3 +7,4 @@ export { ScanStatisticsCard } from './scan-statistics-card';
 export { ScanHistoryCard } from './scan-history-card';
 export { BlockchainInfoCard } from './blockchain-info-card';
 export { InfoCard } from './info-card';
+export { NFTClaimCard } from './nft-claim-card';

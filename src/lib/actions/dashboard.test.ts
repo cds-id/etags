@@ -26,6 +26,7 @@ describe('dashboard actions', () => {
       mockPrismaClient.tag.count
         .mockResolvedValueOnce(100) // All tags
         .mockResolvedValueOnce(75); // Stamped tags
+      mockPrismaClient.tagNFT.count.mockResolvedValue(25);
 
       const result = await getDashboardStats();
 
@@ -34,6 +35,7 @@ describe('dashboard actions', () => {
         products: 50,
         tags: 100,
         stampedTags: 75,
+        nfts: 25,
       });
     });
 
@@ -50,6 +52,7 @@ describe('dashboard actions', () => {
         { product_ids: [3], is_stamped: 0 },
         { product_ids: [99], is_stamped: 1 }, // Different brand's product
       ]);
+      mockPrismaClient.tagNFT.count.mockResolvedValue(5);
 
       const result = await getDashboardStats();
 
@@ -58,6 +61,7 @@ describe('dashboard actions', () => {
         products: 3,
         tags: 2, // Only tags containing brand's products
         stampedTags: 1, // Only stamped tags containing brand's products
+        nfts: 5,
       });
     });
 
@@ -72,6 +76,7 @@ describe('dashboard actions', () => {
         products: 0,
         tags: 0,
         stampedTags: 0,
+        nfts: 0,
       });
     });
 
@@ -80,6 +85,7 @@ describe('dashboard actions', () => {
       mockPrismaClient.user.findUnique.mockResolvedValue({ brand_id: 5 });
       mockPrismaClient.product.findMany.mockResolvedValue([]);
       mockPrismaClient.tag.findMany.mockResolvedValue([]);
+      mockPrismaClient.tagNFT.count.mockResolvedValue(0);
 
       const result = await getDashboardStats();
 
@@ -88,6 +94,7 @@ describe('dashboard actions', () => {
         products: 0,
         tags: 0,
         stampedTags: 0,
+        nfts: 0,
       });
     });
 
@@ -99,6 +106,7 @@ describe('dashboard actions', () => {
         { product_ids: null, is_stamped: 0 }, // null product_ids
         { product_ids: [1], is_stamped: 1 }, // Valid
       ]);
+      mockPrismaClient.tagNFT.count.mockResolvedValue(1);
 
       const result = await getDashboardStats();
 
@@ -107,6 +115,29 @@ describe('dashboard actions', () => {
         products: 1,
         tags: 1,
         stampedTags: 1,
+        nfts: 1,
+      });
+    });
+
+    it('should handle NFT count error gracefully for admin', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'admin' }));
+      mockPrismaClient.brand.count.mockResolvedValue(10);
+      mockPrismaClient.product.count.mockResolvedValue(50);
+      mockPrismaClient.tag.count
+        .mockResolvedValueOnce(100)
+        .mockResolvedValueOnce(75);
+      mockPrismaClient.tagNFT.count.mockRejectedValue(
+        new Error('TagNFT table does not exist')
+      );
+
+      const result = await getDashboardStats();
+
+      expect(result).toEqual({
+        brands: 10,
+        products: 50,
+        tags: 100,
+        stampedTags: 75,
+        nfts: 0,
       });
     });
   });
