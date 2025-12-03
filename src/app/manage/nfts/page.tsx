@@ -12,8 +12,11 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, TrendingUp, Calendar, ImageIcon } from 'lucide-react';
 import Link from 'next/link';
-import { formatAddress } from '@/hooks/useWeb3';
-import { getTxExplorerUrl, getAddressExplorerUrl } from '@/lib/constants';
+import {
+  formatAddress,
+  getTxExplorerUrl,
+  getAddressExplorerUrl,
+} from '@/lib/constants';
 
 async function NFTStatsCards() {
   const stats = await getNFTStats();
