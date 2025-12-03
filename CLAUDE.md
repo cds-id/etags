@@ -68,6 +68,8 @@ Test files use `*.test.{ts,tsx}` naming convention and are located throughout `s
 - `@/lib/explorer.ts` - Blockchain explorer integration
 - `@/lib/rate-limit.ts` - Rate limiting for API endpoints
 - `@/lib/csrf.ts` - CSRF protection
+- `@/lib/nft-collectible.ts` - NFT minting and claim processing
+- `@/lib/gemini-image.ts` - Gemini API for NFT art generation
 
 ### Server Actions
 
@@ -83,6 +85,7 @@ Server actions are organized in `src/lib/actions/`:
 - `onboarding.ts` - User onboarding flow
 - `my-brand.ts` - Brand user self-management
 - `ai-agent.ts` - AI agent integration
+- `nfts.ts` - NFT collectible management and stats
 
 ### Routes
 
@@ -92,6 +95,7 @@ Server actions are organized in `src/lib/actions/`:
 - `/manage/brands` - Brand management
 - `/manage/products` - Product CRUD with `/new` and `/[id]/edit`
 - `/manage/tags` - Tag management with `/new` and `/[id]/edit`
+- `/manage/nfts` - NFT collectible monitoring with `/[id]` detail view
 - `/manage/users` - User management (admin only)
 - `/manage/profile` - User profile settings
 
@@ -110,6 +114,7 @@ Server actions are organized in `src/lib/actions/`:
 - `/api/docs` - OpenAPI JSON spec
 - `/api/scan` - Tag scan endpoint (records scans with fingerprint)
 - `/api/scan/claim` - Claim a tag as owner
+- `/api/scan/claim-nft` - Claim NFT collectible for first-hand claimers
 - `/api/verify` - Tag verification API
 - `/api/explorer` - Blockchain explorer API
 - `/api/csrf` - CSRF token endpoint
@@ -121,11 +126,12 @@ Server actions are organized in `src/lib/actions/`:
 
 Core models in `prisma/schema.prisma`:
 
-- **User** - Admin/brand users with role-based access (`role`: admin or brand)
+- **User** - Admin/brand users with role-based access (`role`: admin or brand), linked to brand via `brand_id`
 - **Brand** - Product brand management with logo and descriptions
-- **Product** - Products with JSON metadata, linked to brands
-- **Tag** - Product tags with blockchain stamping (`is_stamped`, `hash_tx`, `chain_status`)
-- **TagScan** - Scan history with fingerprinting, location, and claim status
+- **Product** - Products with JSON metadata (`name`, `description`, `price`, `images[]`), linked to brands
+- **Tag** - Product tags with blockchain stamping (`is_stamped`, `hash_tx`, `chain_status`), stores `product_ids` as JSON array
+- **TagScan** - Scan history with fingerprinting, location, claim status, and ownership tracking (`is_first_hand`, `source_info`)
+- **TagNFT** - NFT collectibles minted for first-hand claimers (`token_id`, `owner_address`, `image_url`, `metadata_url`, `mint_tx_hash`)
 
 ### Tag Blockchain Lifecycle
 
@@ -144,10 +150,29 @@ The blockchain contract (ETagRegistry) supports: `createTag`, `updateStatus`, `r
 
 1. User scans QR code → `/scan` page
 2. Browser collects fingerprint (FingerprintJS) and location
-3. POST to `/api/scan` records the scan in `TagScan`
+3. POST to `/api/scan` records the scan in `TagScan` with sequential `scan_number`
 4. Redirects to `/verify/[code]` showing product info
-5. User can claim ownership via `/api/scan/claim`
-6. AI fraud detection analyzes scan location vs distribution info
+5. User can claim ownership via `/api/scan/claim` (sets `is_claimed`, asks about `is_first_hand`)
+6. AI fraud detection analyzes scan patterns and location vs distribution info
+
+### NFT Collectible Claim Flow
+
+First-hand tag claimers on Web3 browsers can mint an NFT collectible:
+
+1. User claims tag as first-hand owner on `/verify/[code]`
+2. System detects Web3 wallet (MetaMask, etc.) via `window.ethereum`
+3. User connects wallet and switches to Base Sepolia (Chain ID: 84532)
+4. POST to `/api/scan/claim-nft` triggers NFT minting:
+   - Generates unique art via Gemini API (`gemini-3-pro-image-preview`)
+   - Uploads image and metadata to R2: `nfts/{tagCode}/`
+   - Admin wallet mints NFT via ETagCollectible contract (user doesn't pay gas)
+   - NFT transferred directly to user's wallet
+5. TagNFT record created with `token_id`, `owner_address`, `mint_tx_hash`
+6. Admin monitors NFTs at `/manage/nfts`
+
+**Smart Contracts:**
+- `ETagCollectible.sol` - ERC721 NFT contract with one-NFT-per-tag enforcement
+- Functions: `mintTo()`, `isTagMinted()`, `getTokenByTag()`, `grantMinter()`, `pause()`
 
 ### Pre-commit Hook
 
@@ -160,7 +185,11 @@ Runs `typecheck` and `lint-staged` (which runs Prettier on staged files) before 
 
 ### CI/CD (GitHub Actions)
 
-Runs on push to `master` and PRs targeting `develop`, `feature/*`, `fix/*`. Pipeline: lint → typecheck → test → build.
+Triggers:
+- Push to `master` branch
+- Pull requests targeting `develop`, `feature/*`, `fix/*` branches
+
+Pipeline: lint → typecheck → test → build
 
 ### Smart Contracts
 
@@ -177,6 +206,8 @@ Copy `.env.example` to `.env` and configure:
 - `R2_PUBLIC_DOMAIN` - Public URL for R2 bucket assets
 - `BLOCKCHAIN_RPC_URL`, `CONTRACT_ADDRESS`, `CHAIN_ID`, `ADMIN_WALLET`, `BLOCKCHAIN_NETWORK` - Blockchain config
 - `BLOCKCHAIN_EXPLORER_URL` - Block explorer URL (default: Base Sepolia)
+- `NFT_CONTRACT_ADDRESS`, `NEXT_PUBLIC_NFT_CONTRACT_ADDRESS` - ETagCollectible NFT contract address
+- `GEMINI_API_KEY` - Gemini API for NFT art generation
 - `KOLOSAL_API_KEY` - Kolosal AI for fraud detection
 - `BASESCAN_API_KEY` - BaseScan API for explorer features
 - `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` - Mapbox token for scan location maps

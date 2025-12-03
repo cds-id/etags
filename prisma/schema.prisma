@@ -75,6 +75,7 @@ model Tag {
   updated_at     DateTime @updatedAt
 
   scans TagScan[]
+  nft   TagNFT?
 
   @@index([created_at])
   @@map("tags")
@@ -100,4 +101,22 @@ model TagScan {
   @@index([tag_id])
   @@index([fingerprint_id])
   @@map("tag_scans")
+}
+
+model TagNFT {
+  id               Int      @id @default(autoincrement())
+  tag_id           Int      @unique
+  token_id         String   @db.VarChar(100) // On-chain token ID
+  owner_address    String   @db.VarChar(42) // Wallet address (0x + 40 hex chars)
+  image_url        String   @db.VarChar(500) // R2 URL for NFT image
+  metadata_url     String   @db.VarChar(500) // R2 URL for metadata JSON
+  mint_tx_hash     String?  @db.VarChar(66) // Mint transaction hash
+  transfer_tx_hash String?  @db.VarChar(66) // Transfer transaction hash (if different from mint)
+  created_at       DateTime @default(now())
+
+  tag Tag @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+
+  @@index([owner_address])
+  @@index([created_at])
+  @@map("tag_nfts")
 }
