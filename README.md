@@ -30,6 +30,15 @@ https://tags.cylink.site/
 [![juanaf31](https://img.shields.io/badge/GitHub-juanaf31-181717?style=for-the-badge&logo=github)](https://github.com/juanaf31)
 [![ramaramx](https://img.shields.io/badge/GitHub-ramaramx-181717?style=for-the-badge&logo=github)](https://github.com/ramaramx)
 
+### Contributors Leaderboard
+
+<a href="https://github.com/cds-id/etags/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=cds-id/etags&max=10&columns=5" alt="Contributors" />
+</a>
+
+[![GitHub contributors](https://img.shields.io/github/contributors/cds-id/etags?style=flat-square&label=Total%20Contributors)](https://github.com/cds-id/etags/graphs/contributors)
+[![GitHub commits](https://img.shields.io/github/commit-activity/m/cds-id/etags?style=flat-square&label=Monthly%20Commits)](https://github.com/cds-id/etags/commits)
+
 ## Tech Stack
 
 - **Framework:** Next.js 16 (App Router)
