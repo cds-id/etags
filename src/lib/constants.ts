@@ -39,6 +39,12 @@ export function getNFTExplorerUrl(tokenId: string): string {
   return `${BLOCKCHAIN_CONFIG.EXPLORER_URL}/nft/${BLOCKCHAIN_CONFIG.NFT_CONTRACT_ADDRESS}/${tokenId}`;
 }
 
+// Format wallet address for display (works on both server and client)
+export function formatAddress(address: string): string {
+  if (!address) return '';
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
+
 // Tag chain status values matching blockchain lifecycle
 export const CHAIN_STATUS = {
   CREATED: 0,

@@ -21,8 +21,8 @@ import {
   getTxExplorerUrl,
   getAddressExplorerUrl,
   getNFTExplorerUrl,
+  formatAddress,
 } from '@/lib/constants';
-import { formatAddress } from '@/hooks/useWeb3';
 
 interface NFTDetailPageProps {
   params: Promise<{ id: string }>;
