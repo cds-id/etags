@@ -86,6 +86,7 @@ Server actions are organized in `src/lib/actions/`:
 - `my-brand.ts` - Brand user self-management
 - `ai-agent.ts` - AI agent integration
 - `nfts.ts` - NFT collectible management and stats
+- `support-tickets.ts` - Web3 support ticket CRUD and messaging
 
 ### Routes
 
@@ -96,6 +97,7 @@ Server actions are organized in `src/lib/actions/`:
 - `/manage/products` - Product CRUD with `/new` and `/[id]/edit`
 - `/manage/tags` - Tag management with `/new` and `/[id]/edit`
 - `/manage/nfts` - NFT collectible monitoring with `/[id]` detail view
+- `/manage/tickets` - Support ticket management with `/[id]` detail view
 - `/manage/users` - User management (admin only)
 - `/manage/profile` - User profile settings
 
@@ -107,6 +109,7 @@ Server actions are organized in `src/lib/actions/`:
 - `/verify/[code]` - Tag verification page with product details
 - `/explorer` - Blockchain transaction explorer
 - `/explorer/tx/[hash]` - Transaction detail page
+- `/support` - Web3 support tickets (NFT holders connect wallet to submit issues)
 - `/docs` - Swagger API documentation UI
 
 **API Routes:**
@@ -132,6 +135,9 @@ Core models in `prisma/schema.prisma`:
 - **Tag** - Product tags with blockchain stamping (`is_stamped`, `hash_tx`, `chain_status`), stores `product_ids` as JSON array
 - **TagScan** - Scan history with fingerprinting, location, claim status, and ownership tracking (`is_first_hand`, `source_info`)
 - **TagNFT** - NFT collectibles minted for first-hand claimers (`token_id`, `owner_address`, `image_url`, `metadata_url`, `mint_tx_hash`)
+- **SupportTicket** - Web3 support tickets linked to tags and brands (`wallet_address`, `category`, `status`, `priority`)
+- **TicketMessage** - Ticket conversation thread with sender type (customer/brand/admin)
+- **TicketAttachment** - File attachments for tickets stored in R2
 
 ### Tag Blockchain Lifecycle
 
@@ -174,6 +180,19 @@ First-hand tag claimers on Web3 browsers can mint an NFT collectible:
 
 - `ETagCollectible.sol` - ERC721 NFT contract with one-NFT-per-tag enforcement
 - Functions: `mintTo()`, `isTagMinted()`, `getTokenByTag()`, `grantMinter()`, `pause()`
+
+### Web3 Support Ticket Flow
+
+NFT holders can submit product complaints via wallet connection:
+
+1. User visits `/support` and connects wallet (MetaMask, etc.)
+2. System queries blockchain for user's owned NFTs via ETagCollectible contract
+3. User selects a product/tag and submits ticket with category (`defect`, `quality`, `missing_parts`, `warranty`, `other`)
+4. Ticket routes to brand (if brand has users), otherwise to admin
+5. Brand/admin responds via `/manage/tickets/[id]`
+6. User views responses by reconnecting wallet at `/support`
+
+Ticket statuses: `open` → `in_progress` → `resolved` → `closed`
 
 ### Pre-commit Hook
 
