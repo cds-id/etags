@@ -21,9 +21,31 @@ Fitur dasar untuk penandaan produk dan verifikasi blockchain.
 - [x] Tag Lifecycle - Status tracking (Created → Distributed → Claimed → Transferred → Revoked)
 - [x] AI Agent Dashboard - Asisten AI untuk analisis data (tersedia untuk Admin & Brand)
 - [x] AI Fraud Detection - Deteksi fraud menggunakan Kolosal AI
+- [x] NFT Collectible - NFT untuk first-hand owner dengan AI-generated artwork (Gemini)
 - [x] Role-based Access - Admin dan Brand user roles
 - [x] File Storage - Upload ke Cloudflare R2
 - [x] API Documentation - Swagger UI
+
+### NFT Collectible Flow
+
+First-hand owner dapat mint NFT sebagai bukti kepemilikan digital:
+
+```
+1. User scan QR code tag → Verifikasi produk
+2. User claim sebagai first-hand owner
+3. Connect wallet (MetaMask/Web3)
+4. AI generate artwork unik (Gemini)
+5. NFT di-mint ke blockchain (gas-free)
+6. NFT dikirim ke wallet user
+```
+
+**Fitur NFT:**
+
+- AI-Generated Artwork - Setiap NFT memiliki artwork unik dari Gemini AI
+- Gas-Free Minting - User tidak bayar gas fee, platform yang menanggung
+- On-Chain Proof - NFT disimpan di Base Sepolia sebagai bukti kepemilikan
+- One-Per-Tag - Setiap tag hanya bisa mint satu NFT (enforced by smart contract)
+- Admin Monitoring - Dashboard untuk monitoring semua NFT yang di-mint
 
 ### AI Agent Capabilities
 
@@ -49,8 +71,10 @@ AI Agent terintegrasi di dashboard untuk membantu pengguna menganalisis data:
 - MySQL + Prisma ORM
 - NextAuth v5 (Credentials)
 - ethers.js + Base Sepolia
+- ERC721 NFT (ETagCollectible contract)
 - Cloudflare R2
 - Kolosal AI (Analytics & Fraud Detection)
+- Gemini AI (NFT Art Generation)
 
 ---
 
@@ -172,15 +196,92 @@ Sistem garansi yang terintegrasi dengan blockchain - user harus claim produk unt
 
 ---
 
+## ✅ Phase 5: Web3 Support Ticket
+
+**Status: Complete**
+
+Sistem support ticket berbasis Web3 untuk pemilik NFT - memungkinkan first-hand owner untuk mengajukan komplain langsung ke brand.
+
+### Features
+
+#### 5.1 Web3 Authentication untuk Support
+
+- [x] Auto-login dengan wallet (MetaMask/WalletConnect)
+- [x] Deteksi otomatis NFT yang dimiliki user dari wallet address
+- [x] Verifikasi kepemilikan dari database
+- [x] Wallet connection untuk session
+
+#### 5.2 Product Selection & Ticket Creation
+
+- [x] Tampilkan daftar produk yang dimiliki (dari NFT ownership)
+- [x] User pilih produk yang ingin dikomplain
+- [x] Form komplain dengan kategori (Defect, Missing Parts, Quality Issue, dll)
+- [x] Rich text description untuk detail masalah
+
+#### 5.3 Ticket Routing
+
+- [x] Ticket otomatis dikirim ke brand dashboard
+- [x] Jika brand tidak punya user aktif → fallback ke admin platform
+- [x] Assignment system untuk brand team
+
+#### 5.4 Brand Dashboard - Ticket Management
+
+- [x] List semua ticket untuk brand
+- [x] Filter by status (Open, In Progress, Resolved, Closed)
+- [x] Reply system
+- [x] Ticket status updates
+
+#### 5.5 Customer Support Portal
+
+- [x] Halaman `/support` untuk NFT holders
+- [x] Track ticket status real-time
+- [x] Conversation history dengan brand
+
+#### 5.6 Admin Platform Oversight
+
+- [x] Admin bisa lihat semua tickets across brands
+- [x] Take over ticket jika brand tidak responsif
+
+### User Flow
+
+```
+1. User buka /support
+2. Connect wallet (MetaMask/Web3)
+3. System detect NFTs owned by wallet
+4. User pilih produk yang bermasalah
+5. Isi form komplain + upload bukti
+6. Submit ticket → dikirim ke brand
+7. Brand reply di dashboard
+8. User dapat notification & bisa reply
+9. Ticket resolved
+```
+
+### Fallback Flow (No Brand User)
+
+```
+1. Ticket masuk ke brand
+2. Tidak ada brand user aktif
+3. System assign ke admin platform
+4. Admin handle atau assign ke brand
+```
+
+### Database Schema
+
+- **SupportTicket** - Ticket dengan status, priority, brand_id, tag_id
+- **TicketMessage** - Conversation thread (user & brand replies)
+- **TicketAttachment** - File attachments (images, videos)
+
+---
+
 ## 🔮 Future Considerations
 
-Fitur yang mungkin dikembangkan setelah Phase 4:
+Fitur yang mungkin dikembangkan setelah Phase 5:
 
-### NFT Integration
+### NFT Marketplace Integration
 
-- Tag sebagai NFT untuk collectibles
 - Secondary market untuk produk limited edition
 - Royalty tracking untuk resale
+- NFT trading/transfer antar user
 
 ### Cross-chain Support
 
@@ -204,6 +305,7 @@ Fitur yang mungkin dikembangkan setelah Phase 4:
 | Phase 2 | Wallet Authentication | Planned |
 | Phase 3 | Distribution Tracking | Planned |
 | Phase 4 | Blockchain Warranty   | Planned |
+| Phase 5 | Web3 Support Ticket   | ✅ Done |
 
 ---
 

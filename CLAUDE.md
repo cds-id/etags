@@ -171,6 +171,7 @@ First-hand tag claimers on Web3 browsers can mint an NFT collectible:
 6. Admin monitors NFTs at `/manage/nfts`
 
 **Smart Contracts:**
+
 - `ETagCollectible.sol` - ERC721 NFT contract with one-NFT-per-tag enforcement
 - Functions: `mintTo()`, `isTagMinted()`, `getTokenByTag()`, `grantMinter()`, `pause()`
 
@@ -186,6 +187,7 @@ Runs `typecheck` and `lint-staged` (which runs Prettier on staged files) before 
 ### CI/CD (GitHub Actions)
 
 Triggers:
+
 - Push to `master` branch
 - Pull requests targeting `develop`, `feature/*`, `fix/*` branches
 
@@ -205,6 +207,7 @@ Copy `.env.example` to `.env` and configure:
 - `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` - Cloudflare R2 credentials
 - `R2_PUBLIC_DOMAIN` - Public URL for R2 bucket assets
 - `BLOCKCHAIN_RPC_URL`, `CONTRACT_ADDRESS`, `CHAIN_ID`, `ADMIN_WALLET`, `BLOCKCHAIN_NETWORK` - Blockchain config
+- `CONTRACT_OWNER` - Optional: Owner address different from deployer (for contract deployment)
 - `BLOCKCHAIN_EXPLORER_URL` - Block explorer URL (default: Base Sepolia)
 - `NFT_CONTRACT_ADDRESS`, `NEXT_PUBLIC_NFT_CONTRACT_ADDRESS` - ETagCollectible NFT contract address
 - `GEMINI_API_KEY` - Gemini API for NFT art generation

@@ -11,6 +11,7 @@ import {
   Scan,
   ShieldCheck,
   Gem,
+  HeadphonesIcon,
   Rocket,
   Moon,
   Star,
@@ -72,6 +73,13 @@ const steps = [
     description: 'Pemilik pertama mendapatkan NFT unik dari AI',
     icon: Gem,
     detail: 'Artwork eksklusif di-mint ke wallet Anda',
+  },
+  {
+    id: 6,
+    title: 'Web3 Support',
+    description: 'Ajukan komplain langsung ke brand via wallet',
+    icon: HeadphonesIcon,
+    detail: 'Tiket otomatis diarahkan ke brand terkait',
   },
 ];
 
@@ -562,7 +570,7 @@ export function RocketJourney() {
               <div className="text-xs text-[#808080]">Aman</div>
             </div>
             <div className="bg-white rounded-xl p-4 border border-[#2B4C7E]/20 shadow-lg">
-              <div className="text-2xl font-bold text-[#2B4C7E]">6</div>
+              <div className="text-2xl font-bold text-[#2B4C7E]">7</div>
               <div className="text-xs text-[#808080]">Langkah</div>
             </div>
             <div className="bg-white rounded-xl p-4 border border-[#2B4C7E]/20 shadow-lg">

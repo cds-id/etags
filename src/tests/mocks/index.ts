@@ -51,6 +51,39 @@ export const mockPrismaClient = {
     delete: vi.fn(),
     count: vi.fn(),
   },
+  supportTicket: {
+    findUnique: vi.fn(),
+    findFirst: vi.fn(),
+    findMany: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    count: vi.fn(),
+  },
+  ticketMessage: {
+    findUnique: vi.fn(),
+    findFirst: vi.fn(),
+    findMany: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    count: vi.fn(),
+  },
+  ticketAttachment: {
+    findUnique: vi.fn(),
+    findFirst: vi.fn(),
+    findMany: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    count: vi.fn(),
+  },
+  $transaction: vi.fn((callback) => {
+    if (typeof callback === 'function') {
+      return callback(mockPrismaClient);
+    }
+    return Promise.all(callback);
+  }),
 };
 
 // Mock auth function
