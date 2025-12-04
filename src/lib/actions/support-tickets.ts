@@ -183,11 +183,16 @@ export async function addCustomerMessage(
     },
   });
 
-  // Update ticket status if it was resolved
+  // Reopen ticket if it was resolved or closed
   if (ticket.status === 'resolved' || ticket.status === 'closed') {
     await prisma.supportTicket.update({
       where: { id: ticket.id },
-      data: { status: 'open' },
+      data: {
+        // Set to in_progress if an agent is assigned, otherwise open
+        status: ticket.assigned_to ? 'in_progress' : 'open',
+        // Clear resolved_at when reopening
+        resolved_at: null,
+      },
     });
   }
 
@@ -308,7 +313,11 @@ export async function replyToTicket(ticketId: number, message: string) {
     prisma.supportTicket.update({
       where: { id: ticketId },
       data: {
-        status: ticket.status === 'open' ? 'in_progress' : ticket.status,
+        // Always set to in_progress when agent replies, regardless of previous status
+        status: 'in_progress',
+        // Clear resolved_at when reopening
+        resolved_at: null,
+        // Assign to current agent if not already assigned
         assigned_to: ticket.assigned_to || Number(session.user.id),
       },
     }),

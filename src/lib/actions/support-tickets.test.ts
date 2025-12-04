@@ -291,10 +291,11 @@ describe('support-tickets actions', () => {
       });
     });
 
-    it('should reopen ticket if it was resolved', async () => {
+    it('should reopen ticket if it was resolved (no assignee)', async () => {
       mockPrismaClient.supportTicket.findFirst.mockResolvedValue({
         id: 1,
         status: 'resolved',
+        assigned_to: null,
       });
       mockPrismaClient.ticketMessage.create.mockResolvedValue({ id: 1 });
       mockPrismaClient.supportTicket.update.mockResolvedValue({ id: 1 });
@@ -303,7 +304,24 @@ describe('support-tickets actions', () => {
 
       expect(mockPrismaClient.supportTicket.update).toHaveBeenCalledWith({
         where: { id: 1 },
-        data: { status: 'open' },
+        data: { status: 'open', resolved_at: null },
+      });
+    });
+
+    it('should reopen ticket to in_progress if it was resolved and has assignee', async () => {
+      mockPrismaClient.supportTicket.findFirst.mockResolvedValue({
+        id: 1,
+        status: 'resolved',
+        assigned_to: 5,
+      });
+      mockPrismaClient.ticketMessage.create.mockResolvedValue({ id: 1 });
+      mockPrismaClient.supportTicket.update.mockResolvedValue({ id: 1 });
+
+      await addCustomerMessage('TKT-001', '0x123ABC', 'Need more help');
+
+      expect(mockPrismaClient.supportTicket.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: { status: 'in_progress', resolved_at: null },
       });
     });
   });

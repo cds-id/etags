@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { ArrowLeft, Send, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { Send, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { SupportHeader } from './support-header';
 import { addCustomerMessage } from '@/lib/actions/support-tickets';
 
@@ -91,18 +91,9 @@ export function TicketDetailView({
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-[#2B4C7E]/5 to-white">
-      <SupportHeader walletAddress={walletAddress} />
+      <SupportHeader walletAddress={walletAddress} showBack onBack={onBack} />
 
       <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-3xl">
-        <Button
-          variant="ghost"
-          onClick={onBack}
-          className="mb-6 text-[#2B4C7E] hover:text-[#1E3A5F] hover:bg-[#2B4C7E]/10"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Kembali ke Tiket
-        </Button>
-
         <Card className="border-[#A8A8A8]/20 shadow-lg overflow-hidden">
           <CardHeader className="bg-gradient-to-r from-[#2B4C7E]/5 to-transparent border-b border-[#A8A8A8]/10">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
