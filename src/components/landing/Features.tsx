@@ -9,7 +9,9 @@ import {
   Smartphone,
   Zap,
   Gem,
+  HeadphonesIcon,
 } from 'lucide-react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 const MotionDiv = motion.div;
@@ -267,6 +269,80 @@ export function Features() {
                 />
               </div>
             </div>
+          </MotionDiv>
+        </div>
+      </div>
+
+      {/* Feature 5 - Web3 Support */}
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          <MotionDiv
+            className="order-2 lg:order-1 relative"
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="absolute inset-0 bg-linear-to-br from-emerald-500/30 via-teal-500/20 to-transparent rounded-3xl transform rotate-3 scale-95 blur-2xl" />
+            <div className="relative bg-white border-2 border-emerald-500/20 rounded-2xl shadow-2xl shadow-emerald-500/20 overflow-hidden p-2">
+              <div className="bg-white rounded-xl p-4 h-[240px] sm:h-[320px] flex items-center justify-center border border-emerald-500/10">
+                <Image
+                  src="/feature-support.png"
+                  alt="Web3 Support Tickets"
+                  width={400}
+                  height={400}
+                  className="w-full h-auto object-contain max-h-full"
+                />
+              </div>
+            </div>
+          </MotionDiv>
+          <MotionDiv
+            className="order-1 lg:order-2"
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="inline-flex items-center rounded-full bg-linear-to-r from-emerald-500/10 to-teal-500/10 px-4 py-1.5 text-sm font-semibold text-emerald-700 mb-6 border border-emerald-500/20">
+              <HeadphonesIcon className="mr-2 h-4 w-4 text-emerald-500" />
+              Web3 Support
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#0C2340] mb-6">
+              Dukungan langsung dengan wallet Anda.
+            </h2>
+            <p className="text-lg text-[#808080] mb-8 leading-relaxed">
+              Pemilik NFT dapat mengajukan komplain langsung ke brand melalui
+              koneksi wallet. Sistem otomatis mendeteksi produk yang Anda miliki
+              dan mengarahkan tiket ke brand terkait.
+            </p>
+            <ul className="space-y-4">
+              {[
+                'Login dengan wallet, tanpa password',
+                'Deteksi otomatis produk dari NFT',
+                'Tiket langsung ke dashboard brand',
+              ].map((item, i) => (
+                <motion.li
+                  key={i}
+                  className="flex items-center text-[#0C2340]"
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                >
+                  <CheckCircle2 className="h-5 w-5 text-emerald-500 mr-3 shrink-0" />
+                  <span className="font-medium">{item}</span>
+                </motion.li>
+              ))}
+            </ul>
+            <Button
+              variant="link"
+              asChild
+              className="p-0 h-auto text-emerald-600 font-semibold text-lg hover:text-emerald-700 mt-6"
+            >
+              <Link href="/support">
+                Buka Support Portal <ChevronRight className="ml-1 h-4 w-4" />
+              </Link>
+            </Button>
           </MotionDiv>
         </div>
       </div>
