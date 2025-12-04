@@ -86,7 +86,7 @@ export function Hero() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <div className="relative w-full aspect-square max-w-[600px] mx-auto">
+            <div className="relative w-full max-w-[480px] mx-auto">
               {/* Background Glow */}
               <div className="absolute inset-0 bg-linear-to-br from-[#2B4C7E]/10 to-[#1E3A5F]/5 rounded-full blur-3xl" />
 
