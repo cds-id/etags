@@ -214,7 +214,12 @@ Pipeline: lint → typecheck → test → build
 
 ### Smart Contracts
 
-Solidity contracts are in `smartcontracts/` directory with separate Hardhat setup. See `smartcontracts/README.md` for contract development and testing.
+Solidity contracts are in `smartcontracts/` directory with separate Hardhat setup:
+
+- `ETagRegistry.sol` - Main contract for tag lifecycle management (create, validate, update status, revoke)
+- `ETagCollectible.sol` - ERC721 NFT contract for collectibles (one NFT per tag)
+
+See `smartcontracts/README.md` for contract development and testing.
 
 ## Environment Variables
 

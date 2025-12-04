@@ -22,6 +22,7 @@ export function Navbar() {
   const navLinks = [
     { href: '/explorer', label: 'Explorer' },
     { href: '/scan', label: 'Scanner' },
+    { href: '/faqs', label: 'FAQ' },
     { href: '/support', label: 'Support' },
   ];
 
