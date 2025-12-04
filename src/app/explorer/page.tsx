@@ -226,29 +226,33 @@ export default function ExplorerPage() {
 
           {/* Tabs for Transactions, Events, and NFTs */}
           <Tabs defaultValue="transactions" className="space-y-4">
-            <TabsList className="bg-[#2B4C7E]/10 border border-[#2B4C7E]/20">
-              <TabsTrigger
-                value="transactions"
-                className="gap-2 data-[state=active]:bg-white data-[state=active]:text-[#2B4C7E]"
-              >
-                <FileCode className="h-4 w-4" />
-                Transactions
-              </TabsTrigger>
-              <TabsTrigger
-                value="events"
-                className="gap-2 data-[state=active]:bg-white data-[state=active]:text-[#2B4C7E]"
-              >
-                <Activity className="h-4 w-4" />
-                Events
-              </TabsTrigger>
-              <TabsTrigger
-                value="nfts"
-                className="gap-2 data-[state=active]:bg-white data-[state=active]:text-purple-600"
-              >
-                <Gem className="h-4 w-4" />
-                NFT Collectibles
-              </TabsTrigger>
-            </TabsList>
+            <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+              <TabsList className="bg-[#2B4C7E]/10 border border-[#2B4C7E]/20 w-full sm:w-auto min-w-max">
+                <TabsTrigger
+                  value="transactions"
+                  className="gap-2 data-[state=active]:bg-white data-[state=active]:text-[#2B4C7E] flex-1 sm:flex-initial px-3 sm:px-4"
+                >
+                  <FileCode className="h-4 w-4 shrink-0" />
+                  <span className="hidden sm:inline">Transactions</span>
+                  <span className="sm:hidden">Txns</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="events"
+                  className="gap-2 data-[state=active]:bg-white data-[state=active]:text-[#2B4C7E] flex-1 sm:flex-initial px-3 sm:px-4"
+                >
+                  <Activity className="h-4 w-4 shrink-0" />
+                  Events
+                </TabsTrigger>
+                <TabsTrigger
+                  value="nfts"
+                  className="gap-2 data-[state=active]:bg-white data-[state=active]:text-purple-600 flex-1 sm:flex-initial px-3 sm:px-4"
+                >
+                  <Gem className="h-4 w-4 shrink-0" />
+                  <span className="hidden sm:inline">NFT Collectibles</span>
+                  <span className="sm:hidden">NFTs</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             {/* Transactions Tab */}
             <TabsContent value="transactions">

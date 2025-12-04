@@ -29,13 +29,13 @@ export function Features() {
           >
             <div className="absolute inset-0 bg-linear-to-br from-[#2B4C7E]/30 to-[#1E3A5F]/20 rounded-3xl transform rotate-3 scale-95 blur-2xl" />
             <div className="relative bg-white border-2 border-[#2B4C7E]/20 rounded-2xl shadow-2xl shadow-[#2B4C7E]/20 overflow-hidden p-2">
-              <div className="bg-linear-to-br from-[#2B4C7E]/5 to-white rounded-xl p-6 h-[300px] sm:h-[400px] flex items-center justify-center border border-[#A8A8A8]/20">
+              <div className="bg-white rounded-xl p-4 h-[240px] sm:h-[320px] flex items-center justify-center border border-[#A8A8A8]/20">
                 <Image
                   src="/feature-analytics.png"
                   alt="Real-time Analytics Dashboard"
                   width={400}
                   height={400}
-                  className="w-full h-auto object-contain"
+                  className="w-full h-auto object-contain max-h-full"
                 />
               </div>
             </div>
@@ -119,13 +119,13 @@ export function Features() {
           >
             <div className="absolute inset-0 bg-linear-to-br from-[#A8A8A8]/30 to-[#2B4C7E]/20 rounded-3xl transform -rotate-3 scale-95 blur-2xl" />
             <div className="relative bg-white border-2 border-[#A8A8A8]/30 rounded-2xl shadow-2xl shadow-[#A8A8A8]/20 overflow-hidden p-2">
-              <div className="bg-linear-to-br from-white to-[#A8A8A8]/5 rounded-xl p-6 h-[300px] sm:h-[400px] flex items-center justify-center border border-[#A8A8A8]/20">
+              <div className="bg-white rounded-xl p-4 h-[240px] sm:h-[320px] flex items-center justify-center border border-[#A8A8A8]/20">
                 <Image
                   src="/feature-scanning.png"
                   alt="Mobile QR Code Scanning"
                   width={400}
                   height={400}
-                  className="w-full h-auto object-contain"
+                  className="w-full h-auto object-contain max-h-full"
                 />
               </div>
             </div>
@@ -145,13 +145,13 @@ export function Features() {
           >
             <div className="absolute inset-0 bg-linear-to-br from-[#1E3A5F]/30 to-[#0C2340]/20 rounded-3xl transform rotate-2 scale-95 blur-2xl" />
             <div className="relative bg-white border-2 border-[#1E3A5F]/20 rounded-2xl shadow-2xl shadow-[#0C2340]/20 overflow-hidden p-2">
-              <div className="bg-linear-to-br from-[#0C2340]/5 to-white rounded-xl p-6 h-[300px] sm:h-[400px] flex items-center justify-center border border-[#1E3A5F]/20">
+              <div className="bg-white rounded-xl p-4 h-[240px] sm:h-[320px] flex items-center justify-center border border-[#1E3A5F]/20">
                 <Image
                   src="/feature-security.png"
                   alt="Blockchain Security"
                   width={400}
                   height={400}
-                  className="w-full h-auto object-contain"
+                  className="w-full h-auto object-contain max-h-full"
                 />
               </div>
             </div>
@@ -257,13 +257,13 @@ export function Features() {
           >
             <div className="absolute inset-0 bg-linear-to-br from-purple-500/30 via-pink-500/20 to-transparent rounded-3xl transform -rotate-3 scale-95 blur-2xl" />
             <div className="relative bg-white border-2 border-purple-500/20 rounded-2xl shadow-2xl shadow-purple-500/20 overflow-hidden p-2">
-              <div className="bg-linear-to-br from-purple-500/5 via-pink-500/5 to-white rounded-xl p-6 h-[300px] sm:h-[400px] flex items-center justify-center border border-purple-500/10">
+              <div className="bg-white rounded-xl p-4 h-[240px] sm:h-[320px] flex items-center justify-center border border-purple-500/10">
                 <Image
                   src="/feature-nft.png"
                   alt="NFT Collectible"
                   width={400}
                   height={400}
-                  className="w-full h-auto object-contain"
+                  className="w-full h-auto object-contain max-h-full"
                 />
               </div>
             </div>

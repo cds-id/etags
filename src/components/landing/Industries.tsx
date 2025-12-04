@@ -74,13 +74,13 @@ export function Industries() {
                   </li>
                 </ul>
               </div>
-              <div className="w-full md:w-1/3 aspect-square bg-linear-to-br from-[#2B4C7E]/10 to-white rounded-xl flex items-center justify-center border-2 border-[#2B4C7E]/20 overflow-hidden p-4">
+              <div className="w-full md:w-1/3 h-[200px] bg-white rounded-xl flex items-center justify-center border-2 border-[#2B4C7E]/20 overflow-hidden p-4">
                 <Image
                   src="/industry-fashion.png"
                   alt="Fashion Authentication"
                   width={300}
                   height={300}
-                  className="w-full h-auto object-contain"
+                  className="w-full h-auto object-contain max-h-full"
                 />
               </div>
             </MotionDiv>
@@ -111,13 +111,13 @@ export function Industries() {
                   </li>
                 </ul>
               </div>
-              <div className="w-full md:w-1/3 aspect-square bg-linear-to-br from-[#2B4C7E]/10 to-white rounded-xl flex items-center justify-center border-2 border-[#2B4C7E]/20 overflow-hidden p-4">
+              <div className="w-full md:w-1/3 h-[200px] bg-white rounded-xl flex items-center justify-center border-2 border-[#2B4C7E]/20 overflow-hidden p-4">
                 <Image
                   src="/industry-electronics.png"
                   alt="Electronics Warranty"
                   width={300}
                   height={300}
-                  className="w-full h-auto object-contain"
+                  className="w-full h-auto object-contain max-h-full"
                 />
               </div>
             </MotionDiv>
@@ -148,13 +148,13 @@ export function Industries() {
                   </li>
                 </ul>
               </div>
-              <div className="w-full md:w-1/3 aspect-square bg-linear-to-br from-[#2B4C7E]/10 to-white rounded-xl flex items-center justify-center border-2 border-[#2B4C7E]/20 overflow-hidden p-4">
+              <div className="w-full md:w-1/3 h-[200px] bg-white rounded-xl flex items-center justify-center border-2 border-[#2B4C7E]/20 overflow-hidden p-4">
                 <Image
                   src="/industry-pharma.png"
                   alt="Pharmaceutical Safety"
                   width={300}
                   height={300}
-                  className="w-full h-auto object-contain"
+                  className="w-full h-auto object-contain max-h-full"
                 />
               </div>
             </MotionDiv>
