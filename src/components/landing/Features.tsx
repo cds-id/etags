@@ -2,26 +2,16 @@
 
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import {
-  CheckCircle2,
-  ChevronRight,
-  Lock,
-  Smartphone,
-  Zap,
-  Gem,
-  HeadphonesIcon,
-} from 'lucide-react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { CheckCircle2, Lock, Smartphone, Zap } from 'lucide-react';
 
 const MotionDiv = motion.div;
 
 export function Features() {
   return (
-    <section className="relative z-10 py-20 sm:py-32 space-y-24">
-      {/* Feature 1 */}
+    <section className="relative z-10 py-16 sm:py-24 space-y-16">
+      {/* Feature 1 - Analytics */}
       <div className="container mx-auto px-4 sm:px-6">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           <MotionDiv
             className="order-2 lg:order-1 relative"
             initial={{ opacity: 0, x: -50 }}
@@ -30,8 +20,8 @@ export function Features() {
             transition={{ duration: 0.6 }}
           >
             <div className="absolute inset-0 bg-linear-to-br from-[#2B4C7E]/30 to-[#1E3A5F]/20 rounded-3xl transform rotate-3 scale-95 blur-2xl" />
-            <div className="relative bg-white border-2 border-[#2B4C7E]/20 rounded-2xl shadow-2xl shadow-[#2B4C7E]/20 overflow-hidden p-2">
-              <div className="bg-white rounded-xl p-4 h-[240px] sm:h-[320px] flex items-center justify-center border border-[#A8A8A8]/20">
+            <div className="relative bg-white border-2 border-[#2B4C7E]/20 rounded-2xl shadow-xl overflow-hidden p-2">
+              <div className="bg-white rounded-xl p-4 h-[200px] sm:h-[260px] flex items-center justify-center border border-[#A8A8A8]/20">
                 <Image
                   src="/feature-analytics.png"
                   alt="Real-time Analytics Dashboard"
@@ -49,24 +39,60 @@ export function Features() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center rounded-full bg-[#2B4C7E]/10 px-4 py-1.5 text-sm font-semibold text-[#0C2340] mb-6 border border-[#2B4C7E]/20">
+            <div className="inline-flex items-center rounded-full bg-[#2B4C7E]/10 px-4 py-1.5 text-sm font-semibold text-[#0C2340] mb-4 border border-[#2B4C7E]/20">
               <Zap className="mr-2 h-4 w-4 text-[#2B4C7E]" />
               Wawasan Real-time
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#0C2340] mb-6">
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#0C2340] mb-4">
               Keputusan berbasis data untuk rantai pasokan Anda.
             </h2>
-            <p className="text-lg text-[#808080] mb-8 leading-relaxed">
+            <p className="text-base text-[#808080] mb-6 leading-relaxed">
               Dapatkan visibilitas di mana produk Anda dipindai. Deteksi
-              aktivitas pasar gelap dan hotspot pemalsuan potensial secara
-              real-time dengan dashboard canggih kami.
+              aktivitas mencurigakan secara real-time.
             </p>
-            <ul className="space-y-4">
-              {[
-                'Pelacakan scan geospasial',
-                'Peringatan upaya pemalsuan',
-                'Metrik kecepatan rantai pasokan',
-              ].map((item, i) => (
+            <ul className="space-y-3">
+              {['Pelacakan scan geospasial', 'Peringatan upaya pemalsuan'].map(
+                (item, i) => (
+                  <motion.li
+                    key={i}
+                    className="flex items-center text-[#0C2340]"
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <CheckCircle2 className="h-5 w-5 text-[#2B4C7E] mr-3 shrink-0" />
+                    <span className="font-medium">{item}</span>
+                  </motion.li>
+                )
+              )}
+            </ul>
+          </MotionDiv>
+        </div>
+      </div>
+
+      {/* Feature 2 - Scanning */}
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+          <MotionDiv
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="inline-flex items-center rounded-full bg-[#A8A8A8]/20 px-4 py-1.5 text-sm font-semibold text-[#0C2340] mb-4 border border-[#A8A8A8]/30">
+              <Smartphone className="mr-2 h-4 w-4 text-[#1E3A5F]" />
+              Tanpa Aplikasi
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#0C2340] mb-4">
+              Cukup arahkan dan scan.
+            </h2>
+            <p className="text-base text-[#808080] mb-6 leading-relaxed">
+              Scanner berbasis web kami bekerja langsung di browser, memastikan
+              tingkat adopsi yang tinggi tanpa hambatan.
+            </p>
+            <ul className="space-y-3">
+              {['Verifikasi instan', 'Tanpa download'].map((item, i) => (
                 <motion.li
                   key={i}
                   className="flex items-center text-[#0C2340]"
@@ -81,37 +107,6 @@ export function Features() {
               ))}
             </ul>
           </MotionDiv>
-        </div>
-      </div>
-
-      {/* Feature 2 */}
-      <div className="container mx-auto px-4 sm:px-6">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          <MotionDiv
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="inline-flex items-center rounded-full bg-[#A8A8A8]/20 px-4 py-1.5 text-sm font-semibold text-[#0C2340] mb-6 border border-[#A8A8A8]/30">
-              <Smartphone className="mr-2 h-4 w-4 text-[#1E3A5F]" />
-              Pengalaman Mulus
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#0C2340] mb-6">
-              Tanpa aplikasi. Cukup arahkan dan scan.
-            </h2>
-            <p className="text-lg text-[#808080] mb-8 leading-relaxed">
-              Hilangkan hambatan dalam proses verifikasi. Scanner berbasis web
-              kami bekerja langsung di browser, memastikan tingkat adopsi yang
-              tinggi di kalangan pelanggan Anda.
-            </p>
-            <Button
-              variant="link"
-              className="p-0 h-auto text-[#2B4C7E] font-semibold text-lg hover:text-[#1E3A5F]"
-            >
-              Lihat demo <ChevronRight className="ml-1 h-4 w-4" />
-            </Button>
-          </MotionDiv>
           <MotionDiv
             className="relative"
             initial={{ opacity: 0, x: 50 }}
@@ -120,8 +115,8 @@ export function Features() {
             transition={{ duration: 0.6 }}
           >
             <div className="absolute inset-0 bg-linear-to-br from-[#A8A8A8]/30 to-[#2B4C7E]/20 rounded-3xl transform -rotate-3 scale-95 blur-2xl" />
-            <div className="relative bg-white border-2 border-[#A8A8A8]/30 rounded-2xl shadow-2xl shadow-[#A8A8A8]/20 overflow-hidden p-2">
-              <div className="bg-white rounded-xl p-4 h-[240px] sm:h-[320px] flex items-center justify-center border border-[#A8A8A8]/20">
+            <div className="relative bg-white border-2 border-[#A8A8A8]/30 rounded-2xl shadow-xl overflow-hidden p-2">
+              <div className="bg-white rounded-xl p-4 h-[200px] sm:h-[260px] flex items-center justify-center border border-[#A8A8A8]/20">
                 <Image
                   src="/feature-scanning.png"
                   alt="Mobile QR Code Scanning"
@@ -135,9 +130,9 @@ export function Features() {
         </div>
       </div>
 
-      {/* Feature 3 */}
+      {/* Feature 3 - Blockchain Security */}
       <div className="container mx-auto px-4 sm:px-6">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           <MotionDiv
             className="order-2 lg:order-1 relative"
             initial={{ opacity: 0, x: -50 }}
@@ -146,8 +141,8 @@ export function Features() {
             transition={{ duration: 0.6 }}
           >
             <div className="absolute inset-0 bg-linear-to-br from-[#1E3A5F]/30 to-[#0C2340]/20 rounded-3xl transform rotate-2 scale-95 blur-2xl" />
-            <div className="relative bg-white border-2 border-[#1E3A5F]/20 rounded-2xl shadow-2xl shadow-[#0C2340]/20 overflow-hidden p-2">
-              <div className="bg-white rounded-xl p-4 h-[240px] sm:h-[320px] flex items-center justify-center border border-[#1E3A5F]/20">
+            <div className="relative bg-white border-2 border-[#1E3A5F]/20 rounded-2xl shadow-xl overflow-hidden p-2">
+              <div className="bg-white rounded-xl p-4 h-[200px] sm:h-[260px] flex items-center justify-center border border-[#1E3A5F]/20">
                 <Image
                   src="/feature-security.png"
                   alt="Blockchain Security"
@@ -165,184 +160,39 @@ export function Features() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center rounded-full bg-[#0C2340]/10 px-4 py-1.5 text-sm font-semibold text-[#0C2340] mb-6 border border-[#0C2340]/20">
+            <div className="inline-flex items-center rounded-full bg-[#0C2340]/10 px-4 py-1.5 text-sm font-semibold text-[#0C2340] mb-4 border border-[#0C2340]/20">
               <Lock className="mr-2 h-4 w-4 text-[#0C2340]" />
-              Keamanan Tingkat Bank
+              Keamanan Blockchain
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#0C2340] mb-6">
-              Catatan permanen di Blockchain.
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#0C2340] mb-4">
+              Catatan permanen dan anti-rusak.
             </h2>
-            <p className="text-lg text-[#808080] mb-8 leading-relaxed">
-              Setiap tag produk dicetak sebagai aset digital di distributed
-              ledger. Ini menciptakan catatan provenance yang permanen dan
-              anti-rusak yang tidak dapat dipalsukan.
+            <p className="text-base text-[#808080] mb-6 leading-relaxed">
+              Setiap tag produk dicetak sebagai aset digital di blockchain,
+              menciptakan catatan provenance yang tidak dapat dipalsukan.
             </p>
             <div className="flex gap-4">
               <MotionDiv
-                className="bg-linear-to-br from-white to-[#2B4C7E]/5 border-2 border-[#2B4C7E]/20 rounded-xl p-5 shadow-lg flex-1"
-                whileHover={{ scale: 1.05 }}
+                className="bg-linear-to-br from-white to-[#2B4C7E]/5 border-2 border-[#2B4C7E]/20 rounded-xl p-4 shadow-lg flex-1"
+                whileHover={{ scale: 1.02 }}
               >
-                <div className="text-3xl font-bold text-[#0C2340] mb-1">
+                <div className="text-2xl font-bold text-[#0C2340] mb-1">
                   99.9%
                 </div>
                 <div className="text-sm text-[#808080] font-medium">Uptime</div>
               </MotionDiv>
               <MotionDiv
-                className="bg-linear-to-br from-white to-[#2B4C7E]/5 border-2 border-[#2B4C7E]/20 rounded-xl p-5 shadow-lg flex-1"
-                whileHover={{ scale: 1.05 }}
+                className="bg-linear-to-br from-white to-[#2B4C7E]/5 border-2 border-[#2B4C7E]/20 rounded-xl p-4 shadow-lg flex-1"
+                whileHover={{ scale: 1.02 }}
               >
-                <div className="text-3xl font-bold text-[#0C2340] mb-1">
+                <div className="text-2xl font-bold text-[#0C2340] mb-1">
                   &lt;1dtk
                 </div>
                 <div className="text-sm text-[#808080] font-medium">
-                  Waktu Verifikasi
+                  Verifikasi
                 </div>
               </MotionDiv>
             </div>
-          </MotionDiv>
-        </div>
-      </div>
-
-      {/* Feature 4 - NFT Collectible */}
-      <div className="container mx-auto px-4 sm:px-6">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          <MotionDiv
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="inline-flex items-center rounded-full bg-linear-to-r from-purple-500/10 to-pink-500/10 px-4 py-1.5 text-sm font-semibold text-purple-700 mb-6 border border-purple-500/20">
-              <Gem className="mr-2 h-4 w-4 text-purple-500" />
-              NFT Collectible
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#0C2340] mb-6">
-              Koleksi digital eksklusif untuk pemilik pertama.
-            </h2>
-            <p className="text-lg text-[#808080] mb-8 leading-relaxed">
-              Pemilik pertama produk otentik mendapatkan NFT Collectible unik
-              yang di-generate khusus untuk Anda. Bukti kepemilikan digital yang
-              dapat dipamerkan dan diperdagangkan di blockchain.
-            </p>
-            <ul className="space-y-4">
-              {[
-                'Artwork unik dari bukti kepemilikan digital Anda',
-                'Mint gratis untuk pemilik pertama',
-                'Tercatat permanen di Base blockchain',
-              ].map((item, i) => (
-                <motion.li
-                  key={i}
-                  className="flex items-center text-[#0C2340]"
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                >
-                  <CheckCircle2 className="h-5 w-5 text-purple-500 mr-3 shrink-0" />
-                  <span className="font-medium">{item}</span>
-                </motion.li>
-              ))}
-            </ul>
-            <Button
-              variant="link"
-              className="p-0 h-auto text-purple-600 font-semibold text-lg hover:text-purple-700 mt-6"
-            >
-              Pelajari lebih lanjut <ChevronRight className="ml-1 h-4 w-4" />
-            </Button>
-          </MotionDiv>
-          <MotionDiv
-            className="relative"
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="absolute inset-0 bg-linear-to-br from-purple-500/30 via-pink-500/20 to-transparent rounded-3xl transform -rotate-3 scale-95 blur-2xl" />
-            <div className="relative bg-white border-2 border-purple-500/20 rounded-2xl shadow-2xl shadow-purple-500/20 overflow-hidden p-2">
-              <div className="bg-white rounded-xl p-4 h-[240px] sm:h-[320px] flex items-center justify-center border border-purple-500/10">
-                <Image
-                  src="/feature-nft.png"
-                  alt="NFT Collectible"
-                  width={400}
-                  height={400}
-                  className="w-full h-auto object-contain max-h-full"
-                />
-              </div>
-            </div>
-          </MotionDiv>
-        </div>
-      </div>
-
-      {/* Feature 5 - Web3 Support */}
-      <div className="container mx-auto px-4 sm:px-6">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          <MotionDiv
-            className="order-2 lg:order-1 relative"
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="absolute inset-0 bg-linear-to-br from-emerald-500/30 via-teal-500/20 to-transparent rounded-3xl transform rotate-3 scale-95 blur-2xl" />
-            <div className="relative bg-white border-2 border-emerald-500/20 rounded-2xl shadow-2xl shadow-emerald-500/20 overflow-hidden p-2">
-              <div className="bg-white rounded-xl p-4 h-[240px] sm:h-[320px] flex items-center justify-center border border-emerald-500/10">
-                <Image
-                  src="/feature-support.png"
-                  alt="Web3 Support Tickets"
-                  width={400}
-                  height={400}
-                  className="w-full h-auto object-contain max-h-full"
-                />
-              </div>
-            </div>
-          </MotionDiv>
-          <MotionDiv
-            className="order-1 lg:order-2"
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="inline-flex items-center rounded-full bg-linear-to-r from-emerald-500/10 to-teal-500/10 px-4 py-1.5 text-sm font-semibold text-emerald-700 mb-6 border border-emerald-500/20">
-              <HeadphonesIcon className="mr-2 h-4 w-4 text-emerald-500" />
-              Web3 Support
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#0C2340] mb-6">
-              Dukungan langsung dengan wallet Anda.
-            </h2>
-            <p className="text-lg text-[#808080] mb-8 leading-relaxed">
-              Pemilik NFT dapat mengajukan komplain langsung ke brand melalui
-              koneksi wallet. Sistem otomatis mendeteksi produk yang Anda miliki
-              dan mengarahkan tiket ke brand terkait.
-            </p>
-            <ul className="space-y-4">
-              {[
-                'Login dengan wallet, tanpa password',
-                'Deteksi otomatis produk dari NFT',
-                'Tiket langsung ke dashboard brand',
-              ].map((item, i) => (
-                <motion.li
-                  key={i}
-                  className="flex items-center text-[#0C2340]"
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                >
-                  <CheckCircle2 className="h-5 w-5 text-emerald-500 mr-3 shrink-0" />
-                  <span className="font-medium">{item}</span>
-                </motion.li>
-              ))}
-            </ul>
-            <Button
-              variant="link"
-              asChild
-              className="p-0 h-auto text-emerald-600 font-semibold text-lg hover:text-emerald-700 mt-6"
-            >
-              <Link href="/support">
-                Buka Support Portal <ChevronRight className="ml-1 h-4 w-4" />
-              </Link>
-            </Button>
           </MotionDiv>
         </div>
       </div>

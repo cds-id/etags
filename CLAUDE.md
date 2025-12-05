@@ -105,11 +105,13 @@ Server actions are organized in `src/lib/actions/`:
 
 - `/` - Public landing page
 - `/login` - Login page (redirects to /manage if authenticated)
+- `/register` - User registration page
 - `/scan` - QR code scanner for tag verification
 - `/verify/[code]` - Tag verification page with product details
 - `/explorer` - Blockchain transaction explorer
 - `/explorer/tx/[hash]` - Transaction detail page
 - `/support` - Web3 support tickets (NFT holders connect wallet to submit issues)
+- `/faqs` - Frequently asked questions page
 - `/docs` - Swagger API documentation UI
 
 **API Routes:**

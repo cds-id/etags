@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion';
 import { Navbar } from '@/components/landing/Navbar';
 import { Hero } from '@/components/landing/Hero';
-import { RocketJourney } from '@/components/landing/RocketJourney';
 import { Features } from '@/components/landing/Features';
 import { Industries } from '@/components/landing/Industries';
 import { FAQ } from '@/components/landing/FAQ';
@@ -45,12 +44,6 @@ export default function Home() {
 
       <Navbar />
       <Hero />
-
-      {/* Rocket Journey Section */}
-      <section className="relative z-10 bg-gradient-to-b from-white via-[#2B4C7E]/5 to-[#0C2340]/10">
-        <RocketJourney />
-      </section>
-
       <Features />
       <Industries />
       <FAQ />
