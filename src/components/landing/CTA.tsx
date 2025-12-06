@@ -15,25 +15,12 @@ export function CTA() {
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
         >
-          {/* Animated background */}
+          {/* Static background - no animations */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-20 pointer-events-none">
-            <MotionDiv
-              className="absolute top-[-50%] left-[-20%] w-[80%] h-[80%] rounded-full bg-[#2B4C7E] blur-3xl"
-              animate={{
-                scale: [1, 1.2, 1],
-                x: [0, 50, 0],
-              }}
-              transition={{ duration: 10, repeat: Infinity }}
-            />
-            <MotionDiv
-              className="absolute bottom-[-50%] right-[-20%] w-[80%] h-[80%] rounded-full bg-[#A8A8A8] blur-3xl"
-              animate={{
-                scale: [1, 1.3, 1],
-                x: [0, -50, 0],
-              }}
-              transition={{ duration: 12, repeat: Infinity }}
-            />
+            <div className="absolute top-[-50%] left-[-20%] w-[80%] h-[80%] rounded-full bg-[#2B4C7E] blur-2xl" />
+            <div className="absolute bottom-[-50%] right-[-20%] w-[80%] h-[80%] rounded-full bg-[#A8A8A8] blur-2xl" />
           </div>
 
           <div className="relative z-10 max-w-2xl mx-auto">

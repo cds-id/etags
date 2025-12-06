@@ -121,3 +121,24 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Reduced motion support for older devices and accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* GPU acceleration hints for smoother animations */
+.blur-xl,
+.blur-2xl,
+.blur-3xl,
+.blur-\[80px\] {
+  will-change: auto;
+  transform: translateZ(0);
+}
