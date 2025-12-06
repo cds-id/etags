@@ -97,7 +97,7 @@ export default function LoginPage() {
               Etags
             </span>
           </Link>
-          <p className="text-[#808080] text-sm mt-2">
+          <p className="text-[#606060] text-sm mt-2">
             Lindungi produk Anda dengan teknologi blockchain
           </p>
         </div>
@@ -107,7 +107,7 @@ export default function LoginPage() {
             <CardTitle className="text-2xl font-bold text-[#0C2340]">
               Selamat Datang
             </CardTitle>
-            <CardDescription className="text-[#808080]">
+            <CardDescription className="text-[#606060]">
               Masukkan kredensial Anda untuk mengakses dashboard
             </CardDescription>
           </CardHeader>
@@ -171,7 +171,40 @@ export default function LoginPage() {
             </form>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4 pt-2">
-            <div className="text-[#808080] text-center text-sm">
+            {/* Demo Credentials */}
+            <div className="w-full p-4 bg-[#2B4C7E]/5 border border-[#2B4C7E]/20 rounded-xl space-y-3">
+              <p className="text-xs font-semibold text-[#0C2340] uppercase tracking-wide">
+                Demo Credentials
+              </p>
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between items-center p-2 bg-white rounded-lg border border-[#A8A8A8]/20">
+                  <div>
+                    <span className="font-medium text-[#0C2340]">Admin</span>
+                    <p className="text-[#606060]">
+                      admin@example.com / admin123
+                    </p>
+                  </div>
+                  <span className="px-2 py-0.5 bg-[#2B4C7E] text-white rounded text-[10px] font-medium">
+                    ADMIN
+                  </span>
+                </div>
+                <div className="flex justify-between items-center p-2 bg-white rounded-lg border border-[#A8A8A8]/20">
+                  <div>
+                    <span className="font-medium text-[#0C2340]">
+                      Brand (Judge)
+                    </span>
+                    <p className="text-[#606060]">
+                      judge@hackathon.imphnen.dev / IMPHNEN2025
+                    </p>
+                  </div>
+                  <span className="px-2 py-0.5 bg-[#1E3A5F] text-white rounded text-[10px] font-medium">
+                    BRAND
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-[#606060] text-center text-sm">
               Belum punya akun?{' '}
               <Link
                 href="/register"
@@ -186,7 +219,7 @@ export default function LoginPage() {
         {/* Back to home */}
         <Link
           href="/"
-          className="mt-8 text-sm text-[#808080] hover:text-[#2B4C7E] transition-colors"
+          className="mt-8 text-sm text-[#606060] hover:text-[#2B4C7E] transition-colors"
         >
           &larr; Kembali ke beranda
         </Link>
