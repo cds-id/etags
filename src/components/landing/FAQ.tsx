@@ -52,7 +52,7 @@ export function FAQ() {
               <h3 className="font-bold text-[#0C2340] mb-3 text-lg">
                 {item.q}
               </h3>
-              <p className="text-[#808080] text-sm leading-relaxed">{item.a}</p>
+              <p className="text-[#606060] text-sm leading-relaxed">{item.a}</p>
             </MotionDiv>
           ))}
         </div>

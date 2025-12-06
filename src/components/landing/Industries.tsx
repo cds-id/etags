@@ -21,7 +21,7 @@ export function Industries() {
           <h2 className="text-3xl font-bold text-[#0C2340] mb-4">
             Disesuaikan untuk industri Anda
           </h2>
-          <p className="text-[#808080] text-lg">
+          <p className="text-[#606060] text-lg">
             Etags beradaptasi dengan kebutuhan unik berbagai kategori produk.
           </p>
         </MotionDiv>
@@ -56,7 +56,7 @@ export function Industries() {
                 <h3 className="text-2xl font-bold text-[#0C2340] mb-4">
                   Lindungi Edisi Terbatas
                 </h3>
-                <p className="text-[#808080] mb-6 leading-relaxed">
+                <p className="text-[#606060] mb-6 leading-relaxed">
                   Verifikasi keaslian barang mewah dan produk edisi terbatas.
                   Aktifkan transfer kepemilikan digital untuk pasar resale.
                 </p>
@@ -89,7 +89,7 @@ export function Industries() {
                 <h3 className="text-2xl font-bold text-[#0C2340] mb-4">
                   Garansi & Registrasi
                 </h3>
-                <p className="text-[#808080] mb-6 leading-relaxed">
+                <p className="text-[#606060] mb-6 leading-relaxed">
                   Sederhanakan registrasi garansi dengan satu scan. Lacak
                   provenance komponen dan riwayat perbaikan.
                 </p>
@@ -122,7 +122,7 @@ export function Industries() {
                 <h3 className="text-2xl font-bold text-[#0C2340] mb-4">
                   Keselamatan Pasien Utama
                 </h3>
-                <p className="text-[#808080] mb-6 leading-relaxed">
+                <p className="text-[#606060] mb-6 leading-relaxed">
                   Lawan obat palsu. Izinkan pasien memverifikasi tanggal
                   kedaluwarsa dan nomor batch secara instan.
                 </p>

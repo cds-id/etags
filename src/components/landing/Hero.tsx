@@ -42,7 +42,7 @@ export function Hero() {
             </MotionH1>
 
             <MotionP
-              className="mb-10 text-lg text-[#808080] leading-relaxed max-w-2xl mx-auto lg:mx-0"
+              className="mb-10 text-lg text-[#606060] leading-relaxed max-w-2xl mx-auto lg:mx-0"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.15 }}
@@ -99,6 +99,7 @@ export function Hero() {
                   height={600}
                   className="w-full h-auto drop-shadow-xl"
                   priority
+                  fetchPriority="high"
                 />
               </div>
             </div>

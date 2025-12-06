@@ -65,7 +65,6 @@ export const viewport = {
   themeColor: '#0c0a09',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
 };
 
 import { SessionProvider } from '@/components/providers/session-provider';

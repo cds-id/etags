@@ -47,7 +47,7 @@ export function Features() {
             <h2 className="text-2xl sm:text-3xl font-bold text-[#0C2340] mb-4">
               Keputusan berbasis data untuk rantai pasokan Anda.
             </h2>
-            <p className="text-base text-[#808080] mb-6 leading-relaxed">
+            <p className="text-base text-[#606060] mb-6 leading-relaxed">
               Dapatkan visibilitas di mana produk Anda dipindai. Deteksi
               aktivitas mencurigakan secara real-time.
             </p>
@@ -81,7 +81,7 @@ export function Features() {
             <h2 className="text-2xl sm:text-3xl font-bold text-[#0C2340] mb-4">
               Cukup arahkan dan scan.
             </h2>
-            <p className="text-base text-[#808080] mb-6 leading-relaxed">
+            <p className="text-base text-[#606060] mb-6 leading-relaxed">
               Scanner berbasis web kami bekerja langsung di browser, memastikan
               tingkat adopsi yang tinggi tanpa hambatan.
             </p>
@@ -156,7 +156,7 @@ export function Features() {
             <h2 className="text-2xl sm:text-3xl font-bold text-[#0C2340] mb-4">
               Catatan permanen dan anti-rusak.
             </h2>
-            <p className="text-base text-[#808080] mb-6 leading-relaxed">
+            <p className="text-base text-[#606060] mb-6 leading-relaxed">
               Setiap tag produk dicetak sebagai aset digital di blockchain,
               menciptakan catatan provenance yang tidak dapat dipalsukan.
             </p>
@@ -166,13 +166,13 @@ export function Features() {
                 <div className="text-2xl font-bold text-[#0C2340] mb-1">
                   99.9%
                 </div>
-                <div className="text-sm text-[#808080] font-medium">Uptime</div>
+                <div className="text-sm text-[#606060] font-medium">Uptime</div>
               </div>
               <div className="bg-linear-to-br from-white to-[#2B4C7E]/5 border-2 border-[#2B4C7E]/20 rounded-xl p-4 shadow-lg flex-1 transition-transform duration-200 hover:scale-[1.02]">
                 <div className="text-2xl font-bold text-[#0C2340] mb-1">
                   &lt;1dtk
                 </div>
-                <div className="text-sm text-[#808080] font-medium">
+                <div className="text-sm text-[#606060] font-medium">
                   Verifikasi
                 </div>
               </div>

@@ -1,15 +1,10 @@
-'use client';
-
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
 import { Box, Globe } from 'lucide-react';
-
-const MotionDiv = motion.div;
 
 export function Footer() {
   return (
-    <footer className="relative z-10 border-t border-[#A8A8A8]/30 bg-white/80 backdrop-blur-sm pt-16 pb-12">
+    <footer className="relative z-10 border-t border-[#A8A8A8]/30 bg-white/80 pt-16 pb-12">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
           <div className="col-span-2 lg:col-span-2">
@@ -25,29 +20,23 @@ export function Footer() {
               </div>
               <span className="text-lg font-bold text-[#0C2340]">Etags</span>
             </div>
-            <p className="text-[#808080] text-sm max-w-xs mb-6 leading-relaxed">
+            <p className="text-[#606060] text-sm max-w-xs mb-6 leading-relaxed">
               Standar untuk verifikasi produk berbasis blockchain. Aman,
               scalable, dan sederhana.
             </p>
             <div className="flex gap-3">
-              <MotionDiv
-                className="w-9 h-9 rounded-full bg-[#2B4C7E]/10 flex items-center justify-center text-[#2B4C7E] hover:bg-[#2B4C7E] hover:text-white transition-all cursor-pointer shadow-sm"
-                whileHover={{ scale: 1.1 }}
-              >
+              <div className="w-9 h-9 rounded-full bg-[#2B4C7E]/10 flex items-center justify-center text-[#2B4C7E] hover:bg-[#2B4C7E] hover:text-white transition-all cursor-pointer shadow-sm hover:scale-110">
                 <Globe className="w-4 h-4" />
-              </MotionDiv>
-              <MotionDiv
-                className="w-9 h-9 rounded-full bg-[#2B4C7E]/10 flex items-center justify-center text-[#2B4C7E] hover:bg-[#2B4C7E] hover:text-white transition-all cursor-pointer shadow-sm"
-                whileHover={{ scale: 1.1 }}
-              >
+              </div>
+              <div className="w-9 h-9 rounded-full bg-[#2B4C7E]/10 flex items-center justify-center text-[#2B4C7E] hover:bg-[#2B4C7E] hover:text-white transition-all cursor-pointer shadow-sm hover:scale-110">
                 <Box className="w-4 h-4" />
-              </MotionDiv>
+              </div>
             </div>
           </div>
 
           <div>
-            <h4 className="font-bold text-[#0C2340] mb-4">Produk</h4>
-            <ul className="space-y-2 text-sm text-[#808080]">
+            <h3 className="font-bold text-[#0C2340] mb-4 text-sm">Produk</h3>
+            <ul className="space-y-2 text-sm text-[#606060]">
               <li>
                 <Link
                   href="/features"
@@ -84,8 +73,10 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-bold text-[#0C2340] mb-4">Perusahaan</h4>
-            <ul className="space-y-2 text-sm text-[#808080]">
+            <h3 className="font-bold text-[#0C2340] mb-4 text-sm">
+              Perusahaan
+            </h3>
+            <ul className="space-y-2 text-sm text-[#606060]">
               <li>
                 <Link
                   href="/about"
@@ -122,8 +113,8 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-bold text-[#0C2340] mb-4">Legal</h4>
-            <ul className="space-y-2 text-sm text-[#808080]">
+            <h3 className="font-bold text-[#0C2340] mb-4 text-sm">Legal</h3>
+            <ul className="space-y-2 text-sm text-[#606060]">
               <li>
                 <Link
                   href="/privacy"
@@ -153,16 +144,12 @@ export function Footer() {
         </div>
 
         <div className="border-t border-[#A8A8A8]/30 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-[#808080]">
+          <p className="text-sm text-[#606060]">
             &copy; {new Date().getFullYear()} Etags Inc. Hak cipta dilindungi
             undang-undang.
           </p>
-          <div className="flex items-center gap-2 text-xs text-[#808080]">
-            <MotionDiv
-              className="w-2 h-2 rounded-full bg-[#2B4C7E]"
-              animate={{ scale: [1, 1.2, 1], opacity: [1, 0.5, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
+          <div className="flex items-center gap-2 text-xs text-[#606060]">
+            <div className="w-2 h-2 rounded-full bg-[#2B4C7E] animate-pulse" />
             Sistem Operasional
           </div>
         </div>
