@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Etags is a Next.js 16 application for product tagging and blockchain stamping. It manages brands, products, and tags with blockchain transaction tracking for authentication/verification purposes.
 
+**Node.js requirement:** 20.x (LTS)
+
 ## Commands
 
 - `npm run dev` - Start development server
@@ -221,7 +223,14 @@ Solidity contracts are in `smartcontracts/` directory with separate Hardhat setu
 - `ETagRegistry.sol` - Main contract for tag lifecycle management (create, validate, update status, revoke)
 - `ETagCollectible.sol` - ERC721 NFT contract for collectibles (one NFT per tag)
 
-See `smartcontracts/README.md` for contract development and testing.
+Contract commands (run from `smartcontracts/` directory):
+
+- `npm run compile` - Compile contracts
+- `npm run test` - Run contract tests
+- `npm run deploy:local` - Deploy to local Hardhat node
+- `npm run deploy:sepolia` - Deploy to Base Sepolia testnet
+
+See `smartcontracts/README.md` for full contract development documentation.
 
 ## Environment Variables
 

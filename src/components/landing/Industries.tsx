@@ -16,6 +16,7 @@ export function Industries() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
         >
           <h2 className="text-3xl font-bold text-[#0C2340] mb-4">
             Disesuaikan untuk industri Anda
@@ -27,22 +28,22 @@ export function Industries() {
 
         <Tabs defaultValue="fashion" className="w-full max-w-4xl mx-auto">
           <div className="flex justify-center mb-12 overflow-x-auto pb-4 sm:pb-0">
-            <TabsList className="bg-white/80 backdrop-blur-sm border-2 border-[#2B4C7E]/20 p-1.5 rounded-full shadow-lg flex-nowrap">
+            <TabsList className="bg-white/80 border-2 border-[#2B4C7E]/20 p-1.5 rounded-full shadow-lg flex-nowrap">
               <TabsTrigger
                 value="fashion"
-                className="rounded-full px-6 sm:px-8 py-2.5 data-[state=active]:bg-[#2B4C7E] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#2B4C7E]/30 font-semibold whitespace-nowrap"
+                className="rounded-full px-6 sm:px-8 py-2.5 data-[state=active]:bg-[#2B4C7E] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#2B4C7E]/30 font-semibold whitespace-nowrap transition-colors"
               >
                 Fashion
               </TabsTrigger>
               <TabsTrigger
                 value="electronics"
-                className="rounded-full px-6 sm:px-8 py-2.5 data-[state=active]:bg-[#2B4C7E] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#2B4C7E]/30 font-semibold whitespace-nowrap"
+                className="rounded-full px-6 sm:px-8 py-2.5 data-[state=active]:bg-[#2B4C7E] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#2B4C7E]/30 font-semibold whitespace-nowrap transition-colors"
               >
                 Elektronik
               </TabsTrigger>
               <TabsTrigger
                 value="pharma"
-                className="rounded-full px-6 sm:px-8 py-2.5 data-[state=active]:bg-[#2B4C7E] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#2B4C7E]/30 font-semibold whitespace-nowrap"
+                className="rounded-full px-6 sm:px-8 py-2.5 data-[state=active]:bg-[#2B4C7E] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-[#2B4C7E]/30 font-semibold whitespace-nowrap transition-colors"
               >
                 Farmasi
               </TabsTrigger>
@@ -50,11 +51,7 @@ export function Industries() {
           </div>
 
           <TabsContent value="fashion" className="mt-0">
-            <MotionDiv
-              className="bg-white rounded-2xl p-8 border-2 border-[#2B4C7E]/20 shadow-xl shadow-[#2B4C7E]/10 flex flex-col md:flex-row gap-8 items-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
+            <div className="bg-white rounded-2xl p-8 border-2 border-[#2B4C7E]/20 shadow-xl shadow-[#2B4C7E]/10 flex flex-col md:flex-row gap-8 items-center">
               <div className="flex-1">
                 <h3 className="text-2xl font-bold text-[#0C2340] mb-4">
                   Lindungi Edisi Terbatas
@@ -83,15 +80,11 @@ export function Industries() {
                   className="w-full h-auto object-contain max-h-full"
                 />
               </div>
-            </MotionDiv>
+            </div>
           </TabsContent>
 
           <TabsContent value="electronics" className="mt-0">
-            <MotionDiv
-              className="bg-white rounded-2xl p-8 border-2 border-[#2B4C7E]/20 shadow-xl shadow-[#2B4C7E]/10 flex flex-col md:flex-row gap-8 items-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
+            <div className="bg-white rounded-2xl p-8 border-2 border-[#2B4C7E]/20 shadow-xl shadow-[#2B4C7E]/10 flex flex-col md:flex-row gap-8 items-center">
               <div className="flex-1">
                 <h3 className="text-2xl font-bold text-[#0C2340] mb-4">
                   Garansi & Registrasi
@@ -120,15 +113,11 @@ export function Industries() {
                   className="w-full h-auto object-contain max-h-full"
                 />
               </div>
-            </MotionDiv>
+            </div>
           </TabsContent>
 
           <TabsContent value="pharma" className="mt-0">
-            <MotionDiv
-              className="bg-white rounded-2xl p-8 border-2 border-[#2B4C7E]/20 shadow-xl shadow-[#2B4C7E]/10 flex flex-col md:flex-row gap-8 items-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
+            <div className="bg-white rounded-2xl p-8 border-2 border-[#2B4C7E]/20 shadow-xl shadow-[#2B4C7E]/10 flex flex-col md:flex-row gap-8 items-center">
               <div className="flex-1">
                 <h3 className="text-2xl font-bold text-[#0C2340] mb-4">
                   Keselamatan Pasien Utama
@@ -157,7 +146,7 @@ export function Industries() {
                   className="w-full h-auto object-contain max-h-full"
                 />
               </div>
-            </MotionDiv>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
