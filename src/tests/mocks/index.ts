@@ -42,6 +42,48 @@ export const mockPrismaClient = {
     findMany: vi.fn(),
     create: vi.fn(),
   },
+  tagNFT: {
+    findUnique: vi.fn(),
+    findFirst: vi.fn(),
+    findMany: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    count: vi.fn(),
+  },
+  supportTicket: {
+    findUnique: vi.fn(),
+    findFirst: vi.fn(),
+    findMany: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    count: vi.fn(),
+  },
+  ticketMessage: {
+    findUnique: vi.fn(),
+    findFirst: vi.fn(),
+    findMany: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    count: vi.fn(),
+  },
+  ticketAttachment: {
+    findUnique: vi.fn(),
+    findFirst: vi.fn(),
+    findMany: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    count: vi.fn(),
+  },
+  $transaction: vi.fn((callback) => {
+    if (typeof callback === 'function') {
+      return callback(mockPrismaClient);
+    }
+    return Promise.all(callback);
+  }),
 };
 
 // Mock auth function
@@ -73,6 +115,7 @@ export function createMockSession(
     email?: string;
     name?: string;
     role?: string;
+    brandId?: string;
   } = {}
 ) {
   return {
@@ -81,6 +124,7 @@ export function createMockSession(
       email: overrides.email ?? 'admin@example.com',
       name: overrides.name ?? 'Admin User',
       role: overrides.role ?? 'admin',
+      ...(overrides.brandId && { brandId: overrides.brandId }),
     },
     expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
   };

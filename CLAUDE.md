@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Etags is a Next.js 16 application for product tagging and blockchain stamping. It manages brands, products, and tags with blockchain transaction tracking for authentication/verification purposes.
 
+**Node.js requirement:** 20.x (LTS)
+
 ## Commands
 
 - `npm run dev` - Start development server
@@ -21,8 +23,9 @@ Etags is a Next.js 16 application for product tagging and blockchain stamping. I
 - `npm run test` - Run tests in watch mode
 - `npm run test -- --run` - Run tests once (CI mode)
 - `npm run test -- --coverage` - Run tests with coverage
+- `npm run test -- src/lib/actions/auth.test.ts` - Run a single test file
 
-Test files use `*.test.{ts,tsx}` naming convention and are located throughout `src/`.
+Test files use `*.test.{ts,tsx}` naming convention and are located throughout `src/`. Test setup is in `src/tests/setup.ts` with mocks in `src/tests/mocks.ts`. Coverage is configured only for `src/lib/actions/**/*.ts`.
 
 ### Database (Prisma with MySQL)
 
@@ -32,6 +35,11 @@ Test files use `*.test.{ts,tsx}` naming convention and are located throughout `s
 - `npm run db:studio` - Open Prisma Studio GUI
 - `npm run db:create-admin` - Create admin user (default: admin@example.com / admin123)
 - `npm run db:create-admin -- email@example.com password123 "Name"` - Create admin with custom credentials
+- `npm run db:seed` - Seed basic sample data
+- `npm run db:seed-fraud` - Add fraud scan patterns to existing tags
+- `npm run db:seed-complete` - Complete seed with brands, users, products, tags, and suspicious scans
+- `npm run db:seed-complete -- --upload-r2` - Same as above but uploads QR codes to R2
+- `npm run db:seed-complete -- --clean` - Clean existing data before seeding
 
 ## Architecture
 
@@ -62,6 +70,8 @@ Test files use `*.test.{ts,tsx}` naming convention and are located throughout `s
 - `@/lib/explorer.ts` - Blockchain explorer integration
 - `@/lib/rate-limit.ts` - Rate limiting for API endpoints
 - `@/lib/csrf.ts` - CSRF protection
+- `@/lib/nft-collectible.ts` - NFT minting and claim processing
+- `@/lib/gemini-image.ts` - Gemini API for NFT art generation
 
 ### Server Actions
 
@@ -77,6 +87,8 @@ Server actions are organized in `src/lib/actions/`:
 - `onboarding.ts` - User onboarding flow
 - `my-brand.ts` - Brand user self-management
 - `ai-agent.ts` - AI agent integration
+- `nfts.ts` - NFT collectible management and stats
+- `support-tickets.ts` - Web3 support ticket CRUD and messaging
 
 ### Routes
 
@@ -86,6 +98,8 @@ Server actions are organized in `src/lib/actions/`:
 - `/manage/brands` - Brand management
 - `/manage/products` - Product CRUD with `/new` and `/[id]/edit`
 - `/manage/tags` - Tag management with `/new` and `/[id]/edit`
+- `/manage/nfts` - NFT collectible monitoring with `/[id]` detail view
+- `/manage/tickets` - Support ticket management with `/[id]` detail view
 - `/manage/users` - User management (admin only)
 - `/manage/profile` - User profile settings
 
@@ -93,10 +107,13 @@ Server actions are organized in `src/lib/actions/`:
 
 - `/` - Public landing page
 - `/login` - Login page (redirects to /manage if authenticated)
+- `/register` - User registration page
 - `/scan` - QR code scanner for tag verification
 - `/verify/[code]` - Tag verification page with product details
 - `/explorer` - Blockchain transaction explorer
 - `/explorer/tx/[hash]` - Transaction detail page
+- `/support` - Web3 support tickets (NFT holders connect wallet to submit issues)
+- `/faqs` - Frequently asked questions page
 - `/docs` - Swagger API documentation UI
 
 **API Routes:**
@@ -104,21 +121,27 @@ Server actions are organized in `src/lib/actions/`:
 - `/api/docs` - OpenAPI JSON spec
 - `/api/scan` - Tag scan endpoint (records scans with fingerprint)
 - `/api/scan/claim` - Claim a tag as owner
+- `/api/scan/claim-nft` - Claim NFT collectible for first-hand claimers
 - `/api/verify` - Tag verification API
 - `/api/explorer` - Blockchain explorer API
 - `/api/csrf` - CSRF token endpoint
 - `/api/tags/[code]/designed` - Get designed QR code for tag
 - `/api/tags/template-preview` - Preview QR template designs
+- `/api/ai-agent` - AI agent chat endpoint for dashboard
 
 ### Database Schema
 
 Core models in `prisma/schema.prisma`:
 
-- **User** - Admin/brand users with role-based access (`role`: admin or brand)
+- **User** - Admin/brand users with role-based access (`role`: admin or brand), linked to brand via `brand_id`
 - **Brand** - Product brand management with logo and descriptions
-- **Product** - Products with JSON metadata, linked to brands
-- **Tag** - Product tags with blockchain stamping (`is_stamped`, `hash_tx`, `chain_status`)
-- **TagScan** - Scan history with fingerprinting, location, and claim status
+- **Product** - Products with JSON metadata (`name`, `description`, `price`, `images[]`), linked to brands
+- **Tag** - Product tags with blockchain stamping (`is_stamped`, `hash_tx`, `chain_status`), stores `product_ids` as JSON array
+- **TagScan** - Scan history with fingerprinting, location, claim status, and ownership tracking (`is_first_hand`, `source_info`)
+- **TagNFT** - NFT collectibles minted for first-hand claimers (`token_id`, `owner_address`, `image_url`, `metadata_url`, `mint_tx_hash`)
+- **SupportTicket** - Web3 support tickets linked to tags and brands (`wallet_address`, `category`, `status`, `priority`)
+- **TicketMessage** - Ticket conversation thread with sender type (customer/brand/admin)
+- **TicketAttachment** - File attachments for tickets stored in R2
 
 ### Tag Blockchain Lifecycle
 
@@ -137,10 +160,43 @@ The blockchain contract (ETagRegistry) supports: `createTag`, `updateStatus`, `r
 
 1. User scans QR code → `/scan` page
 2. Browser collects fingerprint (FingerprintJS) and location
-3. POST to `/api/scan` records the scan in `TagScan`
+3. POST to `/api/scan` records the scan in `TagScan` with sequential `scan_number`
 4. Redirects to `/verify/[code]` showing product info
-5. User can claim ownership via `/api/scan/claim`
-6. AI fraud detection analyzes scan location vs distribution info
+5. User can claim ownership via `/api/scan/claim` (sets `is_claimed`, asks about `is_first_hand`)
+6. AI fraud detection analyzes scan patterns and location vs distribution info
+
+### NFT Collectible Claim Flow
+
+First-hand tag claimers on Web3 browsers can mint an NFT collectible:
+
+1. User claims tag as first-hand owner on `/verify/[code]`
+2. System detects Web3 wallet (MetaMask, etc.) via `window.ethereum`
+3. User connects wallet and switches to Base Sepolia (Chain ID: 84532)
+4. POST to `/api/scan/claim-nft` triggers NFT minting:
+   - Generates unique art via Gemini API (`gemini-3-pro-image-preview`)
+   - Uploads image and metadata to R2: `nfts/{tagCode}/`
+   - Admin wallet mints NFT via ETagCollectible contract (user doesn't pay gas)
+   - NFT transferred directly to user's wallet
+5. TagNFT record created with `token_id`, `owner_address`, `mint_tx_hash`
+6. Admin monitors NFTs at `/manage/nfts`
+
+**Smart Contracts:**
+
+- `ETagCollectible.sol` - ERC721 NFT contract with one-NFT-per-tag enforcement
+- Functions: `mintTo()`, `isTagMinted()`, `getTokenByTag()`, `grantMinter()`, `pause()`
+
+### Web3 Support Ticket Flow
+
+NFT holders can submit product complaints via wallet connection:
+
+1. User visits `/support` and connects wallet (MetaMask, etc.)
+2. System queries blockchain for user's owned NFTs via ETagCollectible contract
+3. User selects a product/tag and submits ticket with category (`defect`, `quality`, `missing_parts`, `warranty`, `other`)
+4. Ticket routes to brand (if brand has users), otherwise to admin
+5. Brand/admin responds via `/manage/tickets/[id]`
+6. User views responses by reconnecting wallet at `/support`
+
+Ticket statuses: `open` → `in_progress` → `resolved` → `closed`
 
 ### Pre-commit Hook
 
@@ -153,7 +209,28 @@ Runs `typecheck` and `lint-staged` (which runs Prettier on staged files) before 
 
 ### CI/CD (GitHub Actions)
 
-Runs on push to `master` and PRs to `develop`, `feature/*`, `fix/*`. Pipeline: lint → typecheck → test → build.
+Triggers:
+
+- Push to `master` branch
+- Pull requests targeting `develop`, `feature/*`, `fix/*` branches
+
+Pipeline: lint → typecheck → test → build
+
+### Smart Contracts
+
+Solidity contracts are in `smartcontracts/` directory with separate Hardhat setup:
+
+- `ETagRegistry.sol` - Main contract for tag lifecycle management (create, validate, update status, revoke)
+- `ETagCollectible.sol` - ERC721 NFT contract for collectibles (one NFT per tag)
+
+Contract commands (run from `smartcontracts/` directory):
+
+- `npm run compile` - Compile contracts
+- `npm run test` - Run contract tests
+- `npm run deploy:local` - Deploy to local Hardhat node
+- `npm run deploy:sepolia` - Deploy to Base Sepolia testnet
+
+See `smartcontracts/README.md` for full contract development documentation.
 
 ## Environment Variables
 
@@ -164,7 +241,11 @@ Copy `.env.example` to `.env` and configure:
 - `AUTH_TRUST_HOST` - Set to `true` for production deployments
 - `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` - Cloudflare R2 credentials
 - `R2_PUBLIC_DOMAIN` - Public URL for R2 bucket assets
-- `BLOCKCHAIN_RPC_URL`, `CONTRACT_ADDRESS`, `CHAIN_ID`, `ADMIN_WALLET` - Blockchain config
+- `BLOCKCHAIN_RPC_URL`, `CONTRACT_ADDRESS`, `CHAIN_ID`, `ADMIN_WALLET`, `BLOCKCHAIN_NETWORK` - Blockchain config
+- `CONTRACT_OWNER` - Optional: Owner address different from deployer (for contract deployment)
 - `BLOCKCHAIN_EXPLORER_URL` - Block explorer URL (default: Base Sepolia)
+- `NFT_CONTRACT_ADDRESS`, `NEXT_PUBLIC_NFT_CONTRACT_ADDRESS` - ETagCollectible NFT contract address
+- `GEMINI_API_KEY` - Gemini API for NFT art generation
 - `KOLOSAL_API_KEY` - Kolosal AI for fraud detection
 - `BASESCAN_API_KEY` - BaseScan API for explorer features
+- `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` - Mapbox token for scan location maps

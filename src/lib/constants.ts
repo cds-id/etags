@@ -6,7 +6,22 @@ export const BLOCKCHAIN_CONFIG = {
     process.env.BLOCKCHAIN_EXPLORER_URL || 'https://sepolia.basescan.org',
   NETWORK: process.env.BLOCKCHAIN_NETWORK || 'Base Sepolia',
   CONTRACT_ADDRESS: process.env.CONTRACT_ADDRESS || '',
+  NFT_CONTRACT_ADDRESS: process.env.NFT_CONTRACT_ADDRESS || '',
   CHAIN_ID: parseInt(process.env.CHAIN_ID || '84532', 10),
+} as const;
+
+// Supported chain for Web3 wallet connection (client-side)
+export const SUPPORTED_CHAIN = {
+  chainId: 84532,
+  chainIdHex: '0x14a34',
+  name: 'Base Sepolia',
+  rpcUrl: 'https://sepolia.base.org',
+  blockExplorer: 'https://sepolia.basescan.org',
+  nativeCurrency: {
+    name: 'ETH',
+    symbol: 'ETH',
+    decimals: 18,
+  },
 } as const;
 
 // Helper to get transaction explorer URL
@@ -17,6 +32,17 @@ export function getTxExplorerUrl(txHash: string): string {
 // Helper to get address explorer URL
 export function getAddressExplorerUrl(address: string): string {
   return `${BLOCKCHAIN_CONFIG.EXPLORER_URL}/address/${address}`;
+}
+
+// Helper to get NFT explorer URL
+export function getNFTExplorerUrl(tokenId: string): string {
+  return `${BLOCKCHAIN_CONFIG.EXPLORER_URL}/nft/${BLOCKCHAIN_CONFIG.NFT_CONTRACT_ADDRESS}/${tokenId}`;
+}
+
+// Format wallet address for display (works on both server and client)
+export function formatAddress(address: string): string {
+  if (!address) return '';
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
 // Tag chain status values matching blockchain lifecycle

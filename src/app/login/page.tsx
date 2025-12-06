@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { login, type LoginState } from '@/lib/actions/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,7 +15,7 @@ import {
   CardTitle,
   CardFooter,
 } from '@/components/ui/card';
-import { Shield } from 'lucide-react';
+import { Mail, Lock, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
   const [state, formAction, isPending] = useActionState<LoginState, FormData>(
@@ -23,67 +24,206 @@ export default function LoginPage() {
   );
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white p-4">
-      {/* Header */}
-      <div className="mb-8 text-center">
-        <Link href="/" className="mb-4 inline-flex items-center gap-2">
-          <Shield className="h-8 w-8 text-blue-600" />
-          <span className="text-2xl font-bold">Etags</span>
-        </Link>
-        <p className="text-muted-foreground">
-          Lindungi produk Anda dengan teknologi blockchain
-        </p>
+    <div className="flex min-h-screen">
+      {/* Left side - Branding */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0C2340] via-[#1E3A5F] to-[#2B4C7E] p-12 flex-col justify-between relative overflow-hidden">
+        {/* Background pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl" />
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-white rounded-full blur-3xl" />
+        </div>
+
+        <div className="relative z-10">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="relative h-12 w-12 transition-transform duration-300 group-hover:scale-105 group-hover:rotate-3">
+              <Image
+                src="/logo.png"
+                alt="Etags Logo"
+                width={48}
+                height={48}
+                className="object-contain"
+              />
+            </div>
+            <span className="text-2xl font-bold text-white">Etags</span>
+          </Link>
+        </div>
+
+        <div className="relative z-10 space-y-6">
+          <h1 className="text-4xl font-bold text-white leading-tight">
+            Lindungi Produk Anda
+            <br />
+            dengan Teknologi Blockchain
+          </h1>
+          <p className="text-white/70 text-lg max-w-md">
+            Platform anti-pemalsuan terdepan yang menggunakan blockchain untuk
+            memastikan keaslian setiap produk Anda.
+          </p>
+          <div className="flex gap-8 pt-4">
+            <div>
+              <div className="text-3xl font-bold text-white">10K+</div>
+              <div className="text-white/60 text-sm">Tag Aktif</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-white">500+</div>
+              <div className="text-white/60 text-sm">Brand Terdaftar</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-white">99.9%</div>
+              <div className="text-white/60 text-sm">Uptime</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 text-white/50 text-sm">
+          &copy; {new Date().getFullYear()} Etags. All rights reserved.
+        </div>
       </div>
 
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Masuk</CardTitle>
-          <CardDescription>
-            Masukkan kredensial Anda untuk mengakses dashboard
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form action={formAction} className="space-y-4">
-            {state.error && (
-              <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
-                {state.error}
+      {/* Right side - Login Form */}
+      <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 bg-gradient-to-b from-white via-[#2B4C7E]/5 to-white">
+        {/* Mobile logo */}
+        <div className="lg:hidden mb-8 text-center">
+          <Link href="/" className="inline-flex items-center gap-2.5 group">
+            <div className="relative h-10 w-10 transition-transform duration-300 group-hover:scale-105 group-hover:rotate-3">
+              <Image
+                src="/logo.png"
+                alt="Etags Logo"
+                width={40}
+                height={40}
+                className="object-contain"
+              />
+            </div>
+            <span className="text-xl font-bold tracking-tight text-[#0C2340]">
+              Etags
+            </span>
+          </Link>
+          <p className="text-[#606060] text-sm mt-2">
+            Lindungi produk Anda dengan teknologi blockchain
+          </p>
+        </div>
+
+        <Card className="w-full max-w-md border-[#A8A8A8]/20 shadow-xl">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-2xl font-bold text-[#0C2340]">
+              Selamat Datang
+            </CardTitle>
+            <CardDescription className="text-[#606060]">
+              Masukkan kredensial Anda untuk mengakses dashboard
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form action={formAction} className="space-y-4">
+              {state.error && (
+                <div className="rounded-xl bg-red-50 border border-red-200 p-4 text-sm text-red-600 flex items-start gap-2">
+                  <div className="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="text-red-500 text-xs">!</span>
+                  </div>
+                  {state.error}
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-[#0C2340]">
+                  Email
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#A8A8A8]" />
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="nama@perusahaan.com"
+                    required
+                    autoComplete="email"
+                    className="pl-10 border-[#A8A8A8]/30 focus:border-[#2B4C7E] focus:ring-[#2B4C7E]/20"
+                  />
+                </div>
               </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="nama@perusahaan.com"
-                required
-                autoComplete="email"
-              />
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-[#0C2340]">
+                  Password
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#A8A8A8]" />
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    autoComplete="current-password"
+                    className="pl-10 border-[#A8A8A8]/30 focus:border-[#2B4C7E] focus:ring-[#2B4C7E]/20"
+                  />
+                </div>
+              </div>
+              <Button
+                type="submit"
+                className="w-full bg-[#2B4C7E] hover:bg-[#1E3A5F] text-white rounded-full shadow-lg shadow-[#2B4C7E]/30 h-11"
+                disabled={isPending}
+              >
+                {isPending ? (
+                  'Masuk...'
+                ) : (
+                  <>
+                    Masuk
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-4 pt-2">
+            {/* Demo Credentials */}
+            <div className="w-full p-4 bg-[#2B4C7E]/5 border border-[#2B4C7E]/20 rounded-xl space-y-3">
+              <p className="text-xs font-semibold text-[#0C2340] uppercase tracking-wide">
+                Demo Credentials
+              </p>
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between items-center p-2 bg-white rounded-lg border border-[#A8A8A8]/20">
+                  <div>
+                    <span className="font-medium text-[#0C2340]">Admin</span>
+                    <p className="text-[#606060]">
+                      admin@example.com / admin123
+                    </p>
+                  </div>
+                  <span className="px-2 py-0.5 bg-[#2B4C7E] text-white rounded text-[10px] font-medium">
+                    ADMIN
+                  </span>
+                </div>
+                <div className="flex justify-between items-center p-2 bg-white rounded-lg border border-[#A8A8A8]/20">
+                  <div>
+                    <span className="font-medium text-[#0C2340]">
+                      Brand (Judge)
+                    </span>
+                    <p className="text-[#606060]">
+                      judge@hackathon.imphnen.dev / IMPHNEN2025
+                    </p>
+                  </div>
+                  <span className="px-2 py-0.5 bg-[#1E3A5F] text-white rounded text-[10px] font-medium">
+                    BRAND
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                required
-                autoComplete="current-password"
-              />
+
+            <div className="text-[#606060] text-center text-sm">
+              Belum punya akun?{' '}
+              <Link
+                href="/register"
+                className="text-[#2B4C7E] hover:text-[#1E3A5F] font-medium hover:underline"
+              >
+                Daftar sekarang
+              </Link>
             </div>
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? 'Masuk...' : 'Masuk'}
-            </Button>
-          </form>
-        </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
-          <div className="text-muted-foreground text-center text-sm">
-            Belum punya akun?{' '}
-            <Link href="/register" className="text-blue-600 hover:underline">
-              Daftar sekarang
-            </Link>
-          </div>
-        </CardFooter>
-      </Card>
+          </CardFooter>
+        </Card>
+
+        {/* Back to home */}
+        <Link
+          href="/"
+          className="mt-8 text-sm text-[#606060] hover:text-[#2B4C7E] transition-colors"
+        >
+          &larr; Kembali ke beranda
+        </Link>
+      </div>
     </div>
   );
 }

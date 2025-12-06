@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   getUsers,
   getUserById,
@@ -7,6 +7,7 @@ import {
   deleteUser,
   uploadUserAvatar,
   toggleUserStatus,
+  getUserStats,
 } from './users';
 import {
   mockPrismaClient,
@@ -421,6 +422,56 @@ describe('users actions', () => {
       expect(mockPrismaClient.user.update).toHaveBeenCalledWith({
         where: { id: 2 },
         data: { status: 1 },
+      });
+    });
+  });
+
+  describe('uploadUserAvatar', () => {
+    it('should handle database errors during upload', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'admin' }));
+      mockPrismaClient.user.findUnique.mockResolvedValue({
+        avatar_url: null,
+      });
+      mockPrismaClient.user.update.mockRejectedValue(new Error('DB Error'));
+
+      const formData = new FormData();
+      formData.append(
+        'avatar',
+        createMockFile('image data', 'avatar.jpg', 'image/jpeg')
+      );
+
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = await uploadUserAvatar(1, formData);
+
+      expect(result).toEqual({ error: 'Failed to upload avatar' });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Upload avatar error:',
+        expect.any(Error)
+      );
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('getUserStats', () => {
+    it('should return user statistics', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'admin' }));
+      mockPrismaClient.user.count.mockResolvedValueOnce(20); // totalUsers
+      mockPrismaClient.user.count.mockResolvedValueOnce(18); // activeUsers
+      mockPrismaClient.user.count.mockResolvedValueOnce(5); // adminCount
+      mockPrismaClient.user.count.mockResolvedValueOnce(15); // brandCount
+
+      const result = await getUserStats();
+
+      expect(result).toEqual({
+        totalUsers: 20,
+        activeUsers: 18,
+        inactiveUsers: 2,
+        adminCount: 5,
+        brandCount: 15,
       });
     });
   });

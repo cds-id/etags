@@ -274,6 +274,34 @@ export async function deleteBrand(id: number): Promise<BrandFormState> {
   }
 }
 
+// Get brand stats
+export async function getBrandStats() {
+  await requireAdmin();
+
+  const [totalBrands, activeBrands, totalProducts, brandsWithProducts] =
+    await Promise.all([
+      prisma.brand.count(),
+      prisma.brand.count({ where: { status: 1 } }),
+      prisma.product.count(),
+      prisma.brand.count({
+        where: {
+          products: {
+            some: {},
+          },
+        },
+      }),
+    ]);
+
+  return {
+    totalBrands,
+    activeBrands,
+    inactiveBrands: totalBrands - activeBrands,
+    totalProducts,
+    brandsWithProducts,
+    brandsWithoutProducts: totalBrands - brandsWithProducts,
+  };
+}
+
 // Toggle brand status
 export async function toggleBrandStatus(id: number): Promise<BrandFormState> {
   try {

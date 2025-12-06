@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   getTags,
   getTagById,
@@ -13,6 +13,7 @@ import {
   revokeTagOnBlockchain,
   getTagUrls,
   getTagScans,
+  getAllTagScanLocations,
 } from './tags';
 import {
   mockPrismaClient,
@@ -24,9 +25,20 @@ import {
 } from '@/tests/mocks';
 import { CHAIN_STATUS } from '@/lib/constants';
 
+// Mock blockchain tag-sync functions
+const mockUpdateTagChainStatus = vi.fn();
+const mockRevokeTagOnChain = vi.fn();
+vi.mock('@/lib/tag-sync', () => ({
+  updateTagChainStatus: (...args: unknown[]) =>
+    mockUpdateTagChainStatus(...args),
+  revokeTagOnChain: (...args: unknown[]) => mockRevokeTagOnChain(...args),
+}));
+
 describe('tags actions', () => {
   beforeEach(() => {
     resetAllMocks();
+    mockUpdateTagChainStatus.mockClear();
+    mockRevokeTagOnChain.mockClear();
   });
 
   describe('getTags', () => {
@@ -486,6 +498,7 @@ describe('tags actions', () => {
         is_stamped: 1,
         chain_status: CHAIN_STATUS.CREATED,
       });
+      mockUpdateTagChainStatus.mockResolvedValue({ success: true });
 
       const result = await updateChainStatus(1, CHAIN_STATUS.DISTRIBUTED);
 
@@ -543,6 +556,7 @@ describe('tags actions', () => {
         is_stamped: 1,
         chain_status: CHAIN_STATUS.DISTRIBUTED,
       });
+      mockRevokeTagOnChain.mockResolvedValue({ success: true });
 
       const result = await revokeTagOnBlockchain(1, 'Counterfeit detected');
 
@@ -634,6 +648,280 @@ describe('tags actions', () => {
       expect(result?.claimedCount).toBe(1);
       expect(result?.firstHandCount).toBe(1);
       expect(result?.secondHandCount).toBe(1);
+    });
+  });
+
+  describe('deleteTag', () => {
+    it('should handle database errors during deletion', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'admin' }));
+      mockPrismaClient.tag.findUnique.mockResolvedValue({ is_stamped: 0 });
+      mockPrismaClient.tag.delete.mockRejectedValue(new Error('DB Error'));
+
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = await deleteTag(1);
+
+      expect(result).toEqual({ error: 'Failed to delete tag' });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Delete tag error:',
+        expect.any(Error)
+      );
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('toggleTagPublishStatus', () => {
+    it('should handle database errors', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'admin' }));
+      mockPrismaClient.tag.findUnique.mockResolvedValue({
+        publish_status: 1,
+      });
+      mockPrismaClient.tag.update.mockRejectedValue(new Error('DB Error'));
+
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = await toggleTagPublishStatus(1);
+
+      expect(result).toEqual({ error: 'Failed to update tag publish status' });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Toggle tag publish status error:',
+        expect.any(Error)
+      );
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('updateChainStatus', () => {
+    it('should handle blockchain errors', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'admin' }));
+      mockPrismaClient.tag.findUnique.mockResolvedValue({
+        code: 'TAG-123',
+        is_stamped: 1,
+        chain_status: 0,
+      });
+      mockUpdateTagChainStatus.mockResolvedValue({ success: false });
+
+      const result = await updateChainStatus(1, 1);
+
+      expect(result).toEqual({
+        error: 'Failed to update status on blockchain',
+      });
+    });
+
+    it('should handle errors during update', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'admin' }));
+      mockPrismaClient.tag.findUnique.mockRejectedValue(new Error('DB Error'));
+
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = await updateChainStatus(1, 1);
+
+      expect(result).toEqual({ error: 'Failed to update chain status' });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Update chain status error:',
+        expect.any(Error)
+      );
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('revokeTagOnBlockchain', () => {
+    it('should handle blockchain errors', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'admin' }));
+      mockPrismaClient.tag.findUnique.mockResolvedValue({
+        code: 'TAG-123',
+        is_stamped: 1,
+        chain_status: 0,
+      });
+      mockRevokeTagOnChain.mockResolvedValue({ success: false });
+
+      const result = await revokeTagOnBlockchain(1, 'Test reason');
+
+      expect(result).toEqual({ error: 'Failed to revoke tag on blockchain' });
+    });
+
+    it('should handle errors during revoke', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'admin' }));
+      mockPrismaClient.tag.findUnique.mockRejectedValue(new Error('DB Error'));
+
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = await revokeTagOnBlockchain(1, 'Test reason');
+
+      expect(result).toEqual({ error: 'Failed to revoke tag' });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Revoke tag error:',
+        expect.any(Error)
+      );
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('getTagUrls', () => {
+    it('should return null on error', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'admin' }));
+      mockPrismaClient.tag.findUnique.mockRejectedValue(new Error('DB Error'));
+
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = await getTagUrls(1);
+
+      expect(result).toBeNull();
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Get tag URLs error:',
+        expect.any(Error)
+      );
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('getAllTagScanLocations', () => {
+    it('should return stats for admin user', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'admin' }));
+      mockPrismaClient.tag.findMany.mockResolvedValue([{ id: 1 }, { id: 2 }]);
+      mockPrismaClient.tagScan.findMany.mockResolvedValue([
+        {
+          id: 1,
+          tag_id: 1,
+          fingerprint_id: 'fp1',
+          latitude: 10.5,
+          longitude: 20.5,
+          location_name: 'Test Location',
+          is_claimed: 1,
+          is_first_hand: 1,
+          created_at: new Date(),
+          tag: { code: 'TAG-123' },
+        },
+        {
+          id: 2,
+          tag_id: 2,
+          fingerprint_id: 'fp2',
+          latitude: null,
+          longitude: null,
+          location_name: null,
+          is_claimed: 0,
+          is_first_hand: 0,
+          created_at: new Date(),
+          tag: { code: 'TAG-456' },
+        },
+      ]);
+
+      const result = await getAllTagScanLocations();
+
+      expect(result.totalScans).toBe(2);
+      expect(result.scansWithLocation).toBe(1);
+      expect(result.uniqueScanners).toBe(2);
+      expect(result.claimedCount).toBe(1);
+      expect(result.firstHandCount).toBe(1);
+      expect(result.secondHandCount).toBe(1);
+      expect(result.locations.length).toBe(1);
+      expect(result.locations[0]).toMatchObject({
+        id: 1,
+        tagId: 1,
+        tagCode: 'TAG-123',
+        latitude: 10.5,
+        longitude: 20.5,
+        locationName: 'Test Location',
+        isClaimed: true,
+      });
+    });
+
+    it('should return stats for brand user', async () => {
+      mockAuth.mockResolvedValue(
+        createMockSession({ id: '2', role: 'brand', brandId: '5' })
+      );
+      mockPrismaClient.user.findUnique.mockResolvedValue({ brand_id: 5 });
+      mockPrismaClient.product.findMany.mockResolvedValue([
+        { id: 10 },
+        { id: 11 },
+      ]);
+      mockPrismaClient.tag.findMany.mockResolvedValue([
+        { id: 1, product_ids: [10] },
+        { id: 2, product_ids: [99] }, // Not in brand's products
+      ]);
+      mockPrismaClient.tagScan.findMany.mockResolvedValue([
+        {
+          id: 1,
+          tag_id: 1,
+          fingerprint_id: 'fp1',
+          latitude: 10.5,
+          longitude: 20.5,
+          location_name: 'Brand Location',
+          is_claimed: 1,
+          is_first_hand: 1,
+          created_at: new Date(),
+          tag: { code: 'TAG-BRAND-123' },
+        },
+      ]);
+
+      const result = await getAllTagScanLocations();
+
+      expect(result.totalScans).toBe(1);
+      expect(result.scansWithLocation).toBe(1);
+      expect(result.locations[0].tagCode).toBe('TAG-BRAND-123');
+    });
+
+    it('should return empty stats when no accessible tags', async () => {
+      mockAuth.mockResolvedValue(
+        createMockSession({ id: '3', role: 'brand', brandId: '7' })
+      );
+      mockPrismaClient.user.findUnique.mockResolvedValue({ brand_id: 7 });
+      mockPrismaClient.product.findMany.mockResolvedValue([]);
+      mockPrismaClient.tag.findMany.mockResolvedValue([]);
+
+      const result = await getAllTagScanLocations();
+
+      expect(result).toEqual({
+        totalScans: 0,
+        scansWithLocation: 0,
+        uniqueScanners: 0,
+        claimedCount: 0,
+        firstHandCount: 0,
+        secondHandCount: 0,
+        locations: [],
+      });
+    });
+
+    it('should return empty stats on error', async () => {
+      mockAuth.mockResolvedValue(createMockSession({ role: 'admin' }));
+      mockPrismaClient.tag.findMany.mockRejectedValue(new Error('DB Error'));
+
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = await getAllTagScanLocations();
+
+      expect(result).toEqual({
+        totalScans: 0,
+        scansWithLocation: 0,
+        uniqueScanners: 0,
+        claimedCount: 0,
+        firstHandCount: 0,
+        secondHandCount: 0,
+        locations: [],
+      });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Get all tag scan locations error:',
+        expect.any(Error)
+      );
+
+      consoleSpy.mockRestore();
     });
   });
 });

@@ -91,6 +91,7 @@ async function main() {
         'REVOKED',
       ][Number(newStatus)]
     );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     if (error.message.includes('TagAlreadyExists')) {
       console.log(

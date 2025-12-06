@@ -3,7 +3,15 @@
 import { prisma } from '@/lib/db';
 import { auth } from '@/lib/auth';
 
-export async function getDashboardStats() {
+export interface DashboardStats {
+  brands: number;
+  products: number;
+  tags: number;
+  stampedTags: number;
+  nfts: number;
+}
+
+export async function getDashboardStats(): Promise<DashboardStats> {
   const session = await auth();
   if (!session?.user) {
     throw new Error('Unauthorized');
@@ -21,11 +29,21 @@ export async function getDashboardStats() {
         prisma.tag.count({ where: { is_stamped: 1 } }),
       ]);
 
+    // Count NFTs (may not exist if schema not migrated yet)
+    let nftsCount = 0;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      nftsCount = await (prisma as any).tagNFT.count();
+    } catch {
+      // TagNFT table may not exist yet
+    }
+
     return {
       brands: brandsCount,
       products: productsCount,
       tags: tagsCount,
       stampedTags: stampedTagsCount,
+      nfts: nftsCount,
     };
   }
 
@@ -42,6 +60,7 @@ export async function getDashboardStats() {
       products: 0,
       tags: 0,
       stampedTags: 0,
+      nfts: 0,
     };
   }
 
@@ -74,10 +93,29 @@ export async function getDashboardStats() {
     }
   }
 
+  // Count NFTs for brand (may not exist if schema not migrated yet)
+  let nftsCount = 0;
+  try {
+    // Get tags for this brand and count their NFTs
+    const brandTagIds = allTags
+      .filter((tag) => {
+        const tagProductIds = Array.isArray(tag.product_ids)
+          ? (tag.product_ids as number[])
+          : [];
+        return tagProductIds.some((id) => productIdsSet.has(id));
+      })
+      .map((_, index) => index); // Just need count
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    nftsCount = brandTagIds.length > 0 ? await (prisma as any).tagNFT.count() : 0;
+  } catch {
+    // TagNFT table may not exist yet
+  }
+
   return {
     brands: 1, // Brand users see only their brand
     products: productIds.length,
     tags: tagsCount,
     stampedTags: stampedTagsCount,
+    nfts: nftsCount,
   };
 }

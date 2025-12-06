@@ -1,29 +1,66 @@
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import { getBrands } from '@/lib/actions/brands';
+import { getBrands, getBrandStats } from '@/lib/actions/brands';
 import { BrandsTable } from './brands-table';
 import { BrandsHeader } from './brands-header';
+import { BrandStatsCards } from './brand-stats-cards';
 import { Suspense } from 'react';
 import { TableSkeleton } from '../table-skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Pagination } from '@/components/ui/pagination';
 
-async function BrandsTableWrapper() {
-  const { brands } = await getBrands(1, 50);
-  return <BrandsTable brands={brands} />;
+async function BrandsTableWrapper({ page }: { page: number }) {
+  const { brands, pagination } = await getBrands(page, 10);
+  return (
+    <>
+      <BrandsTable brands={brands} />
+      <Pagination pagination={pagination} />
+    </>
+  );
 }
 
-export default async function BrandsPage() {
+async function BrandStatsWrapper() {
+  const stats = await getBrandStats();
+  return <BrandStatsCards stats={stats} />;
+}
+
+function StatsCardsSkeleton() {
+  return (
+    <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+      {[...Array(4)].map((_, i) => (
+        <Skeleton key={i} className="h-[120px] rounded-xl" />
+      ))}
+    </div>
+  );
+}
+
+export default async function BrandsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const session = await auth();
 
   if (!session?.user || session.user.role !== 'admin') {
     redirect('/manage');
   }
 
+  const params = await searchParams;
+  const page = parseInt(params.page || '1', 10);
+
   return (
     <div className="space-y-6">
       <BrandsHeader />
+
+      {/* Stats Cards */}
+      <Suspense fallback={<StatsCardsSkeleton />}>
+        <BrandStatsWrapper />
+      </Suspense>
+
+      {/* Brands Table */}
       <div className="rounded-md border">
         <Suspense fallback={<TableSkeleton />}>
-          <BrandsTableWrapper />
+          <BrandsTableWrapper page={page} />
         </Suspense>
       </div>
     </div>

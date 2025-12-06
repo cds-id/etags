@@ -279,6 +279,26 @@ export async function uploadUserAvatar(
   }
 }
 
+// Get user stats
+export async function getUserStats() {
+  await requireAdmin();
+
+  const [totalUsers, activeUsers, adminCount, brandCount] = await Promise.all([
+    prisma.user.count(),
+    prisma.user.count({ where: { status: 1 } }),
+    prisma.user.count({ where: { role: 'admin' } }),
+    prisma.user.count({ where: { role: 'brand' } }),
+  ]);
+
+  return {
+    totalUsers,
+    activeUsers,
+    inactiveUsers: totalUsers - activeUsers,
+    adminCount,
+    brandCount,
+  };
+}
+
 // Toggle user status
 export async function toggleUserStatus(id: number): Promise<UserFormState> {
   try {

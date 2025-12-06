@@ -383,6 +383,54 @@ export async function deleteProduct(id: number): Promise<ProductFormState> {
   }
 }
 
+// Get product stats
+export async function getProductStats() {
+  const { isAdmin, brandId: userBrandId } = await requireAuth();
+
+  const where: { brand_id?: number } = {};
+  if (!isAdmin && userBrandId) {
+    where.brand_id = userBrandId;
+  }
+
+  const [totalProducts, activeProducts, productsInTags] = await Promise.all([
+    prisma.product.count({ where }),
+    prisma.product.count({ where: { ...where, status: 1 } }),
+    prisma.tag.findMany({
+      select: { product_ids: true },
+    }),
+  ]);
+
+  // Count unique products in tags
+  const productIdsInTags = new Set<number>();
+  for (const tag of productsInTags) {
+    const ids = tag.product_ids as number[];
+    ids.forEach((id) => productIdsInTags.add(id));
+  }
+
+  // Filter to only count user's products in tags
+  let productsWithTags = 0;
+  if (!isAdmin && userBrandId) {
+    const userProducts = await prisma.product.findMany({
+      where: { brand_id: userBrandId },
+      select: { id: true },
+    });
+    const userProductIds = new Set(userProducts.map((p) => p.id));
+    productsWithTags = [...productIdsInTags].filter((id) =>
+      userProductIds.has(id)
+    ).length;
+  } else {
+    productsWithTags = productIdsInTags.size;
+  }
+
+  return {
+    totalProducts,
+    activeProducts,
+    inactiveProducts: totalProducts - activeProducts,
+    productsWithTags,
+    productsWithoutTags: totalProducts - productsWithTags,
+  };
+}
+
 // Toggle product status
 export async function toggleProductStatus(
   id: number

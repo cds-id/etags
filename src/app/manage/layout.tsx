@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { Sidebar } from './sidebar';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Suspense } from 'react';
 import { UserProfileHeader } from './user-profile-header';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -44,30 +45,14 @@ export default async function ManageLayout({
         <div className="flex h-14 items-center justify-between px-4 md:h-16">
           <div className="flex items-center gap-4">
             <Link href="/manage" className="flex items-center gap-3 group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-linear-to-br from-blue-500 to-violet-600 rounded-xl blur-lg opacity-40 group-hover:opacity-60 transition-opacity" />
-                <div className="relative h-9 w-9 rounded-xl bg-linear-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-white"
-                  >
-                    <path d="M4 9V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4" />
-                    <path d="M8 8v1" />
-                    <path d="M12 8v1" />
-                    <path d="M16 8v1" />
-                    <rect width="20" height="12" x="2" y="9" rx="2" />
-                    <circle cx="8" cy="15" r="2" />
-                    <circle cx="16" cy="15" r="2" />
-                  </svg>
-                </div>
+              <div className="relative h-9 w-9 rounded-xl overflow-hidden shadow-lg">
+                <Image
+                  src="/logo.png"
+                  alt="Etags Logo"
+                  width={36}
+                  height={36}
+                  className="object-contain"
+                />
               </div>
               <span className="text-lg font-bold md:text-xl bg-linear-to-r from-blue-600 to-violet-600 dark:from-blue-400 dark:to-violet-400 bg-clip-text text-transparent">
                 Etags
