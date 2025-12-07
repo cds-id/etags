@@ -260,6 +260,71 @@ export default function JudgeGuidePage() {
           </div>
         </div>
 
+        {/* Video Guides */}
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold text-[#0C2340] mb-6 text-center">
+            Panduan Video & Demo
+          </h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Brand Guide */}
+            <div className="bg-white rounded-xl border border-[#2B4C7E]/20 overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
+              <div className="aspect-video w-full">
+                <iframe
+                  src="https://drive.google.com/file/d/1NTmgPtg-h_UGtChLVu01q7WRqsUhllBB/preview"
+                  width="640"
+                  height="480"
+                  allow="autoplay"
+                  className="w-full h-full"
+                ></iframe>
+              </div>
+              <div className="p-4">
+                <h3 className="font-bold text-[#0C2340] mb-1">Panduan Brand</h3>
+                <p className="text-sm text-[#606060]">
+                  Cara mendaftarkan brand dan produk baru
+                </p>
+              </div>
+            </div>
+
+            {/* User Guide */}
+            <div className="bg-white rounded-xl border border-[#2B4C7E]/20 overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
+              <div className="aspect-video w-full">
+                <iframe
+                  src="https://drive.google.com/file/d/1oiwzyHwcDb3uheOlNR39MxU70m8W_4fk/preview"
+                  width="640"
+                  height="480"
+                  allow="autoplay"
+                  className="w-full h-full"
+                ></iframe>
+              </div>
+              <div className="p-4">
+                <h3 className="font-bold text-[#0C2340] mb-1">Panduan User</h3>
+                <p className="text-sm text-[#606060]">
+                  Cara verifikasi produk dan klaim NFT
+                </p>
+              </div>
+            </div>
+
+            {/* Promo Video */}
+            <div className="bg-white rounded-xl border border-[#2B4C7E]/20 overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
+              <div className="aspect-video w-full">
+                <iframe
+                  src="https://drive.google.com/file/d/198CZpnlVNKhhGPpcbb7HhqIwQRDN773h/preview"
+                  width="640"
+                  height="480"
+                  allow="autoplay"
+                  className="w-full h-full"
+                ></iframe>
+              </div>
+              <div className="p-4">
+                <h3 className="font-bold text-[#0C2340] mb-1">Video Promosi</h3>
+                <p className="text-sm text-[#606060]">
+                  Teaser singkat tentang Etags
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Tech Stack */}
         <div className="mt-12 text-center">
           <p className="text-sm text-[#606060] mb-4">Dibangun dengan</p>
